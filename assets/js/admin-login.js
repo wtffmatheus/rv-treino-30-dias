@@ -18,19 +18,23 @@
   }
 
   if (auth.isAdminLoggedIn()) {
-    location.replace('admin.html')
+    location.replace('/admin')
     return
   }
 
   form?.addEventListener('submit', (event) => {
     event.preventDefault()
+
     if (error) error.textContent = ''
+
     const data = new FormData(form)
     const result = auth.adminLogin(data.get('email'), data.get('password'))
+
     if (!result.ok) {
       if (error) error.textContent = result.message
       return
     }
-    location.href = 'admin.html'
+
+    location.href = '/admin'
   })
 })()
