@@ -2,7 +2,14 @@
   'use strict'
 
   const host = window.location.hostname
-  const localHosts = ['localhost', '127.0.0.1', '[::1]', '::1']
+
+  const localHosts = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    '::1'
+  ]
+
   const testHosts = [
     ...localHosts,
     'treino.rvfisiologista.com.br',
@@ -12,7 +19,7 @@
   window.RV_COURSE_CONFIG = {
     testMode: testHosts.includes(host),
 
-    // A simulacao de pagamento continua restrita ao ambiente local.
+    // Simulacao de pagamento continua disponivel apenas localmente.
     enablePaymentSimulation: localHosts.includes(host),
 
     demoStudent: {
@@ -41,7 +48,7 @@
         slug: 'rv30',
         title: 'RV 30',
         eyebrow: 'PROJETO 30 DIAS',
-        description: 'Projeto guiado de 30 dias com vídeos, orientação diária, comentários e acompanhamento do progresso.',
+        description: 'Projeto guiado de 30 dias com vÃ­deos, orientaÃ§Ã£o diÃ¡ria, comentÃ¡rios e acompanhamento do progresso.',
         duration: '30 dias',
         totalDays: 30,
         priceCents: 39900,
@@ -56,9 +63,9 @@
       },
       {
         id: 'forca',
-        title: 'RV Força',
+        title: 'RV ForÃ§a',
         eyebrow: 'PROGRAMA',
-        description: 'Espaço reservado para um futuro programa RV.',
+        description: 'EspaÃ§o reservado para um futuro programa RV.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'
@@ -67,7 +74,7 @@
         id: 'hipertrofia',
         title: 'RV Hipertrofia',
         eyebrow: 'PROGRAMA',
-        description: 'Espaço reservado para um futuro programa RV.',
+        description: 'EspaÃ§o reservado para um futuro programa RV.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'
@@ -76,7 +83,7 @@
         id: 'condicionamento',
         title: 'RV Condicionamento',
         eyebrow: 'PROGRAMA',
-        description: 'Espaço reservado para um futuro programa RV.',
+        description: 'EspaÃ§o reservado para um futuro programa RV.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'

@@ -69,7 +69,16 @@
       ]
     },
     {
-      "source": "/assets/:path*",
+      "source": "/assets/js/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/assets/css/:path*",
       "headers": [
         {
           "key": "Cache-Control",

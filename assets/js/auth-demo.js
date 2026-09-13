@@ -14,7 +14,15 @@
   const SESSION_HOURS = 8
   const ADMIN_SESSION_HOURS = 4
 
-  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true
+  const DEMO_HOSTS = new Set([
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    '::1',
+    'treino.rvfisiologista.com.br',
+    'rv-treino-30-dias.vercel.app'
+  ])
+  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true || DEMO_HOSTS.has(window.location.hostname)
   const nowIso = () => new Date().toISOString()
   const uid = (prefix) => `${prefix}_${globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`}`
   const normalizeEmail = (value) => String(value || '').trim().toLowerCase()
@@ -111,8 +119,67 @@
     return db
   }
 
+  function ensureDemoStudent(db) {
+    if (!demoEnabled()) return db
+
+    const cfg = window.RV_COURSE_CONFIG?.demoStudent || {
+      name: 'Aluno Teste',
+      email: 'aluno@rv.com.br',
+      password: '123456'
+    }
+
+    const email = normalizeEmail(cfg.email)
+    let user = db.users.find((item) => item.email === email)
+
+    if (!user) {
+      user = {
+        id: 'usr_aluno_teste',
+        name: cfg.name || 'Aluno Teste',
+        email,
+        phone: '',
+        password: String(cfg.password || '123456'),
+        status: 'active',
+        entitlements: ['rv30'],
+        progress: { rv30: [] },
+        comments: { rv30: {} },
+        notes: [],
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        lastLoginAt: null
+      }
+
+      db.users.push(user)
+      db.audit.unshift({
+        id: uid('log'),
+        action: 'demo_student_seeded',
+        details: {
+          userId: user.id,
+          email: user.email,
+          courseId: 'rv30'
+        },
+        actor: 'system',
+        at: nowIso()
+      })
+    } else {
+      user.name = cfg.name || user.name || 'Aluno Teste'
+      user.email = email
+      user.password = String(cfg.password || '123456')
+      user.status = 'active'
+      user.entitlements = Array.from(new Set([...(user.entitlements || []), 'rv30']))
+      user.progress = user.progress || {}
+      user.progress.rv30 = Array.isArray(user.progress.rv30) ? user.progress.rv30 : []
+      user.comments = user.comments || {}
+      user.comments.rv30 = user.comments.rv30 || {}
+      user.notes = Array.isArray(user.notes) ? user.notes : []
+      user.updatedAt = nowIso()
+    }
+
+    return db
+  }
+
   function getDb() {
-    const db = migrateLegacyIfNeeded(ensureDbShape(readJson(STORAGE.db, emptyDb())))
+    let db = migrateLegacyIfNeeded(ensureDbShape(readJson(STORAGE.db, emptyDb())))
+    db = ensureDemoStudent(db)
     writeJson(STORAGE.db, db)
     return db
   }
