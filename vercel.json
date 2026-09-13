@@ -1,62 +1,52 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+
   "rewrites": [
-    { "source": "/suporte", "destination": "/suporte.html" },
-    { "source": "/admin/suporte", "destination": "/suporte.html?perfil=admin" },
-    { "source": "/admin/videos", "destination": "/admin-videos.html" },
     {
       "source": "/entrar",
-      "destination": "/login.html"
-    },
-    {
-      "source": "/aluno",
-      "destination": "/aluno.html"
+      "destination": "/login"
     },
     {
       "source": "/meus-cursos",
-      "destination": "/aluno.html"
+      "destination": "/aluno"
     },
     {
       "source": "/checkout/rv30",
-      "destination": "/checkout.html?curso=rv30"
+      "destination": "/checkout?curso=rv30"
     },
     {
       "source": "/curso/rv30",
-      "destination": "/area.html"
+      "destination": "/area"
     },
     {
       "source": "/curso/rv30/dia/:day",
-      "destination": "/area.html?day=:day"
-    },
-    {
-      "source": "/pagamento-confirmado",
-      "destination": "/pagamento-confirmado.html"
+      "destination": "/area?day=:day"
     },
     {
       "source": "/pagamento/sucesso",
-      "destination": "/pagamento-confirmado.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/admin.html"
+      "destination": "/pagamento-confirmado"
     },
     {
       "source": "/admin/entrar",
-      "destination": "/admin-login.html"
+      "destination": "/admin-login"
     },
     {
-      "source": "/privacidade",
-      "destination": "/privacidade.html"
+      "source": "/admin/videos",
+      "destination": "/admin-videos"
     },
     {
-      "source": "/termos",
-      "destination": "/termos.html"
+      "source": "/admin/suporte",
+      "destination": "/suporte?perfil=admin"
     }
   ],
+
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -81,7 +71,7 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/assets/:path*",
       "headers": [
         {
           "key": "Cache-Control",
