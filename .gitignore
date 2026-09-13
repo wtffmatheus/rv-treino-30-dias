@@ -7,3 +7,5 @@ dist/
 output/
 *.log
 __pycache__/
+.agents/
+.github/agents/
