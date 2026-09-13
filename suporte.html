@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#020b16">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'">
+  <title>Suporte | RV Fisiologia</title>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+  <link rel="stylesheet" href="/assets/css/projeto.css?v=20260910">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="/assets/js/config.js?v=20260910" defer></script>
+  <script src="/assets/js/runtime.js?v=20260910" defer></script>
+  <script src="/assets/js/auth-demo.js?v=20260910" defer></script>
+  <script src="/assets/js/support.js?v=20260910" defer></script>
+</head>
+<body class="workspace-body">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="workspace-header"><div class="container workspace-header-inner">
+    <a class="course-brand" href="/meus-cursos" data-home><img src="/public/logo-rv.png" width="88" height="44" alt="RV Fisiologia"><span><strong>RV Cursos</strong><small data-role-label>Área do aluno</small></span></a>
+    <nav class="workspace-nav" aria-label="Minha conta"><a href="/meus-cursos" data-back>Meus cursos</a><a href="/suporte" aria-current="page" data-support-link>Suporte</a><a href="/admin/videos" data-admin-only hidden>Vídeos</a><button class="button button--ghost" type="button" data-exit>Sair</button></nav>
+  </div></header>
+  <main class="container workspace-main" id="conteudo">
+    <div class="workspace-heading"><div><p class="eyebrow">ATENDIMENTO RV</p><h1 data-heading>Como podemos ajudar?</h1><p data-subheading>Converse com a equipe sobre seu acesso ou curso.</p></div><button class="button button--primary" type="button" data-new>Nova conversa</button></div>
+    <p class="environment-note">Demonstração local: mensagens ficam somente neste navegador. Não envie dados pessoais ou de saúde.</p>
+    <p class="form-error" role="alert" data-error></p>
+    <div class="support-layout">
+      <aside class="support-inbox" aria-label="Conversas">
+        <label class="field-label" for="search">Buscar conversa</label><input id="search" type="search" placeholder="Assunto ou nome" data-search>
+        <label class="field-label" for="status">Status</label><select id="status" data-filter><option value="all">Todas as conversas</option><option value="unread">Não lidas</option><option value="open">Aguardando equipe</option><option value="answered">Respondidas</option><option value="resolved">Resolvidas</option></select>
+        <p class="inbox-count" role="status" data-count></p>
+        <div class="thread-list" data-threads></div>
+      </aside>
+      <section class="support-conversation" aria-label="Conversa selecionada">
+        <div class="support-empty" data-empty><h2>Seu contato direto com a RV</h2><p data-empty-copy>Abra uma conversa para tirar sua dúvida.</p></div>
+        <div class="conversation-content" data-conversation hidden>
+          <button class="button button--ghost support-back" type="button" data-inbox>Voltar às conversas</button>
+          <div class="conversation-heading"><div><small data-owner></small><h2 data-subject></h2><span class="status-label" data-status></span></div><button type="button" class="button button--secondary" data-resolve hidden>Resolver conversa</button></div>
+          <div class="message-history" data-messages role="log" aria-label="Histórico de mensagens" aria-live="polite" aria-relevant="additions"></div>
+          <form class="message-form" data-reply><label for="reply">Sua mensagem</label><textarea id="reply" name="body" rows="3" maxlength="2000" required placeholder="Escreva aqui"></textarea><div><small>Até 2.000 caracteres</small><button class="button button--primary" type="submit">Enviar mensagem</button></div></form>
+        </div>
+      </section>
+    </div>
+  </main>
+  <dialog class="support-dialog" data-new-dialog aria-labelledby="new-title">
+    <form class="portal-form" data-create>
+      <h2 id="new-title">Nova conversa</h2>
+      <label>Assunto<input name="subject" minlength="3" maxlength="120" required></label>
+      <label>Curso<select name="courseId" data-courses><option value="">Acesso e atendimento geral</option></select></label>
+      <label>Mensagem<textarea name="body" rows="5" maxlength="2000" required></textarea></label>
+      <p role="alert" class="form-error" data-create-error></p>
+      <div class="dialog-actions"><button class="button button--ghost" type="button" data-cancel>Cancelar</button><button class="button button--primary" type="submit">Iniciar conversa</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

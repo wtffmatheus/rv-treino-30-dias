@@ -1,0 +1,53 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <meta name="theme-color" content="#020b16">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
+  <title>Admin RV 30 — Entrar</title>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="assets/js/config.js?v=20260909-7" defer></script>
+  <script src="assets/js/runtime.js?v=20260909-7" defer></script>
+  <script src="assets/js/auth-demo.js?v=20260909-7" defer></script>
+  <script src="assets/js/admin-login.js?v=20260909-7" defer></script>
+</head>
+<body class="portal-body admin-login-body">
+  <main class="auth-layout auth-layout--admin">
+    <section class="auth-brand-panel admin-brand-panel">
+      <a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>RV Fisiologia</strong><small>Administração RV 30</small></span></a>
+      <div>
+        <p class="eyebrow"><span></span> PAINEL ADMINISTRATIVO</p>
+        <h1>Controle do RV 30 <em>em uma única tela.</em></h1>
+        <p>Alunos, acessos, pagamentos de teste, progresso, comentários e observações internas do projeto atual.</p>
+      </div>
+      <small class="auth-copyright">Área administrativa • não indexada</small>
+    </section>
+    <section class="auth-form-panel">
+      <div class="auth-card">
+        <p class="eyebrow"><span></span> ACESSO PROFISSIONAL</p>
+        <h2>Entrar no painel</h2>
+        <p class="portal-lead" data-admin-test-note>Esta versão usa credenciais exclusivas de demonstração. O painel real deverá usar autenticação segura no backend.</p>
+        <div class="admin-demo-credentials" aria-label="Credenciais de demonstração">
+          <small>TESTE LOCAL</small>
+          <p><span>E-mail</span><strong>admin@rvfisiologia.test</strong></p>
+          <p><span>Senha</span><strong>rv30admin</strong></p>
+        </div>
+        <form class="portal-form" data-admin-login-form>
+          <label>E-mail administrativo<input name="email" type="email" autocomplete="username" required placeholder="admin@rvfisiologia.test"></label>
+          <label>Senha<input name="password" type="password" autocomplete="current-password" required placeholder="Senha administrativa"></label>
+          <p class="form-error" data-form-error role="alert"></p>
+          <button class="button button--primary button--wide" type="submit">Entrar no painel RV 30</button>
+        </form>
+        <p class="tiny-note">Não use estas credenciais em produção. Elas existem apenas para validar a interface administrativa agora.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

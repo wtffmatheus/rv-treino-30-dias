@@ -1,0 +1,134 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <meta name="theme-color" content="#020b16">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
+  <title>Gestão RV 30 — Admin</title>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="assets/js/config.js?v=20260909-7" defer></script>
+  <script src="assets/js/runtime.js?v=20260909-7" defer></script>
+  <script src="assets/js/auth-demo.js?v=20260909-7" defer></script>
+  <script src="assets/js/admin.js?v=20260909-7" defer></script>
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="container admin-header-inner">
+      <a class="course-brand" href="admin.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>Gestão RV 30</strong><small>Painel administrativo</small></span></a>
+      <div class="admin-header-actions"><span class="demo-badge">TESTE LOCAL</span><a class="button button--ghost button--compact" href="index.html">Ver site</a><button class="button button--ghost button--compact" type="button" data-admin-logout>Sair</button></div>
+    </div>
+  </header>
+
+  <main class="admin-main container">
+    <nav class="admin-section-nav" aria-label="Administração"><a href="/admin" aria-current="page">Alunos e pedidos</a><a href="/admin/suporte">Central de suporte</a><a href="/admin/videos">Revisão de vídeos</a></nav>
+    <section class="admin-hero" aria-labelledby="admin-title">
+      <div><p class="eyebrow"><span></span> RV 30</p><h1 id="admin-title">Gestão de alunos</h1><p>Acessos, progresso e dúvidas dos participantes.</p></div>
+      <div class="admin-hero-actions"><button class="button button--secondary" type="button" data-export>Exportar alunos CSV</button><button class="button button--primary" type="button" data-open-create>Adicionar aluno de teste</button></div>
+    </section>
+
+    <section class="admin-metrics" aria-label="Resumo do RV 30">
+      <article><small>ALUNOS</small><strong data-stat-total>0</strong><span>Total com registro no projeto</span></article>
+      <article><small>ATIVOS</small><strong data-stat-active>0</strong><span>Com acesso ativo</span></article>
+      <article><small>PROGRESSO MÉDIO</small><strong data-stat-progress>0%</strong><span>Entre os alunos cadastrados</span></article>
+      <article><small>DÚVIDAS PENDENTES</small><strong data-stat-comments>0</strong><span>Comentários abertos</span></article>
+      <article><small>ACESSO PENDENTE</small><strong data-stat-pending>0</strong><span>Compras aprovadas sem conta</span></article>
+      <article><small>SEM ACESSO RECENTE</small><strong data-stat-inactive>0</strong><span>Ativos sem login há 7 dias ou mais</span></article>
+    </section>
+
+    <section class="admin-panel" aria-labelledby="students-title">
+      <div class="admin-panel-head">
+        <div><small>ALUNOS DO RV 30</small><h2 id="students-title">Gestão de alunos</h2></div>
+        <span class="admin-count" data-student-count>0 alunos</span>
+      </div>
+      <div class="admin-filters">
+        <label class="admin-search"><span class="sr-only">Buscar aluno</span><input type="search" data-search placeholder="Buscar por nome, e-mail ou telefone"></label>
+        <label><span>Status</span><select data-filter-status><option value="all">Todos</option><option value="active">Ativos</option><option value="blocked">Bloqueados</option><option value="pending">Pendentes</option></select></label>
+        <label><span>Progresso</span><select data-filter-progress><option value="all">Qualquer progresso</option><option value="not-started">Não iniciou</option><option value="starting">1% a 49%</option><option value="advanced">50% a 99%</option><option value="complete">Concluiu</option></select></label>
+        <label><span>Engajamento</span><select data-filter-engagement><option value="all">Todos</option><option value="inactive">Sem acesso recente</option><option value="with-questions">Com dúvidas pendentes</option><option value="no-login">Nunca entrou</option></select></label>
+        <label><span>Ordenar</span><select data-sort><option value="recent">Último acesso</option><option value="name">Nome A–Z</option><option value="progress-desc">Maior progresso</option><option value="progress-asc">Menor progresso</option><option value="questions">Mais dúvidas</option><option value="created-desc">Cadastro mais recente</option></select></label>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <caption class="sr-only">Lista de alunos cadastrados no RV 30</caption>
+          <thead><tr><th>Aluno</th><th>Status / acesso</th><th>Progresso</th><th>Dúvidas</th><th>Último acesso</th><th><span class="sr-only">Ações</span></th></tr></thead>
+          <tbody data-student-rows></tbody>
+        </table>
+        <div class="admin-empty" data-student-empty hidden>Nenhum aluno corresponde aos filtros atuais.</div>
+      </div>
+    </section>
+
+    <div class="admin-lower-grid">
+      <section class="admin-panel" aria-labelledby="pending-title">
+        <div class="admin-panel-head"><div><small>COMPRAS APROVADAS</small><h2 id="pending-title">Aguardando criação de acesso</h2></div><span class="admin-count" data-pending-count>0</span></div>
+        <div class="pending-orders" data-pending-orders></div>
+      </section>
+      <section class="admin-panel" aria-labelledby="activity-title">
+        <div class="admin-panel-head"><div><small>RASTREABILIDADE</small><h2 id="activity-title">Atividade recente</h2></div></div>
+        <ol class="admin-audit-list" data-audit-list></ol>
+      </section>
+    </div>
+
+    <section class="admin-production-note">
+      <strong>Importante para a versão real</strong>
+      <p>Este painel já valida a experiência de gestão, mas os dados ainda ficam no navegador para teste. Em produção, alunos, pagamentos, senhas, progresso e comentários deverão vir do backend/banco de dados, com permissões administrativas reais e auditoria server-side.</p>
+    </section>
+  </main>
+
+  <dialog class="admin-dialog" data-student-dialog aria-labelledby="student-detail-title">
+    <div class="admin-dialog-head"><div><small>ALUNO RV 30</small><h2 id="student-detail-title" data-detail-name>Aluno</h2><p data-detail-email></p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button></div>
+    <div class="admin-dialog-body">
+      <section class="detail-summary-grid">
+        <article><small>STATUS</small><span data-detail-status class="status-chip">Ativo</span></article>
+        <article><small>ACESSO</small><strong data-detail-access></strong></article>
+        <article><small>PROGRESSO</small><strong data-detail-progress></strong></article>
+        <article><small>DÚVIDAS</small><strong data-detail-comments></strong></article>
+        <article><small>TELEFONE</small><strong data-detail-phone></strong></article>
+        <article><small>CADASTRO</small><strong data-detail-created></strong></article>
+        <article><small>ÚLTIMO ACESSO</small><strong data-detail-last-login></strong></article>
+      </section>
+
+      <section class="admin-detail-section"><div class="admin-detail-head"><div><small>DADOS DO ALUNO</small><h3>Contato e identificação</h3></div><span>O e-mail da compra não é editado neste protótipo.</span></div><form class="admin-contact-form" data-contact-form><label>Nome<input name="name" required maxlength="120"></label><label>Telefone<input name="phone" maxlength="40" inputmode="tel"></label><button class="button button--secondary" type="submit">Salvar dados</button></form><p class="form-error" data-contact-error role="alert"></p></section>
+
+      <section class="admin-detail-section"><div class="admin-detail-head"><div><small>PROGRESSO EDITÁVEL</small><h3>Introdução + 30 dias</h3></div><span>Clique em um dia para ajustar no teste.</span></div><div class="admin-days-grid" data-detail-days></div></section>
+
+      <section class="admin-detail-section"><div class="admin-detail-head"><div><small>DÚVIDAS E SUPORTE</small><h3>Comentários do aluno</h3></div><span>Responda por conteúdo para manter o contexto.</span></div><div class="admin-comment-list" data-detail-comment-list></div></section>
+
+      <section class="admin-detail-section"><div class="admin-detail-head"><div><small>OBSERVAÇÕES INTERNAS</small><h3>Anotações da equipe</h3></div></div><form class="admin-note-form" data-note-form><textarea name="note" maxlength="800" required aria-label="Observação interna" placeholder="Adicione uma observação interna sobre este aluno…"></textarea><button class="button button--secondary" type="submit">Salvar observação</button></form><ul class="admin-notes" data-detail-notes></ul></section>
+
+      <section class="admin-detail-section"><div class="admin-detail-head"><div><small>HISTÓRICO COMERCIAL</small><h3>Pedidos vinculados</h3></div></div><ul class="admin-order-list" data-detail-orders></ul></section>
+
+      <section class="admin-detail-section admin-actions-section"><div class="admin-detail-head"><div><small>CONTROLE DA CONTA</small><h3>Ações administrativas</h3></div></div><div class="admin-action-grid"><button class="button button--secondary" type="button" data-toggle-block>Bloquear aluno</button><button class="button button--secondary" type="button" data-toggle-access>Remover acesso ao RV 30</button><button class="button button--secondary" type="button" data-mark-comments>Marcar dúvidas como tratadas</button><button class="button button--danger" type="button" data-reset-progress>Reiniciar progresso</button></div><p class="tiny-note">Ações desta V6 alteram somente o banco de demonstração armazenado neste navegador.</p></section>
+    </div>
+  </dialog>
+
+  <dialog class="admin-dialog admin-dialog--small" data-create-dialog aria-labelledby="create-student-title">
+    <div class="admin-dialog-head"><div><small>CADASTRO MANUAL • TESTE</small><h2 id="create-student-title">Adicionar aluno</h2></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button></div>
+    <form class="portal-form admin-create-form" data-create-form>
+      <label>Nome completo<input name="name" required autocomplete="off"></label>
+      <label>E-mail<input name="email" type="email" required autocomplete="off"></label>
+      <label>Telefone<input name="phone" inputmode="tel" autocomplete="off"></label>
+      <label>Senha temporária de teste<input name="password" minlength="8" value="aluno1234" required autocomplete="off"></label>
+      <p class="form-error" data-create-error role="alert"></p>
+      <button class="button button--primary button--wide" type="submit">Criar aluno com acesso ao RV 30</button>
+    </form>
+  </dialog>
+
+  <dialog class="admin-dialog admin-dialog--small" data-pending-dialog aria-labelledby="pending-access-title">
+    <div class="admin-dialog-head"><div><small>COMPRA APROVADA • TESTE</small><h2 id="pending-access-title">Criar acesso do aluno</h2><p data-pending-order-label></p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button></div>
+    <form class="portal-form admin-create-form" data-pending-form>
+      <p>Este fluxo simula a criação manual de acesso para uma compra já aprovada. Em produção, isso deverá acontecer automaticamente pelo webhook/backend.</p>
+      <label>Senha temporária de teste<input name="password" minlength="8" value="aluno1234" required autocomplete="off"></label>
+      <p class="form-error" data-pending-error role="alert"></p>
+      <button class="button button--primary button--wide" type="submit">Criar / vincular acesso</button>
+    </form>
+  </dialog>
+
+</body>
+</html>

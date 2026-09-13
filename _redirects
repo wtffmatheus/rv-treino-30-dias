@@ -1,0 +1,15 @@
+/entrar                 /login.html                  200
+/aluno                  /aluno.html                  200
+/meus-cursos            /aluno.html                  200
+/checkout/rv30          /checkout.html?curso=rv30    200
+/curso/rv30             /area.html                   200
+/curso/rv30/dia/:day    /area.html?day=:day          200
+/pagamento-confirmado   /pagamento-confirmado.html   200
+/pagamento/sucesso      /pagamento-confirmado.html   200
+/admin                  /admin.html                  200
+/admin/entrar           /admin-login.html            200
+/suporte                /suporte.html                200
+/admin/suporte          /suporte.html?perfil=admin   200
+/admin/videos           /admin-videos.html           200
+/privacidade             /privacidade.html            200
+/termos                  /termos.html                 200

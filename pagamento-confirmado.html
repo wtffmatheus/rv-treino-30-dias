@@ -1,0 +1,36 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self'; form-action 'self'; upgrade-insecure-requests"><meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#020b16"><title>Pagamento confirmado — RV 30</title>
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="assets/js/config.js?v=20260909-7" defer></script>
+  <script src="assets/js/runtime.js?v=20260909-7" defer></script>
+  <script src="assets/js/auth-demo.js?v=20260909-7" defer></script>
+  <script src="assets/js/confirmed.js?v=20260909-7" defer></script>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+</head>
+<body class="portal-body">
+  <main class="center-portal">
+    <section class="auth-card auth-card--success">
+      <div class="success-icon">✓</div>
+      <p class="eyebrow eyebrow--center"><span></span> PAGAMENTO CONFIRMADO <span></span></p>
+      <h1>Seu acesso ao RV 30 está quase pronto.</h1>
+      <p class="portal-lead" data-confirm-copy>Agora crie uma senha para acessar sua área do aluno.</p>
+      <div class="existing-account-box" data-existing-account hidden><strong>Conta existente localizada</strong><p>O RV 30 foi adicionado ao acesso já existente. Entre com a senha atual da conta.</p><a class="button button--primary button--wide" href="/entrar">Entrar na minha conta</a></div>
+      <form class="portal-form" data-create-access-form>
+        <label>E-mail da compra<input name="email" type="email" readonly data-order-email></label>
+        <label>Crie sua senha<input name="password" type="password" minlength="8" autocomplete="new-password" required placeholder="Mínimo de 8 caracteres"></label>
+        <label>Repita sua senha<input name="confirm" type="password" minlength="8" autocomplete="new-password" required placeholder="Repita a senha"></label>
+        <p class="form-error" data-form-error></p>
+        <button class="button button--primary button--wide" type="submit">Criar meu acesso</button>
+      </form>
+      <p class="tiny-note">Em produção, esta página deve liberar acesso somente após a confirmação segura do pagamento pelo backend/webhook.</p>
+    </section>
+  </main>
+</body>
+</html>

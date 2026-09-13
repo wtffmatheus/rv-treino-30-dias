@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#020b16">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Área do Aluno — RV 30</title>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="assets/js/config.js?v=20260909-7" defer></script>
+  <script src="assets/js/runtime.js?v=20260909-7" defer></script>
+  <script src="assets/js/auth-demo.js?v=20260909-7" defer></script>
+  <script src="assets/js/content.js?v=20260909-7" defer></script>
+  <script src="assets/js/area.js?v=20260909-7" defer></script>
+</head>
+<body class="course-body">
+  <header class="course-header">
+    <div class="container course-header-inner">
+      <a class="course-brand" href="index.html">
+        <img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56">
+        <span><strong>RV 30</strong><small>Área do aluno</small></span>
+      </a>
+      <div class="course-header-actions">
+        <span class="student-name" data-course-student></span>
+        <button class="button button--ghost" type="button" data-reset-demo hidden>Resetar teste</button><a class="button button--ghost" href="/meus-cursos">Meus cursos</a><a class="button button--ghost" href="/suporte">Suporte</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="course-shell">
+    <aside class="course-sidebar" aria-label="Navegação pelos dias">
+      <div class="course-progress-card">
+        <small>SEU PROGRESSO</small>
+        <h2 data-progress-title>0 de 30</h2>
+        <progress class="native-progress native-progress--sidebar" max="30" value="0" data-progress-native aria-label="Progresso do RV 30"></progress>
+        <p data-progress-copy>Conclua os conteúdos para acompanhar sua evolução.</p>
+      </div>
+      <nav class="course-day-list" data-day-list aria-label="Dias do projeto"></nav>
+      <label class="mobile-day-picker">Conteúdo do curso<select data-day-picker aria-label="Selecionar dia"></select></label>
+    </aside>
+
+    <section class="course-main">
+      <div class="course-main-inner">
+        <div class="course-topline">
+          <div><span class="day-pill" data-day-pill>DIA 00</span><small data-phase-label>COMECE AQUI</small></div>
+          <small data-content-status>Conteúdo disponível</small>
+        </div>
+
+        <h1 class="course-title" data-title>Introdução ao RV 30</h1>
+        <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
+
+        <div class="course-video" data-course-video>
+          <div class="course-video-placeholder">
+            <span class="play-orb" aria-hidden="true">▶</span>
+            <strong data-video-title>Vídeo de introdução</strong>
+            <small data-video-copy>Adicione a URL do vídeo deste conteúdo em assets/js/content.js.</small>
+          </div>
+        </div>
+
+        <div class="daily-info" aria-label="Informações do conteúdo">
+          <article><small>HORÁRIO</small><strong data-time>Carregando…</strong></article>
+          <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
+          <article><small>TIPO</small><strong data-type>Introdução</strong></article>
+          <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
+        </div>
+
+        <section class="course-panel" aria-labelledby="orientacoes-title">
+          <div class="course-panel-head"><div><small>PASSO A PASSO</small><h2 id="orientacoes-title">Orientações deste conteúdo</h2></div><small data-panel-note>Leia antes de concluir.</small></div>
+          <ol class="instruction-list" data-instructions></ol>
+        </section>
+
+        <div class="completion-row">
+          <p><strong data-complete-title>Terminou este conteúdo?</strong><small data-complete-copy>Marque como concluído para salvar seu progresso.</small></p>
+          <button class="button button--primary" type="button" data-complete>Marcar como concluído</button>
+        </div>
+
+        <section class="course-panel comments-wrap" aria-labelledby="comments-title">
+          <div class="course-panel-head"><div><small>DÚVIDAS / SUPORTE</small><h2 id="comments-title">Comentários e dúvidas</h2></div><small data-comment-count>0 comentários</small></div>
+          <div class="comment-list" data-comment-list></div>
+          <form class="comment-form" data-comment-form>
+            <textarea name="comment" maxlength="600" placeholder="Escreva uma dúvida ou comentário sobre este conteúdo…" aria-label="Comentário" required></textarea>
+            <button class="button button--secondary" type="submit">Enviar</button>
+          </form>
+          <p class="comment-note">Comentários e dúvidas ficam vinculados a este conteúdo. No ambiente de teste, os dados são salvos apenas neste navegador e aparecem também no painel administrativo local.</p>
+        </section>
+
+        <nav class="course-nav" aria-label="Navegação entre conteúdos">
+          <button class="button button--ghost" type="button" data-prev>← Anterior</button>
+          <button class="button button--secondary" type="button" data-next>Próximo →</button>
+        </nav>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

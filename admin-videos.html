@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#020b16">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'">
+  <title>Revisão de vídeos | Admin RV</title>
+  <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
+  <link rel="stylesheet" href="/assets/css/projeto.css?v=20260910"><link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <script src="/assets/js/config.js?v=20260910" defer></script><script src="/assets/js/runtime.js?v=20260910" defer></script>
+  <script src="/assets/js/auth-demo.js?v=20260910" defer></script><script src="/assets/js/media-review.js?v=20260910" defer></script><script src="/assets/js/admin-videos.js?v=20260910" defer></script>
+</head>
+<body class="workspace-body">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="workspace-header"><div class="container workspace-header-inner"><a class="course-brand" href="/admin"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="88" height="44"><span><strong>RV Cursos</strong><small>Administração</small></span></a><nav class="workspace-nav" aria-label="Administração"><a href="/admin">Alunos</a><a href="/admin/suporte">Suporte</a><a href="/admin/videos" aria-current="page">Vídeos</a><button class="button button--ghost" data-exit type="button">Sair</button></nav></div></header>
+  <main class="container workspace-main" id="conteudo">
+    <div class="workspace-heading"><div><p class="eyebrow">CONTEÚDO DOS CURSOS</p><h1>Revisão de vídeos</h1><p data-summary>Selecione um curso.</p></div><a class="button button--secondary" data-drive target="_blank" rel="noopener noreferrer" href="https://drive.google.com/drive/folders/1_YLgasIsG2iYR-3HiUNzTXxY0J6rjV__">Abrir pasta no Drive</a></div>
+    <p class="environment-note">Revisão local. A aprovação não publica aulas. A transferência para streaming privado e a publicação no servidor ainda não estão conectadas.</p>
+    <section class="media-toolbar" aria-label="Importar vídeos">
+      <label>Curso<select data-course></select></label>
+      <label>Importar nomes de arquivos<input type="file" multiple accept=".mp4,.mov,.webm,.m4v" data-files></label>
+      <label>Importar manifesto JSON<input type="file" accept=".json,application/json" data-manifest></label>
+    </section>
+    <p class="media-hint">Padrão: video aula 00.mp4 (introdução), video aula 01.mp4, até video aula 30.mp4. A seleção lê apenas os nomes; envie os arquivos para a pasta do Drive.</p>
+    <p class="form-error" role="alert" data-error></p><p role="status" data-feedback></p>
+    <section aria-label="Vídeos para aprovação"><div class="media-list-head"><h2>Arquivos do curso</h2><span data-count>0 vídeos</span></div><div data-video-list class="media-review-list"></div></section>
+    <div class="media-approval"><label class="consent-label"><input type="checkbox" data-confirm>Confirmo que revisei o conteúdo e autorizo preparar este lote para publicação.</label><div class="dialog-actions"><button class="button button--secondary" data-export type="button">Exportar manifesto</button><button class="button button--primary" data-approve type="button" disabled>Aprovar lote</button></div></div>
+  </main>
+</body>
+</html>

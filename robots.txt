@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /entrar
+Disallow: /login
+Disallow: /aluno
+Disallow: /meus-cursos
+Disallow: /area
+Disallow: /curso/
+Disallow: /checkout
+Disallow: /pagamento-confirmado
+Disallow: /pagamento/
+Disallow: /admin-login
+Disallow: /admin
+
+Sitemap: https://projeto.rvfisiologista.com.br/sitemap.xml
