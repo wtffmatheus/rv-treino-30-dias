@@ -13,11 +13,13 @@
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <link rel="stylesheet" href="/assets/css/cardio.css?v=20261015">
   <script src="assets/js/config.js?v=20260913-3" defer></script>
   <script src="assets/js/runtime.js?v=20260913-3" defer></script>
   <script src="assets/js/auth-demo.js?v=20260913-3" defer></script>
   <script src="assets/js/content.js?v=20260913-3" defer></script>
-  <script src="assets/js/area.js?v=20260913-3" defer></script>
+  <script src="assets/js/cardio.js?v=20261015" defer></script>
+  <script src="assets/js/area.js?v=20261015" defer></script>
 </head>
 <body class="course-body">
   <header class="course-header">
@@ -51,6 +53,47 @@
           <div><span class="day-pill" data-day-pill>DIA 00</span><small data-phase-label>COMECE AQUI</small></div>
           <small data-content-status>Conteúdo disponível</small>
         </div>
+
+
+        <section class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
+          <div class="course-panel-head">
+            <div><small>SEU PRIMEIRO PASSO</small><h2 id="cardio-title">Sua faixa cardíaca de treino</h2></div>
+            <small>Estimativa educativa</small>
+          </div>
+          <p class="rv-cardio-intro">Informe sua idade e sua frequência cardíaca (FC) de repouso. Se realizou teste de esforço, informe também a FC máxima observada. O cálculo usa o método de Karvonen, com os intervalos apresentados por Newton Nunes.</p>
+          <form data-cardio-form>
+            <div class="rv-cardio-fields">
+              <label>Idade (anos)<input type="number" name="age" required min="18" max="100" step="1" placeholder="Ex.: 35" autocomplete="off"></label>
+              <label>FC de repouso (bpm)<input type="number" name="resting" required min="35" max="125" step="1" placeholder="Ex.: 70" autocomplete="off"></label>
+              <label>FC máxima medida em teste (bpm) — opcional<input type="number" name="maxMeasured" min="90" max="240" step="1" placeholder="Se não souber, deixe vazio" autocomplete="off"></label>
+              <label>Condicionamento físico
+                <select name="level" required>
+                  <option value="">Selecione</option>
+                  <option value="sedentario">Sedentário — 50% a 70%</option>
+                  <option value="treinado">Treinado — 60% a 80%</option>
+                  <option value="atleta">Atleta — 65% a 85%</option>
+                </select>
+              </label>
+            </div>
+            <label class="rv-cardio-save"><input type="checkbox" data-cardio-save> Guardar estes dados somente neste navegador de teste (opcional)</label>
+            <div class="rv-cardio-actions">
+              <button class="button button--primary" type="submit">Calcular minha faixa</button>
+              <button class="button button--ghost" type="button" data-cardio-delete hidden>Apagar dados salvos</button>
+            </div>
+          </form>
+          <p data-cardio-feedback role="status" aria-live="polite"></p>
+          <div class="rv-cardio-results" data-cardio-results hidden>
+            <small>FAIXA ESTIMADA PARA TREINO AERÓBICO</small>
+            <strong data-cardio-limits></strong>
+            <small data-cardio-source></small>
+            <div class="rv-cardio-compare">
+              <label>FC atual medida (bpm)<input type="number" min="30" max="250" step="1" data-cardio-current placeholder="Ex.: 130" aria-label="Frequência cardíaca atual medida"></label>
+              <button type="button" class="button button--secondary" data-cardio-compare>Comparar leitura</button>
+            </div>
+            <p data-cardio-comparison aria-live="polite"></p>
+          </div>
+          <p class="rv-cardio-note">A faixa é apenas uma referência de intensidade, não comprova emagrecimento. O site não mede batimentos por foto ou câmera. Pessoas com condições cardiovasculares, uso de medicamentos que alterem a FC ou restrições de exercício devem seguir uma prescrição individual. Interrompa o esforço diante de sintomas preocupantes.</p>
+        </section>
 
         <h1 class="course-title" data-title>Introdução ao RV 30</h1>
         <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
