@@ -18,11 +18,9 @@
     'localhost',
     '127.0.0.1',
     '[::1]',
-    '::1',
-    'treino.rvfisiologista.com.br',
-    'rv-treino-30-dias.vercel.app'
+    '::1'
   ])
-  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true || DEMO_HOSTS.has(window.location.hostname)
+  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true && DEMO_HOSTS.has(window.location?.hostname)
   const nowIso = () => new Date().toISOString()
   const uid = (prefix) => `${prefix}_${globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`}`
   const normalizeEmail = (value) => String(value || '').trim().toLowerCase()
