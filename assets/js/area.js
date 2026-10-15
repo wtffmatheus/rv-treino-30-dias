@@ -251,4 +251,5 @@
   if (demoMode) $('[data-reset-demo]')?.removeAttribute('hidden')
   $('[data-day-picker]')?.addEventListener('change', (event) => selectDay(event.target.value))
   renderContent()
+  window.RVCardio?.mount({ account, demoMode })
 })()
