@@ -60,11 +60,16 @@ assert.equal(media.driveFileId('https://drive.google.com.evil.test/file/d/id/vie
 assert.equal(media.driveFileId('javascript:alert(1)'), null)
 assert.equal(media.driveFileId('https://evil@drive.google.com/file/d/id/view'), null)
 assert.equal(media.approveBatch('rv30').ok, false)
+assert.equal(media.import('rv30', [
+  { name: 'video aula 00.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' },
+  { name: 'video aula 01.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' }
+]).ok, false, 'um arquivo nao pode mapear duas aulas')
 assert.equal(media.import('rv30', [{ name: 'video aula 00.mp4' }]).ok, true)
 assert.equal(media.update('rv30', 0, { approved: true }).ok, false)
 const files = Array.from({ length: 31 }, (_, day) => ({ name: `video aula ${String(day).padStart(2, '0')}.mp4`, driveUrl: `https://drive.google.com/file/d/test_${day}/view` })).reverse()
 assert.equal(media.import('rv30', files).ok, true)
 assert.equal(media.list('rv30')[0].day, 0)
+assert.equal(media.update('rv30', 0, { driveUrl: 'https://drive.google.com/file/d/test_1/view' }).ok, false, 'link duplicado deve falhar')
 assert.equal(media.manifest('rv30').status, 'draft')
 for (let day = 0; day <= 30; day++) assert.equal(media.update('rv30', day, { approved: true }).ok, true)
 assert.equal(media.approveBatch('rv30').ok, true)
