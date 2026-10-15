@@ -10,14 +10,8 @@
     '::1'
   ]
 
-  const testHosts = [
-    ...localHosts,
-    'treino.rvfisiologista.com.br',
-    'rv-treino-30-dias.vercel.app'
-  ]
-
   window.RV_COURSE_CONFIG = {
-    testMode: testHosts.includes(host),
+    testMode: localHosts.includes(host),
 
     // Simulacao de pagamento continua disponivel apenas localmente.
     enablePaymentSimulation: localHosts.includes(host),
