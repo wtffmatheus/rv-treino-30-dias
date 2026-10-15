@@ -122,11 +122,9 @@
   function ensureDemoStudent(db) {
     if (!demoEnabled()) return db
 
-    const cfg = window.RV_COURSE_CONFIG?.demoStudent || {
-      name: 'Aluno Teste',
-      email: 'aluno@rv.com.br',
-      password: '123456'
-    }
+    // Nao criar aluno ficticio oculto quando o ambiente nao configurou uma conta demo.
+    const cfg = window.RV_COURSE_CONFIG?.demoStudent
+    if (!cfg?.email) return db
 
     const email = normalizeEmail(cfg.email)
     let user = db.users.find((item) => item.email === email)
