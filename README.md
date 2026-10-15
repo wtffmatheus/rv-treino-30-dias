@@ -2,6 +2,12 @@
 
 Versão de teste/staging do portal comercial do **RV 30**, com a jornada de venda, área do aluno e painel administrativo específico do curso.
 
+## Atualização 15/10/2026 — faixa cardíaca no primeiro acesso
+
+Incluído no ramo de revisão: calculadora de frequência cardíaca de reserva pela fórmula de Karvonen, com faixas para sedentário (50%–70%), treinado (60%–80%) e atleta (65%–85%). O aluno informa idade, FC de repouso e FC máxima medida (se souber); caso contrário, o sistema usa 220 − idade e avisa que é estimativa sujeita a erro. Também é possível comparar um valor de FC medido durante o exercício — o site não mede FC por câmera ou foto. A faixa não garante emagrecimento.
+
+Este recurso só grava dados com consentimento expresso em navegador local de teste. Para clientes reais, ainda serão necessários backend, controles de acesso, privacidade/LGPD, revisão profissional e integração segura com vídeos privados. **Nunca considerar a versão local como produção pronta.**
+
 ## Atualizacao de 10/09/2026
 
 Suporte aluno/admin e revisao de videos adicionados. Esta entrega continua sendo

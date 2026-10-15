@@ -15,6 +15,7 @@ class LocalStorageMock {
 
 global.localStorage = new LocalStorageMock()
 global.window = {
+  location: { hostname: 'localhost' },
   RV_COURSE_CONFIG: {
     testMode: true,
     demoAdmin: { email: 'admin@rvfisiologia.test', password: 'rv30admin' }

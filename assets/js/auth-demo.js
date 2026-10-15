@@ -18,11 +18,9 @@
     'localhost',
     '127.0.0.1',
     '[::1]',
-    '::1',
-    'treino.rvfisiologista.com.br',
-    'rv-treino-30-dias.vercel.app'
+    '::1'
   ])
-  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true || DEMO_HOSTS.has(window.location.hostname)
+  const demoEnabled = () => window.RV_COURSE_CONFIG?.testMode === true && DEMO_HOSTS.has(window.location?.hostname)
   const nowIso = () => new Date().toISOString()
   const uid = (prefix) => `${prefix}_${globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`}`
   const normalizeEmail = (value) => String(value || '').trim().toLowerCase()
@@ -122,11 +120,9 @@
   function ensureDemoStudent(db) {
     if (!demoEnabled()) return db
 
-    const cfg = window.RV_COURSE_CONFIG?.demoStudent || {
-      name: 'Aluno Teste',
-      email: 'aluno@rv.com.br',
-      password: '123456'
-    }
+    // Nao criar aluno ficticio oculto quando o ambiente nao configurou uma conta demo.
+    const cfg = window.RV_COURSE_CONFIG?.demoStudent
+    if (!cfg?.email) return db
 
     const email = normalizeEmail(cfg.email)
     let user = db.users.find((item) => item.email === email)

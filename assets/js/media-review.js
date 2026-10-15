@@ -49,6 +49,8 @@
       const old = db[courseId]?.items || []
       // Uma reimportacao invalida o aceite, inclusive quando o nome nao mudou.
       const items = [...old.filter((i) => !days.has(i.day)), ...staged].sort((a, b) => a.day - b.day)
+      const ids = items.map((i) => driveFileId(i.driveUrl)).filter(Boolean)
+      if (new Set(ids).size !== ids.length) return failure('Um mesmo arquivo do Drive nao pode ocupar varias aulas.')
       db[courseId] = { items, batchApprovedAt: null }
       localStorage.setItem(KEY, JSON.stringify(db))
       return { ok: true, count: staged.length }
@@ -59,7 +61,11 @@
       const item = db[courseId]?.items.find((i) => i.day === day)
       if (!item) return failure('Vídeo não encontrado.')
       if (Object.hasOwn(changes, 'driveUrl')) {
-        if (changes.driveUrl && !driveFileId(changes.driveUrl)) return failure('Link inválido. Use https://drive.google.com/file/d/ID/view.')
+        const id = changes.driveUrl ? driveFileId(changes.driveUrl) : null
+        if (changes.driveUrl && !id) return failure('Link inválido. Use https://drive.google.com/file/d/ID/view.')
+        if (id && db[courseId].items.some((i) => i.day !== day && driveFileId(i.driveUrl) === id)) {
+          return failure('Este arquivo do Drive ja foi associado a outra aula.')
+        }
         item.driveUrl = changes.driveUrl || ''
         item.approved = false
         item.approvedAt = null
