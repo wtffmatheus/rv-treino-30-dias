@@ -29,6 +29,9 @@ function check() {
     'Autenticacao e matricula de producao devem substituir o adaptador de demonstracao.')
   add('protected_video_delivery', vids.length >= 30 && vids.slice(1, 31).every(x => x && !x.includes('drive.google.com')),
     'Videos dos 30 dias exigem playback privado autenticado; links Drive nao bastam.')
+  add('sales_activation', /salesEnabled:\\s*true/.test(cfg), 'Vendas devem permanecer bloqueadas ate comprovacao de ponta a ponta.')
+  add('server_approved_access', /productionAccessVerified:\\s*true/.test(cfg),
+    'Somente liberar apos validacao de pagamento server-side e matricula segura.')
   add('drive_manifest_unique_30', dayList.length === 30 && dayList.every((day, i) => day === i + 1),
     'Modelo editorial deve conter exatamente um arquivo por dia, de 1 a 30.')
   add('no_private_drive_links_publicly', publicURLs.length === 0,

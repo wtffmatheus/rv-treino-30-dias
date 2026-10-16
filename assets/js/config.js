@@ -16,6 +16,12 @@
     // Simulacao de pagamento continua disponivel apenas localmente.
     enablePaymentSimulation: localHosts.includes(host),
 
+    // Lancamento comercial: bloqueado ate backend, comprovacao server-side
+    // de pagamento e videos privados serem testados em ambiente real.
+    // Alterar apenas apos a validacao do checklist de producao.
+    salesEnabled: false,
+    productionAccessVerified: false,
+
     demoStudent: {
       name: 'Aluno Teste',
       email: 'aluno@rv.com.br',

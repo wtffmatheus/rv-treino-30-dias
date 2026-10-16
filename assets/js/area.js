@@ -273,11 +273,13 @@
     const profileKey = 'rv30-cardio-demo-v1:' + account.id
     const knownProfile = Boolean(localStorage.getItem(profileKey))
     let dismissed = false
-    try { dismissed = sessionStorage.getItem(marker) === '1' } catch {}
+    // Apenas o registro "boas-vindas exibidas", sem dados de saude.
+    // Persistir entre visitas evita solicitar a avaliacao a cada login.
+    try { dismissed = localStorage.getItem(marker) === '1' } catch {}
     welcome.hidden = knownProfile || dismissed
     const hideWelcome = () => {
       welcome.hidden = true
-      try { sessionStorage.setItem(marker, '1') } catch {}
+      try { localStorage.setItem(marker, '1') } catch {}
     }
     $('[data-first-cardio]')?.addEventListener('click', () => {
       hideWelcome()
