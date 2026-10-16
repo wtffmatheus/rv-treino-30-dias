@@ -47,12 +47,26 @@
         <progress class="native-progress native-progress--sidebar" max="30" value="0" data-progress-native aria-label="Progresso do RV 30"></progress>
         <p data-progress-copy>Conclua os conteúdos para acompanhar sua evolução.</p>
       </div>
+      <a class="rv-sidebar-cardio" href="#calculadora-cardiaca" data-cardio-navigation>♡ Calculadora cardíaca <span aria-hidden="true">→</span></a>
       <nav class="course-day-list" data-day-list aria-label="Dias do projeto"></nav>
       <label class="mobile-day-picker">Conteúdo do curso<select data-day-picker aria-label="Selecionar dia"></select></label>
     </aside>
 
     <section class="course-main">
       <div class="course-main-inner">
+        <section class="rv-welcome-card" data-first-start hidden aria-labelledby="rv-welcome-title">
+          <div class="rv-welcome-emblem" aria-hidden="true">♡</div>
+          <div class="rv-welcome-copy">
+            <p class="rv-welcome-label">PRIMEIRO ACESSO · SEU PONTO DE PARTIDA</p>
+            <h2 id="rv-welcome-title">Conheça sua faixa cardíaca antes do treino.</h2>
+            <p>Calcule uma <strong>faixa estimada de intensidade aeróbica</strong> usando idade e frequência cardíaca de repouso. O resultado não define uma zona exclusiva de emagrecimento e não substitui uma avaliação profissional.</p>
+            <div class="rv-welcome-actions">
+              <button type="button" class="button button--primary" data-first-cardio>Calcular minha faixa</button>
+              <button type="button" class="button button--ghost" data-first-skip>Continuar sem calcular</button>
+            </div>
+          </div>
+        </section>
+
         <div class="course-topline">
           <div><span class="day-pill" data-day-pill>DIA 00</span><small data-phase-label>COMECE AQUI</small></div>
           <small data-content-status>Conteúdo disponível</small>
@@ -79,7 +93,7 @@
           <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
         </div>
 
-        <section class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
+        <section id="calculadora-cardiaca" class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
           <div class="course-panel-head">
             <div><small>SEU PRIMEIRO PASSO</small><h2 id="cardio-title">Sua faixa cardíaca de treino</h2></div>
             <small>Estimativa educativa</small>
