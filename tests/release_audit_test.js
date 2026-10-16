@@ -1,0 +1,13 @@
+'use strict'
+const assert = require('node:assert/strict')
+const { check } = require('../scripts/release-audit.js')
+const x = check()
+const statuses = new Map(x.findings.map(p=>[p.code,p.status]))
+assert.equal(x.verdict, 'NO_GO', 'versao demo nao pode ser marcada como apta para vendas')
+assert.equal(statuses.get('drive_manifest_unique_30'), 'PASS')
+assert.equal(statuses.get('no_private_drive_links_publicly'), 'PASS')
+assert.equal(statuses.get('price_gateway_configured'), 'FAIL')
+assert.equal(statuses.get('production_auth'), 'FAIL')
+assert.equal(statuses.get('protected_video_delivery'), 'FAIL')
+assert(x.checkedFiles.length >= 7)
+console.log('Release gate: bloqueios de vendas identificados e nenhum link privado publicado.')
