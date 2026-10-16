@@ -83,6 +83,7 @@
       try {
         const result = calculate(profile)
         show(result)
+        root.dispatchEvent(new CustomEvent('rv30:cardio-calculated', { bubbles: true }))
         if (key && save.checked) {
           localStorage.setItem(key, JSON.stringify({
             version: 1, userId: account.id,
