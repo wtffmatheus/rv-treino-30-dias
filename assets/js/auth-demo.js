@@ -178,9 +178,10 @@
     // Uma consulta nao deve disparar eventos "storage" em outras abas.
     // Gravar apenas quando foi necessario inicializar ou migrar o esquema.
     const saved = readJson(STORAGE.db, null)
+    const previous = saved ? JSON.stringify(saved) : null
     let db = migrateLegacyIfNeeded(ensureDbShape(saved))
     db = ensureDemoStudent(db)
-    if (!saved || JSON.stringify(saved) !== JSON.stringify(db)) writeJson(STORAGE.db, db)
+    if (!saved || previous !== JSON.stringify(db)) writeJson(STORAGE.db, db)
     return db
   }
 
