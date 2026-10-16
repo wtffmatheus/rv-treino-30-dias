@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base href="/">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta name="theme-color" content="#020b16">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self' https://fonts.gstatic.com; form-action 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#08151e">
   <meta name="color-scheme" content="dark">
   <meta name="robots" content="noindex,nofollow">
   <title>Área do Aluno — RV 30</title>
@@ -14,6 +14,10 @@
   <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
   <link rel="stylesheet" href="/assets/css/cardio.css?v=20261015">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261015">
   <script src="assets/js/config.js?v=20260913-3" defer></script>
   <script src="assets/js/runtime.js?v=20260913-3" defer></script>
   <script src="assets/js/auth-demo.js?v=20260913-3" defer></script>
@@ -55,6 +59,26 @@
         </div>
 
 
+
+
+        <h1 class="course-title" data-title>Introdução ao RV 30</h1>
+        <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
+
+        <div class="course-video" data-course-video>
+          <div class="course-video-placeholder">
+            <span class="play-orb" aria-hidden="true">▶</span>
+            <strong data-video-title>Vídeo de introdução</strong>
+            <small data-video-copy>Adicione a URL do vídeo deste conteúdo em assets/js/content.js.</small>
+          </div>
+        </div>
+
+        <div class="daily-info" aria-label="Informações do conteúdo">
+          <article><small>HORÁRIO</small><strong data-time>Carregando…</strong></article>
+          <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
+          <article><small>TIPO</small><strong data-type>Introdução</strong></article>
+          <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
+        </div>
+
         <section class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
           <div class="course-panel-head">
             <div><small>SEU PRIMEIRO PASSO</small><h2 id="cardio-title">Sua faixa cardíaca de treino</h2></div>
@@ -94,24 +118,6 @@
           </div>
           <p class="rv-cardio-note">A faixa é apenas uma referência de intensidade, não comprova emagrecimento. O site não mede batimentos por foto ou câmera. Pessoas com condições cardiovasculares, uso de medicamentos que alterem a FC ou restrições de exercício devem seguir uma prescrição individual. Interrompa o esforço diante de sintomas preocupantes.</p>
         </section>
-
-        <h1 class="course-title" data-title>Introdução ao RV 30</h1>
-        <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
-
-        <div class="course-video" data-course-video>
-          <div class="course-video-placeholder">
-            <span class="play-orb" aria-hidden="true">▶</span>
-            <strong data-video-title>Vídeo de introdução</strong>
-            <small data-video-copy>Adicione a URL do vídeo deste conteúdo em assets/js/content.js.</small>
-          </div>
-        </div>
-
-        <div class="daily-info" aria-label="Informações do conteúdo">
-          <article><small>HORÁRIO</small><strong data-time>Carregando…</strong></article>
-          <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
-          <article><small>TIPO</small><strong data-type>Introdução</strong></article>
-          <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
-        </div>
 
         <section class="course-panel" aria-labelledby="orientacoes-title">
           <div class="course-panel-head"><div><small>PASSO A PASSO</small><h2 id="orientacoes-title">Orientações deste conteúdo</h2></div><small data-panel-note>Leia antes de concluir.</small></div>
