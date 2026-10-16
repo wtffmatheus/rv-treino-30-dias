@@ -31,19 +31,11 @@
 
   <main class="checkout-page">
     <div class="container checkout-grid">
-      <aside class="order-card">
-        <small>RESUMO DO PEDIDO</small>
-        <div class="order-product"><div class="order-product-mark">30</div><div><strong data-order-title>RV 30</strong><span>Projeto completo • 30 dias</span></div></div>
-        <div class="order-lines"><p><span>Projeto RV 30</span><strong data-order-total>R$ 399,00</strong></p><p><span>Equivalente diário</span><strong><span data-order-daily>R$ 13,30</span>/dia</strong></p></div>
-        <div class="order-total"><span>Total</span><strong data-order-total>R$ 399,00</strong></div>
-        <p class="order-daily-note">O valor por dia é apenas a equivalência do preço total dividido por 30.</p>
-        <div class="secure-note"><span aria-hidden="true">✓</span><p><strong>Pagamento por provedor externo</strong><small>Este portal não coleta dados de cartão. A etapa financeira acontece no gateway configurado pela RV Fisiologia.</small></p></div>
-        <p class="tiny-note">Em produção, o acesso deverá ser liberado somente após confirmação server-side do pagamento. No teste, usamos o e-mail informado no formulário local.</p>
-      </aside>
+
       <section class="checkout-card">
         <p class="eyebrow"><span></span> FINALIZAR INSCRIÇÃO</p>
-        <h1>Entre para o <em>RV 30.</em></h1>
-        <p class="portal-lead">Informe seus dados para continuar ao provedor de pagamento configurado pela RV Fisiologia. Seu acesso será liberado após a confirmação do pagamento.</p>
+        <h1>Finalize sua <em>inscrição.</em></h1>
+        <p class="portal-lead">Preencha seus dados para continuar ao ambiente de pagamento. O acesso ao RV 30 depende da confirmação da compra.</p>
 
         <div class="checkout-config-error" data-checkout-config-error hidden role="alert"></div>
 
@@ -66,6 +58,15 @@
           <button class="button button--secondary button--wide" type="button" data-simulate-payment>Simular pagamento aprovado</button>
         </div>
       </section>
+      <aside class="order-card">
+        <small>RESUMO DO PEDIDO</small>
+        <div class="order-product"><div class="order-product-mark">30</div><div><strong data-order-title>RV 30</strong><span>Projeto completo • 30 dias</span></div></div>
+        <div class="order-lines"><p><span>Projeto RV 30</span><strong data-order-total>R$ 399,00</strong></p><p><span>Equivalente diário</span><strong><span data-order-daily>R$ 13,30</span>/dia</strong></p></div>
+        <div class="order-total"><span>Total</span><strong data-order-total>R$ 399,00</strong></div>
+        <p class="order-daily-note">O valor por dia é apenas a equivalência do preço total dividido por 30.</p>
+        <div class="secure-note"><span aria-hidden="true">✓</span><p><strong>Pagamento por provedor externo</strong><small>Este portal não coleta dados de cartão. A etapa financeira acontece no gateway configurado pela RV Fisiologia.</small></p></div>
+        <p class="tiny-note">Em produção, o acesso deverá ser liberado somente após confirmação server-side do pagamento. No teste, usamos o e-mail informado no formulário local.</p>
+      </aside>
 
 
     </div>
