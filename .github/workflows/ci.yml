@@ -8,6 +8,7 @@ on:
       - audit/rv30-lancamento-etapa1-20261015
       - feature/rv30-etapa2-primeiro-acesso-cardio-20261015
       - design/rv30-etapa3-fidelidade-moodboard-20261015
+      - feature/rv30-etapa4-validacao-midia-20261015
   pull_request:
     branches: [main]
 jobs:
