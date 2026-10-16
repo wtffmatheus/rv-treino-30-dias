@@ -265,3 +265,32 @@ test('admin importa 30 arquivos MOV numéricos sem introdução obrigatória', a
   await page.getByRole('button', { name: 'Aprovar lote' }).click()
   await expect(page.locator('[data-feedback]')).toContainText('Nenhuma aula foi publicada')
 })
+
+
+test('novo aluno recebe convite cardíaco no primeiro acesso e pode pular sem bloqueio', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/0')
+  const welcome = page.locator('[data-first-start]')
+  await expect(welcome).toBeVisible()
+  await expect(welcome).toContainText('Conheça sua faixa cardíaca')
+  await expect(page.locator('[data-cardio-navigation]')).toHaveAttribute('href', '#calculadora-cardiaca')
+  await welcome.getByRole('button', { name: 'Calcular minha faixa' }).click()
+  await expect(welcome).toBeHidden()
+  await expect(page.locator('[data-cardio-section] [name=age]')).toBeFocused()
+  await page.reload()
+  await expect(welcome).toBeHidden()
+  await expect(page.locator('[data-course-video]')).toBeVisible()
+})
+
+test('novo aluno pode dispensar avaliacao sem salvar dados de saude', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/1')
+  const welcome = page.locator('[data-first-start]')
+  await expect(welcome).toBeVisible()
+  await welcome.getByRole('button', { name: 'Continuar sem calcular' }).click()
+  await expect(welcome).toBeHidden()
+  const keys = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('rv30-cardio-demo-v1:')))
+  expect(keys).toHaveLength(0)
+  await page.getByRole('button', { name: 'Marcar como concluído' }).click()
+  await expect(page.locator('[data-complete]')).toHaveAttribute('aria-pressed', 'true')
+})
