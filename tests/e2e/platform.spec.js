@@ -60,6 +60,7 @@ test('compra demo, progresso, comentario e conversa aluno-admin persistem', asyn
   await admin.getByRole('button', { name: /Dúvida sobre meu acesso/ }).click()
   await admin.getByLabel('Sua mensagem').fill('Você encontra o progresso em Meus cursos.')
   await admin.getByRole('button', { name: 'Enviar mensagem' }).click()
+  await page.bringToFront()
   await expect(page.getByText('Você encontra o progresso em Meus cursos.', { exact: true })).toBeVisible()
   await admin.getByRole('button', { name: 'Resolver conversa' }).click()
   await page.getByRole('button', { name: 'Sair', exact: true }).click()
