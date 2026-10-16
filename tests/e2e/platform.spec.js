@@ -181,15 +181,15 @@ test('aluno configura FC de reserva, compara leitura e apaga dados locais', asyn
   await expect(section.locator('[name=age]')).toHaveValue('')
 })
 
-test('modelo JSON do Google Drive cobre introdução e 30 aulas sem links publicados', async ({ request }) => {
+test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', async ({ request }) => {
   const response = await request.get('/assets/data/rv30-videos-template.json')
   expect(response.ok()).toBeTruthy()
   const model = await response.json()
   expect(model.schemaVersion).toBe(1)
   expect(model.courseId).toBe('rv30')
-  expect(model.items).toHaveLength(31)
-  expect(model.items[0].name).toBe('video aula 00.mp4')
-  expect(model.items[30].name).toBe('video aula 30.mp4')
+  expect(model.items).toHaveLength(30)
+  expect(model.items[0].name).toBe('1.mov')
+  expect(model.items[29].name).toBe('30.mov')
   for (const item of model.items) expect(item.driveUrl).toBe('')
 })
 
@@ -240,4 +240,28 @@ test('area do aluno: video permanece antes da calculadora e o progresso funciona
   await expect(page.locator('[data-day-picker]')).toBeVisible()
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
   expect(overflow).toBeLessThanOrEqual(1)
+})
+
+
+test('admin importa 30 arquivos MOV numéricos sem introdução obrigatória', async ({ page }) => {
+  await adminLogin(page)
+  await page.goto('/admin/videos')
+  const model = await page.request.get('/assets/data/rv30-videos-template.json').then(r => r.json())
+  const manifest = {
+    ...model,
+    items: model.items.map((item, i) => ({ ...item, driveUrl: 'https://drive.google.com/file/d/mov_day_' + (i + 1) + '/view' }))
+  }
+  await page.locator('[data-manifest]').setInputFiles({
+    name: '30-mov.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(manifest))
+  })
+  await expect(page.locator('.media-row')).toHaveCount(30)
+  await expect(page.locator('.media-day').first()).toHaveText('01')
+  await expect(page.locator('.media-day').last()).toHaveText('30')
+  for (let i = 1; i <= 30; i++) await page.getByLabel('Aprovar aula ' + String(i).padStart(2,'0'), { exact: true }).check()
+  await page.locator('[data-confirm]').check()
+  await expect(page.getByRole('button', { name: 'Aprovar lote' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Aprovar lote' }).click()
+  await expect(page.locator('[data-feedback]')).toContainText('Nenhuma aula foi publicada')
 })
