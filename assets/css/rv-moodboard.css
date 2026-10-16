@@ -121,3 +121,20 @@
  .rv-mobile-course-nav a{font-size:.57rem}
 }
 @media(prefers-reduced-motion:reduce){.hero .hero-copy{scroll-behavior:auto}}
+
+
+/* Refinamentos confirmados nas capturas reais de Chromium (14/10–15/10). */
+.rv-checkout .portal-header .course-brand strong{color:#f5fcfc!important}
+.rv-checkout .portal-header .course-brand small{color:#a7e5e2!important}
+.rv-checkout .order-lines p span,.rv-checkout .order-lines p strong{color:#355661!important}
+.rv-checkout .order-daily-note{color:#37565e!important}
+.rv-checkout .tiny-note{color:#405961!important}
+@media(max-width:700px){
+ .course-sidebar .course-progress-card{display:grid;grid-template-columns:minmax(115px,.65fr) minmax(0,1fr);align-items:center;gap:0 14px;padding:14px 16px}
+ .course-sidebar .course-progress-card>small{grid-column:1;grid-row:1;font-size:.64rem}
+ .course-sidebar .course-progress-card h2{grid-column:1;grid-row:2;font-size:1.9rem;margin:4px 0}
+ .course-sidebar .course-progress-card progress{grid-column:2;grid-row:1 / span 2;width:100%}
+ .course-sidebar .course-progress-card p{grid-column:1 / -1;margin:6px 0 0;font-size:.68rem}
+ .course-main .course-title{font-size:clamp(2.3rem,10vw,3.3rem);line-height:.98}
+ .rv-mobile-course-nav{padding-top:5px}
+}
