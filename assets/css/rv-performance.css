@@ -301,3 +301,25 @@ img{height:auto}
 @media(prefers-reduced-motion:reduce){
  .button,.benefit-card,.phase-card,.qual-card,.reveal{transition:none!important;animation:none!important;transform:none!important}
 }
+
+
+/* ETAPA 2 — PRIMEIRO ACESSO: orientacao educacional nao obrigatoria */
+.rv-welcome-card{display:grid;grid-template-columns:58px minmax(0,1fr);gap:22px;align-items:start;margin:0 0 30px;padding:clamp(20px,3vw,30px);border:1px solid #4c9290;background:#132d36;border-radius:12px}
+.rv-welcome-emblem{display:grid;place-items:center;width:56px;height:56px;border:1px solid #3e7b7c;border-radius:10px;color:#66efe3;background:#123841;font-size:2rem}
+.rv-welcome-label{font-size:.72rem;letter-spacing:.1em!important;font-weight:800;color:#80ece1;margin:0 0 7px}
+.rv-welcome-card h2{font-size:clamp(1.9rem,3vw,3rem);margin:0 0 10px;color:#f4fcfc}
+.rv-welcome-card p:not(.rv-welcome-label){font-size:.92rem;line-height:1.65;max-width:70ch;color:#d6e8eb}
+.rv-welcome-actions{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 0}
+.rv-welcome-actions .button{min-height:48px}
+.rv-sidebar-cardio{display:flex;align-items:center;justify-content:space-between;gap:8px;text-decoration:none;color:#cbf3ef;border:1px solid #477879;background:#12333d;border-radius:8px;padding:13px 12px;font-weight:750;font-size:.84rem;min-height:48px;margin-top:15px}
+.rv-sidebar-cardio:hover,.rv-sidebar-cardio:focus-visible{background:#1b4851;color:#fff}
+.rv-cardio-panel{scroll-margin-top:95px}
+@media(max-width:700px){
+ .rv-welcome-card{grid-template-columns:1fr;padding:18px;gap:10px}
+ .rv-welcome-emblem{height:46px;width:46px;font-size:1.7rem}
+ .rv-welcome-card h2{font-size:2.2rem}
+ .rv-welcome-actions{flex-direction:column}
+ .rv-welcome-actions .button{width:100%;min-height:48px}
+ .rv-sidebar-cardio{margin:10px 0}
+}
+@media(prefers-reduced-motion:reduce){.rv-welcome-card{animation:none}}
