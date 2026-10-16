@@ -8,6 +8,12 @@
   const courses = window.RV_COURSE_CONFIG.courses.filter((c) => Number.isInteger(c.totalDays))
   courses.forEach((c) => $('[data-course]').add(new Option(c.title, c.id)))
   const courseId = () => $('[data-course]').value
+  const batchReady = (course, items) => {
+    if (!course || items.length < course.totalDays) return false
+    return Array.from({ length: course.totalDays }, (_, i) => i + 1)
+      .every((day) => items.some((item) => item.day === day && item.approved)) &&
+      items.every((item) => item.approved)
+  }
   const el = (tag, text, cls) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n }
   function perform(action) {
     $('[data-error]').textContent = ''
@@ -24,9 +30,9 @@
     $('[data-drive]').hidden = courseId() !== 'rv30'
     const items = media.list(courseId())
     const approved = items.filter((i) => i.approved).length
-    $('[data-summary]').textContent = `${course.title} · Introdução + ${course.totalDays} aulas`
+    $('[data-summary]').textContent = `${course.title} · ${course.totalDays} aulas (introdução opcional)`
     $('[data-count]').textContent = `${items.length} arquivos · ${approved} aprovados`
-    $('[data-approve]').disabled = !$('[data-confirm]').checked || approved !== course.totalDays + 1
+    $('[data-approve]').disabled = !$('[data-confirm]').checked || !batchReady(course, items)
     const list = $('[data-video-list]')
     list.replaceChildren()
     if (!items.length) { list.append(el('p', 'Nenhum vídeo importado. Os conteúdos seguem em rascunho.', 'support-empty')); return }
@@ -71,7 +77,10 @@
     } catch { $('[data-error]').textContent = 'Manifesto inválido: use schemaVersion 1, o curso selecionado e um arquivo de até 256 KB.' }
     input.value = ''
   })
-  $('[data-confirm]').addEventListener('change', () => { $('[data-approve]').disabled = !$('[data-confirm]').checked || media.list(courseId()).filter((i) => i.approved).length !== courses.find((c) => c.id === courseId()).totalDays + 1 })
+  $('[data-confirm]').addEventListener('change', () => {
+    const course = courses.find((c) => c.id === courseId())
+    $('[data-approve]').disabled = !$('[data-confirm]').checked || !batchReady(course, media.list(courseId()))
+  })
   $('[data-course]').addEventListener('change', () => { $('[data-confirm]').checked = false; render() })
   $('[data-approve]').addEventListener('click', () => {
     if (!$('[data-confirm]').checked) return
