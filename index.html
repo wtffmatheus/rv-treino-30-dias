@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base href="/">
-  <meta name="theme-color" content="#020b16">
+  <meta name="theme-color" content="#08151e">
   <meta name="color-scheme" content="dark">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self' https://fonts.gstatic.com; upgrade-insecure-requests">
   <title>RV 30 | Projeto de 30 Dias — RV Fisiologia</title>
   <meta name="description" content="RV 30: projeto digital de 30 dias da RV Fisiologia, com orientação diária, vídeos, acompanhamento e uma experiência organizada dentro do ecossistema RV.">
   <link rel="canonical" href="https://projeto.rvfisiologista.com.br/">
@@ -21,6 +21,10 @@
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261015">
   <script src="assets/js/config.js?v=20260909-7" defer></script>
   <script src="assets/js/runtime.js?v=20260909-7" defer></script>
   <script src="assets/js/projeto.js?v=20260909-7" defer></script>
@@ -58,9 +62,9 @@
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow"><span></span> RV FISIOLOGIA • ROSANGELA VARAS</p>
-          <h1 id="hero-title">RV 30</h1>
-          <p class="hero-tagline">30 dias para mudar a sua rotina.</p>
-          <p class="hero-lead">Vídeos e orientações de Rosangela Varas para construir constância, um dia de cada vez.</p>
+          <h1 id="hero-title">TREINO COM <em>MÉTODO.</em></h1>
+          <p class="hero-tagline">RV 30. Trinta dias para construir uma rotina com direção.</p>
+          <p class="hero-lead">Aulas e orientações de Rosangela Varas, com conteúdo organizado dia a dia, progresso individual e espaço para dúvidas.</p>
 
           <div class="goal-lockup" aria-label="Faixa divulgada para o projeto">
             <small>FAIXA DIVULGADA DO PROTOCOLO*</small>
@@ -69,13 +73,13 @@
             <p>Referência comunicada para participantes elegíveis. Não é uma promessa universal: a resposta individual varia e depende de avaliação, condições pessoais e adesão.</p>
           </div>
 
-          <div class="hero-price hero-price--v2" aria-label="Investimento do projeto">
-            <div><small>POR APENAS</small><strong data-price-daily>R$ 13,30</strong><span>por dia</span></div>
-            <p><b>menos de R$ 14 por dia</b><br><span data-price-total>R$ 399,00</span> no ciclo completo de 30 dias</p>
+          <div class="hero-price hero-price--v2" aria-label="Preço total do programa RV 30">
+            <div><small>INVESTIMENTO TOTAL · 30 DIAS</small><strong data-price-total>R$ 399,00</strong><span>valor do ciclo</span></div>
+            <p>Equivale a <b><span data-price-daily>R$ 13,30</span> por dia</b> como referência de valor, sem cobrança diária.</p>
           </div>
 
           <div class="hero-actions">
-            <button class="button button--primary button--xl" type="button" data-buy="rv30">Quero começar por <span data-price-daily>R$ 13,30</span>/dia</button>
+            <button class="button button--primary button--xl" type="button" data-buy="rv30">Quero conhecer a inscrição <span aria-hidden="true">→</span></button>
             <a class="text-link" href="#experiencia">Ver como é por dentro</a>
           </div>
 
@@ -87,7 +91,13 @@
           </div>
         </div>
 
-        <img class="hero-brand-art" src="/public/logo-rv.png" width="1100" height="525" alt="" aria-hidden="true">
+        <figure class="hero-visual">
+          <img class="hero-portrait" src="/assets/brand/rosangela.webp" width="576" height="1024" fetchpriority="high" alt="Rosangela Varas, profissional responsável pelo RV 30">
+          <figcaption class="hero-visual-caption">
+            <div><strong>Rosangela Varas</strong><span>RV Fisiologia · Acompanhamento guiado</span></div>
+            <b aria-hidden="true">30</b>
+          </figcaption>
+        </figure>
       </div>
       <div class="container hero-note"><p><strong>*Resultados individuais variam.</strong> A faixa divulgada não é garantia. Condições de saúde, organismo, alimentação e adesão influenciam a evolução.</p></div>
     </section>
