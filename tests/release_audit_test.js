@@ -6,6 +6,8 @@ const statuses = new Map(x.findings.map(p=>[p.code,p.status]))
 assert(['NO_GO','REVIEW_REQUIRED'].includes(x.verdict))
 assert.equal(statuses.get('drive_manifest_unique_30'), 'PASS')
 assert.equal(statuses.get('no_private_drive_links_publicly'), 'PASS')
+assert.equal(statuses.get('sales_activation'), 'FAIL')
+assert.equal(statuses.get('server_approved_access'), 'FAIL')
 for (const code of ['price_gateway_configured','production_auth','protected_video_delivery']) {
   assert(['PASS','FAIL'].includes(statuses.get(code)), 'gate ausente: '+code)
 }
