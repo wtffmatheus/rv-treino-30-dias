@@ -23,6 +23,10 @@ test('gera capturas desktop e mobile para revisão visual por comparação', asy
         const nameColor = await page.locator('.portal-header .course-brand strong').evaluate(e => getComputedStyle(e).color)
         expect(nameColor).toBe('rgb(245, 252, 252)')
       }
+      if (screen.name === 'landing') {
+        await expect(page.locator('#investimento [data-price-total]').first()).toHaveText('R$ 399,00')
+        await expect(page.locator('.mobile-buybar strong [data-price-total]')).toHaveText('R$ 399,00')
+      }
       await page.locator('body').evaluate(() => document.fonts?.ready)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
       expect(overflow, screen.name + '-' + view.label).toBeLessThanOrEqual(1)
