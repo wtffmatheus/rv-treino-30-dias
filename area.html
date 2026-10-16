@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261015">
+  <link rel="stylesheet" href="/assets/css/rv-moodboard.css?v=20261015">
   <script src="assets/js/config.js?v=20260913-3" defer></script>
   <script src="assets/js/runtime.js?v=20260913-3" defer></script>
   <script src="assets/js/auth-demo.js?v=20260913-3" defer></script>
@@ -41,18 +42,25 @@
 
   <main class="course-shell">
     <aside class="course-sidebar" aria-label="Navegação pelos dias">
-      <div class="course-progress-card">
+      <div class="course-progress-card" id="progresso">
         <small>SEU PROGRESSO</small>
         <h2 data-progress-title>0 de 30</h2>
         <progress class="native-progress native-progress--sidebar" max="30" value="0" data-progress-native aria-label="Progresso do RV 30"></progress>
         <p data-progress-copy>Conclua os conteúdos para acompanhar sua evolução.</p>
       </div>
-      <a class="rv-sidebar-cardio" href="#calculadora-cardiaca" data-cardio-navigation>♡ Calculadora cardíaca <span aria-hidden="true">→</span></a>
+      <nav class="rv-student-nav" aria-label="Menu do aluno">
+        <a href="/meus-cursos">⌂ <span>Início</span></a>
+        <a href="#aula" aria-current="page">▣ <span>Treinos</span></a>
+        <a href="#progresso">▥ <span>Meu progresso</span></a>
+        <a href="#calculadora-cardiaca" data-cardio-navigation>♡ <span>Calculadora cardíaca</span></a>
+        <a href="#comments-title">◇ <span>Dúvidas e comentários</span></a>
+        <a href="/suporte">▤ <span>Suporte</span></a>
+      </nav>
       <nav class="course-day-list" data-day-list aria-label="Dias do projeto"></nav>
       <label class="mobile-day-picker">Conteúdo do curso<select data-day-picker aria-label="Selecionar dia"></select></label>
     </aside>
 
-    <section class="course-main">
+    <section class="course-main" id="aula">
       <div class="course-main-inner">
         <section class="rv-welcome-card" data-first-start hidden aria-labelledby="rv-welcome-title">
           <div class="rv-welcome-emblem" aria-hidden="true">♡</div>
@@ -78,19 +86,23 @@
         <h1 class="course-title" data-title>Introdução ao RV 30</h1>
         <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
 
-        <div class="course-video" data-course-video>
-          <div class="course-video-placeholder">
-            <span class="play-orb" aria-hidden="true">▶</span>
-            <strong data-video-title>Vídeo de introdução</strong>
-            <small data-video-copy>Adicione a URL do vídeo deste conteúdo em assets/js/content.js.</small>
+        <div class="rv-lesson-grid">
+          <div class="course-video" data-course-video>
+            <div class="course-video-placeholder">
+              <span class="play-orb" aria-hidden="true">▶</span>
+              <strong data-video-title>Vídeo de introdução</strong>
+              <small data-video-copy>Vídeo em preparação pela equipe RV.</small>
+            </div>
           </div>
-        </div>
-
-        <div class="daily-info" aria-label="Informações do conteúdo">
-          <article><small>HORÁRIO</small><strong data-time>Carregando…</strong></article>
-          <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
-          <article><small>TIPO</small><strong data-type>Introdução</strong></article>
-          <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
+          <aside class="rv-lesson-details" aria-label="Detalhes da aula">
+            <div class="rv-details-tab">Sobre o treino</div>
+            <div class="daily-info" aria-label="Informações do conteúdo">
+              <article><small>HORÁRIO</small><strong data-time>Carregando…</strong></article>
+              <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
+              <article><small>TIPO</small><strong data-type>Introdução</strong></article>
+              <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
+            </div>
+          </aside>
         </div>
 
         <section id="calculadora-cardiaca" class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
@@ -160,5 +172,12 @@
       </div>
     </section>
   </main>
+  <nav class="rv-mobile-course-nav" aria-label="Navegação do aluno no celular">
+    <a href="/meus-cursos"><span aria-hidden="true">⌂</span>Início</a>
+    <a href="#aula" aria-current="page"><span aria-hidden="true">▣</span>Treinos</a>
+    <a href="#progresso"><span aria-hidden="true">▥</span>Progresso</a>
+    <a href="#calculadora-cardiaca"><span aria-hidden="true">♡</span>Calculadora</a>
+    <a href="/suporte"><span aria-hidden="true">◇</span>Suporte</a>
+  </nav>
 </body>
 </html>
