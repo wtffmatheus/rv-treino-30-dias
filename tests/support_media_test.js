@@ -79,6 +79,19 @@ assert.equal(media.import('rv30', [files[0]]).ok, true)
 assert.equal(media.manifest('rv30').status, 'draft')
 assert.equal(media.list('rv30').find((i) => i.day === 30).approved, false)
 assert.equal(media.approveBatch('rv30').ok, false)
+// Leitura de conversas nao deve gerar escrita no banco demo: evita tempestade
+// de eventos storage entre as abas do aluno e do administrador.
+const originalSetItem = localStorage.setItem
+let readWrites = 0
+localStorage.setItem = (key, value) => {
+  if (key === auth.storage.db) readWrites++
+  originalSetItem(key, value)
+}
+auth.supportThreads(true)
+auth.supportThreads(true)
+assert.equal(readWrites, 0, 'consultas de suporte nao devem persistir o DB')
+localStorage.setItem = originalSetItem
+
 window.RV_COURSE_CONFIG.testMode = false
 assert.equal(auth.supportThreads(true).length, 0)
 assert.equal(media.list('rv30').length, 0)

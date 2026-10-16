@@ -157,6 +157,7 @@
         at: nowIso()
       })
     } else {
+      const before = JSON.stringify(user)
       user.name = cfg.name || user.name || 'Aluno Teste'
       user.email = email
       user.password = String(cfg.password || '123456')
@@ -167,16 +168,20 @@
       user.comments = user.comments || {}
       user.comments.rv30 = user.comments.rv30 || {}
       user.notes = Array.isArray(user.notes) ? user.notes : []
-      user.updatedAt = nowIso()
+      if (JSON.stringify(user) !== before) user.updatedAt = nowIso()
     }
 
     return db
   }
 
   function getDb() {
-    let db = migrateLegacyIfNeeded(ensureDbShape(readJson(STORAGE.db, emptyDb())))
+    // Uma consulta nao deve disparar eventos "storage" em outras abas.
+    // Gravar apenas quando foi necessario inicializar ou migrar o esquema.
+    const saved = readJson(STORAGE.db, null)
+    const previous = saved ? JSON.stringify(saved) : null
+    let db = migrateLegacyIfNeeded(ensureDbShape(saved))
     db = ensureDemoStudent(db)
-    writeJson(STORAGE.db, db)
+    if (!saved || previous !== JSON.stringify(db)) writeJson(STORAGE.db, db)
     return db
   }
 
