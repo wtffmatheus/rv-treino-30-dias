@@ -225,6 +225,18 @@
   }
 
   document.addEventListener('click', (event) => {
+    // Links de secao devem rolar dentro da aula, sem refazer o carregamento
+    // da rota reescrita /curso/rv30/dia/N nem alterar o dia selecionado.
+    const sectionLink = event.target.closest('a[href^="#"]')
+    if (sectionLink) {
+      const id = sectionLink.getAttribute('href').slice(1)
+      const target = id && document.getElementById(id)
+      if (target) {
+        event.preventDefault()
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
+    }
     const dayButton = event.target.closest('[data-select-day]')
     if (dayButton) selectDay(dayButton.dataset.selectDay)
     if (event.target.closest('[data-complete]')) toggleComplete()
