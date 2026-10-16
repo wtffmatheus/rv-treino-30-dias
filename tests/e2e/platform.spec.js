@@ -191,3 +191,52 @@ test('modelo JSON do Google Drive cobre introdução e 30 aulas sem links public
   expect(model.items[30].name).toBe('video aula 30.mp4')
   for (const item of model.items) expect(item.driveUrl).toBe('')
 })
+
+
+test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rosangela.webp')
+  await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
+  await expect(page.locator('.hero h1')).toContainText('TREINO COM')
+  const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
+  expect(accent).toBe('#00bbb1')
+  const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
+  expect(heroLayout).toBe('grid')
+  await page.locator('.hero-actions [data-buy]').click()
+  await expect(page.getByRole('heading', { name: 'Entre para o RV 30.' })).toBeVisible()
+  await expect(page.locator('.rv-checkout .order-total [data-order-total]')).toHaveText('R$ 399,00')
+  await expect(page.locator('.rv-checkout .check-row a')).toHaveCount(2)
+  const bodyColor = await page.locator('.rv-checkout').evaluate(el => getComputedStyle(el).backgroundColor)
+  expect(bodyColor).toBe('rgb(237, 242, 241)')
+})
+
+test('design RV em telas pequenas: sem rolagem horizontal na landing e no checkout', async ({ page }) => {
+  for (const width of [320, 360, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 })
+    for (const route of ['/', '/checkout/rv30']) {
+      await page.goto(route)
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow, route + ' / ' + width).toBeLessThanOrEqual(1)
+      await expect(page.locator('link[href*="rv-performance.css"]')).toHaveCount(1)
+    }
+  }
+})
+
+test('area do aluno: video permanece antes da calculadora e o progresso funciona', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/0')
+  await expect(page.locator('[data-course-video]')).toBeVisible()
+  await expect(page.locator('[data-cardio-section]')).toBeVisible()
+  const order = await page.evaluate(() => {
+    const a = document.querySelector('[data-course-video]')
+    const b = document.querySelector('[data-cardio-section]')
+    return Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+  expect(order).toBe(true)
+  await page.getByRole('button', { name: 'Marcar como concluído' }).click()
+  await expect(page.locator('[data-complete]')).toHaveAttribute('aria-pressed', 'true')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('[data-day-picker]')).toBeVisible()
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  expect(overflow).toBeLessThanOrEqual(1)
+})
