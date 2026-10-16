@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/cardio-onboarding-drive-20261015
+      - design/rv30-performance-marca-20261015
   pull_request:
     branches: [main]
 jobs:
