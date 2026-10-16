@@ -196,7 +196,7 @@ test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', asyn
 
 test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rosangela.webp')
+  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv30-training-hero.webp')
   await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
   await expect(page.locator('.hero h1')).toContainText('TREINAMENTO INTELIGENTE PARA')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
