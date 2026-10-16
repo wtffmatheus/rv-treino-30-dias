@@ -60,6 +60,24 @@ assert.equal(media.driveFileId('https://drive.google.com.evil.test/file/d/id/vie
 assert.equal(media.driveFileId('javascript:alert(1)'), null)
 assert.equal(media.driveFileId('https://evil@drive.google.com/file/d/id/view'), null)
 assert.equal(media.approveBatch('rv30').ok, false)
+assert.equal(media.parseDay('1.mov'), 1)
+assert.equal(media.parseDay('2.mov'), 2)
+assert.equal(media.parseDay('30.mov'), 30)
+assert.equal(media.parseDay('0.mov'), 0)
+assert.equal(media.parseDay('1.mov.bak'), null)
+assert.equal(media.parseDay('1extra.mov'), null)
+const originalMovs = Array.from({ length: 30 }, (_, i) => ({
+  name: `${i+1}.mov`,
+  driveUrl: `https://drive.google.com/file/d/original_mov_${i+1}/view`
+}))
+assert.equal(media.import('rv30', originalMovs).ok, true, '30 MOV devem importar sem introducao')
+assert.equal(media.list('rv30').length, 30)
+assert.equal(media.approveBatch('rv30').ok, false, 'precisa de revisao')
+for (let d = 1; d <= 30; d++) assert.equal(media.update('rv30', d, { approved: true }).ok, true)
+assert.equal(media.approveBatch('rv30').ok, true, 'aprova apenas 30 aulas sem intro')
+assert.equal(media.manifest('rv30').published, false, 'nenhum arquivo publicado no player')
+assert.equal(media.import('rv30', [originalMovs[0]]).ok, true)
+assert.equal(media.manifest('rv30').status, 'draft', 'reimportacao revoga aprovacao')
 assert.equal(media.import('rv30', [
   { name: 'video aula 00.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' },
   { name: 'video aula 01.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' }
