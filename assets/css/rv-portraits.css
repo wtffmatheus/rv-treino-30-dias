@@ -80,3 +80,11 @@
 @media(prefers-reduced-motion:reduce){
   .hero .hero-portrait,.professional-photo img{transition:none!important}
 }
+
+/* Mobile: posiciona o rosto acima do título, mantendo o hero fotográfico. */
+@media (max-width:700px){
+  .hero .hero-portrait{
+    transform:scale(1.22) translateY(-8%);
+    transform-origin:center top;
+  }
+}
