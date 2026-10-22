@@ -11,6 +11,7 @@ on:
       - feature/rv30-etapa4-validacao-midia-20261015
       - qa/rv30-release-hardening-20261016
       - design/rv30-fotos-reais-rosangela-20261022
+      - feature/metodo-rv-evolua-identidade-20261022
   pull_request:
     branches: [main]
 jobs:
