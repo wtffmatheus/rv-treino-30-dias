@@ -341,6 +341,7 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     await page.goto('/')
     for (const selector of ['.hero-portrait', '.professional-photo img']) {
       const image = page.locator(selector)
+      await image.scrollIntoViewIfNeeded()
       await expect(image).toBeVisible()
       await expect.poll(async () => image.evaluate(el => el.complete && el.naturalWidth > 1000 && el.naturalHeight > 1000)).toBe(true)
     }
@@ -348,6 +349,7 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     expect(heroFit).toBe('cover')
     await page.goto('/checkout/rv30')
     const checkoutImg = page.locator('.rv-checkout-expert img')
+    await checkoutImg.scrollIntoViewIfNeeded()
     await expect(checkoutImg).toBeVisible()
     await expect.poll(async () => checkoutImg.evaluate(el => el.complete && el.naturalWidth > 1000)).toBe(true)
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
