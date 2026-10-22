@@ -73,8 +73,13 @@
     return customer
   }
 
-  const productionReady = !config.testMode && Boolean(course.paymentUrl)
-  const productionMisconfigured = !config.testMode && !course.paymentUrl
+  // Um simples link de pagamento nao comprova criacao segura de matricula.
+  // Falhar fechado ate existir integracao real com confirmacao server-side.
+  const productionReady = !config.testMode
+    && config.salesEnabled === true
+    && config.productionAccessVerified === true
+    && Boolean(course.paymentUrl)
+  const productionMisconfigured = !config.testMode && !productionReady
   const simulationEnabled = config.testMode && config.enablePaymentSimulation === true
 
   if (productionReady) {
@@ -85,7 +90,7 @@
     if (form) form.hidden = true
     if (setupError) {
       setupError.hidden = false
-      setupError.textContent = 'Checkout temporariamente indisponível. A configuração de pagamento ainda não foi concluída.'
+      setupError.textContent = 'Inscrições temporariamente indisponíveis. Estamos finalizando a confirmação do pagamento e a liberação segura das aulas.'
     }
   }
 

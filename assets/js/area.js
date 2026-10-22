@@ -225,6 +225,18 @@
   }
 
   document.addEventListener('click', (event) => {
+    // Links de secao devem rolar dentro da aula, sem refazer o carregamento
+    // da rota reescrita /curso/rv30/dia/N nem alterar o dia selecionado.
+    const sectionLink = event.target.closest('a[href^="#"]')
+    if (sectionLink) {
+      const id = sectionLink.getAttribute('href').slice(1)
+      const target = id && document.getElementById(id)
+      if (target) {
+        event.preventDefault()
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
+    }
     const dayButton = event.target.closest('[data-select-day]')
     if (dayButton) selectDay(dayButton.dataset.selectDay)
     if (event.target.closest('[data-complete]')) toggleComplete()
@@ -251,4 +263,33 @@
   if (demoMode) $('[data-reset-demo]')?.removeAttribute('hidden')
   $('[data-day-picker]')?.addEventListener('change', (event) => selectDay(event.target.value))
   renderContent()
+  window.RVCardio?.mount({ account, demoMode })
+
+  // Primeiro acesso e opcional; nunca impede a leitura das aulas.
+  // A sessao registra apenas um sinalizador, nao dados cardiacos.
+  const welcome = $('[data-first-start]')
+  if (welcome && account?.id && !demoMode) {
+    const marker = 'rv30-welcome-shown-v1:' + account.id
+    const profileKey = 'rv30-cardio-demo-v1:' + account.id
+    const knownProfile = Boolean(localStorage.getItem(profileKey))
+    let dismissed = false
+    // Apenas o registro "boas-vindas exibidas", sem dados de saude.
+    // Persistir entre visitas evita solicitar a avaliacao a cada login.
+    try { dismissed = localStorage.getItem(marker) === '1' } catch {}
+    welcome.hidden = knownProfile || dismissed
+    const hideWelcome = () => {
+      welcome.hidden = true
+      try { localStorage.setItem(marker, '1') } catch {}
+    }
+    $('[data-first-cardio]')?.addEventListener('click', () => {
+      hideWelcome()
+      $('[data-cardio-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      $('[data-cardio-section] [name=age]')?.focus({ preventScroll: true })
+    })
+    $('[data-first-skip]')?.addEventListener('click', () => {
+      hideWelcome()
+      $('[data-title]')?.focus?.()
+    })
+    document.addEventListener('rv30:cardio-calculated', hideWelcome)
+  }
 })()

@@ -5,19 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base href="/">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta name="theme-color" content="#020b16">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br; font-src 'self' https://fonts.gstatic.com; form-action 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#08151e">
   <meta name="robots" content="noindex,nofollow">
   <title>Checkout — RV 30</title>
   <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261015">
+  <link rel="stylesheet" href="/assets/css/rv-moodboard.css?v=20261015">
+  <link rel="stylesheet" href="/assets/css/rv-portraits.css?v=20261022">
   <script src="assets/js/config.js?v=20260913-3" defer></script>
   <script src="assets/js/runtime.js?v=20260913-3" defer></script>
   <script src="assets/js/auth-demo.js?v=20260913-3" defer></script>
   <script src="assets/js/checkout.js?v=20260913-3" defer></script>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
 </head>
-<body class="portal-body">
+<body class="portal-body rv-checkout">
   <header class="portal-header">
     <div class="container portal-header-inner">
       <a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>RV Fisiologia</strong><small>Checkout seguro</small></span></a>
@@ -27,10 +33,11 @@
 
   <main class="checkout-page">
     <div class="container checkout-grid">
+
       <section class="checkout-card">
         <p class="eyebrow"><span></span> FINALIZAR INSCRIÇÃO</p>
-        <h1>Entre para o <em>RV 30.</em></h1>
-        <p class="portal-lead">Informe seus dados para iniciar o pedido do RV 30. No MVP, o pagamento pode seguir para um link seguro da Stone; a liberação do acesso depende da confirmação real pela RV.</p>
+        <h1>Finalize sua <em>inscrição.</em></h1>
+        <p class="portal-lead">Preencha seus dados para continuar ao ambiente de pagamento. O acesso ao RV 30 depende da confirmação da compra.</p>
 
         <div class="checkout-config-error" data-checkout-config-error hidden role="alert"></div>
 
@@ -53,15 +60,21 @@
           <button class="button button--secondary button--wide" type="button" data-simulate-payment>Simular pagamento aprovado</button>
         </div>
       </section>
-
       <aside class="order-card">
-        <small>SEU PEDIDO</small>
+        <small>RESUMO DO PEDIDO</small>
         <div class="order-product"><div class="order-product-mark">30</div><div><strong data-order-title>RV 30</strong><span>Projeto completo • 30 dias</span></div></div>
+        <div class="rv-checkout-expert">
+          <img src="/assets/brand/rv-rosangela-fisiologia.webp" alt="Retrato de Rosangela Varas em ambiente de fisiologia" width="1122" height="1402" loading="lazy" decoding="async">
+          <p><strong>Com Rosangela Varas</strong><span>Conteúdo organizado pela RV Fisiologia para acompanhar seus 30 dias.</span></p>
+        </div>
         <div class="order-lines"><p><span>Projeto RV 30</span><strong data-order-total>R$ 399,00</strong></p><p><span>Equivalente diário</span><strong><span data-order-daily>R$ 13,30</span>/dia</strong></p></div>
         <div class="order-total"><span>Total</span><strong data-order-total>R$ 399,00</strong></div>
-        <div class="secure-note"><span>✓</span><p><strong>Pagamento fora deste site</strong><small>Este portal não coleta dados de cartão. A etapa financeira acontece no gateway configurado pela RV Fisiologia.</small></p></div>
+        <p class="order-daily-note">O valor por dia é apenas a equivalência do preço total dividido por 30.</p>
+        <div class="secure-note"><span aria-hidden="true">✓</span><p><strong>Pagamento por provedor externo</strong><small>Este portal não coleta dados de cartão. A etapa financeira acontece no gateway configurado pela RV Fisiologia.</small></p></div>
         <p class="tiny-note">Em produção, o acesso deverá ser liberado somente após confirmação server-side do pagamento. No teste, usamos o e-mail informado no formulário local.</p>
       </aside>
+
+
     </div>
   </main>
 </body>

@@ -17,6 +17,10 @@
   }
   function parseDay(name) {
     const normalized = String(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    // Aceita 1.mov ... 30.mov, alem do padrao anterior "video aula 01.mp4".
+    // Apenas um numero sozinho com extensao valida vira "Dia N".
+    const numeric = normalized.match(/^(\d{1,3})\.(?:mov|mp4|m4v|webm)$/)
+    if (numeric) return Number(numeric[1])
     const match = normalized.match(/^(?:video[ _-]*)?(?:aula|dia)[ _-]*(\d{1,3})(?=[ _.-]|$)/)
     return match ? Number(match[1]) : null
   }
@@ -37,7 +41,7 @@
       for (const file of files) {
         const day = parseDay(file.name)
         if (!/\.(mp4|mov|webm|m4v)$/i.test(file.name || '') || day === null || day > course.totalDays || days.has(day)) {
-          return failure(`Nome inválido ou dia duplicado: ${String(file.name || '').slice(0, 120)}. Use video aula 00.mp4 até video aula ${course.totalDays}.mp4.`)
+          return failure(`Nome inválido ou dia duplicado: ${String(file.name || '').slice(0, 120)}. Use 1.mov até ${course.totalDays}.mov (introdução 0.mov opcional).`)
         }
         if (file.driveUrl && !driveFileId(file.driveUrl)) return failure('Use o link privado de um arquivo do Google Drive.')
         days.add(day)
@@ -49,6 +53,8 @@
       const old = db[courseId]?.items || []
       // Uma reimportacao invalida o aceite, inclusive quando o nome nao mudou.
       const items = [...old.filter((i) => !days.has(i.day)), ...staged].sort((a, b) => a.day - b.day)
+      const ids = items.map((i) => driveFileId(i.driveUrl)).filter(Boolean)
+      if (new Set(ids).size !== ids.length) return failure('Um mesmo arquivo do Drive nao pode ocupar varias aulas.')
       db[courseId] = { items, batchApprovedAt: null }
       localStorage.setItem(KEY, JSON.stringify(db))
       return { ok: true, count: staged.length }
@@ -59,7 +65,11 @@
       const item = db[courseId]?.items.find((i) => i.day === day)
       if (!item) return failure('Vídeo não encontrado.')
       if (Object.hasOwn(changes, 'driveUrl')) {
-        if (changes.driveUrl && !driveFileId(changes.driveUrl)) return failure('Link inválido. Use https://drive.google.com/file/d/ID/view.')
+        const id = changes.driveUrl ? driveFileId(changes.driveUrl) : null
+        if (changes.driveUrl && !id) return failure('Link inválido. Use https://drive.google.com/file/d/ID/view.')
+        if (id && db[courseId].items.some((i) => i.day !== day && driveFileId(i.driveUrl) === id)) {
+          return failure('Este arquivo do Drive ja foi associado a outra aula.')
+        }
         item.driveUrl = changes.driveUrl || ''
         item.approved = false
         item.approvedAt = null
@@ -78,9 +88,14 @@
       const course = config(courseId)
       const db = read()
       const batch = db[courseId]
-      if (!course || !batch || batch.items.length !== course.totalDays + 1 ||
-        Array.from({ length: course.totalDays + 1 }, (_, day) => day).some((day) => !batch.items.some((i) => i.day === day && i.approved && driveFileId(i.driveUrl)))) {
-        return failure('Revise e aprove todos os vídeos, incluindo a introdução (aula 00).')
+      // Os 30 dias sao obrigatorios. Introducao (dia 00) so precisa de
+      // arquivo/aprovacao quando foi efetivamente fornecida.
+      const validDays = Array.from({ length: course.totalDays }, (_, i) => i + 1)
+      const intro = batch?.items?.find((i) => i.day === 0)
+      if (!course || !batch || (batch.items.length !== course.totalDays && batch.items.length !== course.totalDays + 1) ||
+        validDays.some((day) => !batch.items.some((i) => i.day === day && i.approved && driveFileId(i.driveUrl))) ||
+        (intro && (!intro.approved || !driveFileId(intro.driveUrl)))) {
+        return failure('Revise e aprove todos os 30 vídeos. A introdução é opcional; se adicionada, também precisa ser aprovada.')
       }
       batch.batchApprovedAt = new Date().toISOString()
       localStorage.setItem(KEY, JSON.stringify(db))

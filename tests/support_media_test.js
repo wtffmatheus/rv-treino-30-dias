@@ -60,11 +60,34 @@ assert.equal(media.driveFileId('https://drive.google.com.evil.test/file/d/id/vie
 assert.equal(media.driveFileId('javascript:alert(1)'), null)
 assert.equal(media.driveFileId('https://evil@drive.google.com/file/d/id/view'), null)
 assert.equal(media.approveBatch('rv30').ok, false)
+assert.equal(media.parseDay('1.mov'), 1)
+assert.equal(media.parseDay('2.mov'), 2)
+assert.equal(media.parseDay('30.mov'), 30)
+assert.equal(media.parseDay('0.mov'), 0)
+assert.equal(media.parseDay('1.mov.bak'), null)
+assert.equal(media.parseDay('1extra.mov'), null)
+const originalMovs = Array.from({ length: 30 }, (_, i) => ({
+  name: `${i+1}.mov`,
+  driveUrl: `https://drive.google.com/file/d/original_mov_${i+1}/view`
+}))
+assert.equal(media.import('rv30', originalMovs).ok, true, '30 MOV devem importar sem introducao')
+assert.equal(media.list('rv30').length, 30)
+assert.equal(media.approveBatch('rv30').ok, false, 'precisa de revisao')
+for (let d = 1; d <= 30; d++) assert.equal(media.update('rv30', d, { approved: true }).ok, true)
+assert.equal(media.approveBatch('rv30').ok, true, 'aprova apenas 30 aulas sem intro')
+assert.equal(media.manifest('rv30').published, false, 'nenhum arquivo publicado no player')
+assert.equal(media.import('rv30', [originalMovs[0]]).ok, true)
+assert.equal(media.manifest('rv30').status, 'draft', 'reimportacao revoga aprovacao')
+assert.equal(media.import('rv30', [
+  { name: 'video aula 00.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' },
+  { name: 'video aula 01.mp4', driveUrl: 'https://drive.google.com/file/d/shared_id/view' }
+]).ok, false, 'um arquivo nao pode mapear duas aulas')
 assert.equal(media.import('rv30', [{ name: 'video aula 00.mp4' }]).ok, true)
 assert.equal(media.update('rv30', 0, { approved: true }).ok, false)
 const files = Array.from({ length: 31 }, (_, day) => ({ name: `video aula ${String(day).padStart(2, '0')}.mp4`, driveUrl: `https://drive.google.com/file/d/test_${day}/view` })).reverse()
 assert.equal(media.import('rv30', files).ok, true)
 assert.equal(media.list('rv30')[0].day, 0)
+assert.equal(media.update('rv30', 0, { driveUrl: 'https://drive.google.com/file/d/test_1/view' }).ok, false, 'link duplicado deve falhar')
 assert.equal(media.manifest('rv30').status, 'draft')
 for (let day = 0; day <= 30; day++) assert.equal(media.update('rv30', day, { approved: true }).ok, true)
 assert.equal(media.approveBatch('rv30').ok, true)
@@ -74,6 +97,19 @@ assert.equal(media.import('rv30', [files[0]]).ok, true)
 assert.equal(media.manifest('rv30').status, 'draft')
 assert.equal(media.list('rv30').find((i) => i.day === 30).approved, false)
 assert.equal(media.approveBatch('rv30').ok, false)
+// Leitura de conversas nao deve gerar escrita no banco demo: evita tempestade
+// de eventos storage entre as abas do aluno e do administrador.
+const originalSetItem = localStorage.setItem
+let readWrites = 0
+localStorage.setItem = (key, value) => {
+  if (key === auth.storage.db) readWrites++
+  originalSetItem(key, value)
+}
+auth.supportThreads(true)
+auth.supportThreads(true)
+assert.equal(readWrites, 0, 'consultas de suporte nao devem persistir o DB')
+localStorage.setItem = originalSetItem
+
 window.RV_COURSE_CONFIG.testMode = false
 assert.equal(auth.supportThreads(true).length, 0)
 assert.equal(media.list('rv30').length, 0)

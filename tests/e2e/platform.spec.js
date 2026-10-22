@@ -19,7 +19,7 @@ async function studentLogin(page) {
 async function buy(page) {
   await page.goto('/')
   await page.locator('.hero-actions [data-buy]').click()
-  await expect(page.getByRole('heading', { name: 'Entre para o RV 30.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Finalize sua inscrição.' })).toBeVisible()
   await page.getByLabel('Nome completo').fill('Aluno de Teste')
   await page.getByLabel('E-mail', { exact: true }).fill('qa.aluno@example.test')
   await page.getByLabel('WhatsApp').fill('11999999999')
@@ -60,6 +60,7 @@ test('compra demo, progresso, comentario e conversa aluno-admin persistem', asyn
   await admin.getByRole('button', { name: /Dúvida sobre meu acesso/ }).click()
   await admin.getByLabel('Sua mensagem').fill('Você encontra o progresso em Meus cursos.')
   await admin.getByRole('button', { name: 'Enviar mensagem' }).click()
+  await page.bringToFront()
   await expect(page.getByText('Você encontra o progresso em Meus cursos.', { exact: true })).toBeVisible()
   await admin.getByRole('button', { name: 'Resolver conversa' }).click()
   await page.getByRole('button', { name: 'Sair', exact: true }).click()
@@ -151,4 +152,212 @@ test('menu mobile, formulario invalido, FAQ e navegacao de aula', async ({ page 
   await expect(page.locator('[data-day-pill]')).toHaveText('DIA 08')
   await page.getByRole('button', { name: 'Próximo' }).click()
   await expect(page.locator('[data-day-pill]')).toHaveText('DIA 09')
+})
+
+
+test('aluno configura FC de reserva, compara leitura e apaga dados locais', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/0')
+  const section = page.locator('[data-cardio-section]')
+  await expect(section.getByRole('heading', { name: 'Sua faixa cardíaca de treino' })).toBeVisible()
+  await section.getByLabel('Idade (anos)').fill('30')
+  await section.getByLabel('FC de repouso (bpm)').fill('86')
+  await section.getByLabel('FC máxima medida em teste (bpm) — opcional').fill('187')
+  await section.getByLabel('Condicionamento físico').selectOption('sedentario')
+  await section.locator('[data-cardio-save]').check()
+  await section.getByRole('button', { name: 'Calcular minha faixa' }).click()
+  await expect(section.locator('[data-cardio-limits]')).toContainText('137 a 157 bpm')
+  await section.locator('[data-cardio-current]').fill('150')
+  await section.getByRole('button', { name: 'Comparar leitura' }).click()
+  await expect(section.locator('[data-cardio-comparison]')).toContainText('dentro da faixa estimada')
+
+  await page.reload()
+  await expect(section.locator('[data-cardio-limits]')).toContainText('137 a 157 bpm')
+  await expect(section.locator('[name=age]')).toHaveValue('30')
+  await section.getByRole('button', { name: 'Apagar dados salvos' }).click()
+  await expect(section.locator('[data-cardio-results]')).toBeHidden()
+  await page.reload()
+  await expect(section.locator('[data-cardio-results]')).toBeHidden()
+  await expect(section.locator('[name=age]')).toHaveValue('')
+})
+
+test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', async ({ request }) => {
+  const response = await request.get('/assets/data/rv30-videos-template.json')
+  expect(response.ok()).toBeTruthy()
+  const model = await response.json()
+  expect(model.schemaVersion).toBe(1)
+  expect(model.courseId).toBe('rv30')
+  expect(model.items).toHaveLength(30)
+  expect(model.items[0].name).toBe('1.mov')
+  expect(model.items[29].name).toBe('30.mov')
+  for (const item of model.items) expect(item.driveUrl).toBe('')
+})
+
+
+test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
+  await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
+  await expect(page.locator('.hero h1')).toContainText('TREINAMENTO INTELIGENTE PARA')
+  const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
+  expect(accent).toBe('#00bbb1')
+  const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
+  expect(heroLayout).toBe('grid')
+  await page.locator('.hero-actions [data-buy]').click()
+  await expect(page.getByRole('heading', { name: 'Finalize sua inscrição.' })).toBeVisible()
+  await expect(page.locator('.rv-checkout .order-total [data-order-total]')).toHaveText('R$ 399,00')
+  await expect(page.locator('.rv-checkout .check-row a')).toHaveCount(2)
+  const bodyColor = await page.locator('.rv-checkout').evaluate(el => getComputedStyle(el).backgroundColor)
+  expect(bodyColor).toBe('rgb(237, 242, 241)')
+})
+
+test('design RV em telas pequenas: sem rolagem horizontal na landing e no checkout', async ({ page }) => {
+  for (const width of [320, 360, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 })
+    for (const route of ['/', '/checkout/rv30']) {
+      await page.goto(route)
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow, route + ' / ' + width).toBeLessThanOrEqual(1)
+      await expect(page.locator('link[href*="rv-performance.css"]')).toHaveCount(1)
+    }
+  }
+})
+
+test('area do aluno: video permanece antes da calculadora e o progresso funciona', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/0')
+  await expect(page.locator('[data-course-video]')).toBeVisible()
+  await expect(page.locator('[data-cardio-section]')).toBeVisible()
+  const order = await page.evaluate(() => {
+    const a = document.querySelector('[data-course-video]')
+    const b = document.querySelector('[data-cardio-section]')
+    return Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+  expect(order).toBe(true)
+  await page.getByRole('button', { name: 'Marcar como concluído' }).click()
+  await expect(page.locator('[data-complete]')).toHaveAttribute('aria-pressed', 'true')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('[data-day-picker]')).toBeVisible()
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  expect(overflow).toBeLessThanOrEqual(1)
+})
+
+
+test('admin importa 30 arquivos MOV numéricos sem introdução obrigatória', async ({ page }) => {
+  await adminLogin(page)
+  await page.goto('/admin/videos')
+  const model = await page.request.get('/assets/data/rv30-videos-template.json').then(r => r.json())
+  const manifest = {
+    ...model,
+    items: model.items.map((item, i) => ({ ...item, driveUrl: 'https://drive.google.com/file/d/mov_day_' + (i + 1) + '/view' }))
+  }
+  await page.locator('[data-manifest]').setInputFiles({
+    name: '30-mov.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(manifest))
+  })
+  await expect(page.locator('.media-row')).toHaveCount(30)
+  await expect(page.locator('.media-day').first()).toHaveText('01')
+  await expect(page.locator('.media-day').last()).toHaveText('30')
+  for (let i = 1; i <= 30; i++) await page.getByLabel('Aprovar aula ' + String(i).padStart(2,'0'), { exact: true }).check()
+  await page.locator('[data-confirm]').check()
+  await expect(page.getByRole('button', { name: 'Aprovar lote' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Aprovar lote' }).click()
+  await expect(page.locator('[data-feedback]')).toContainText('Nenhuma aula foi publicada')
+})
+
+
+test('novo aluno recebe convite cardíaco no primeiro acesso e pode pular sem bloqueio', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/0')
+  const welcome = page.locator('[data-first-start]')
+  await expect(welcome).toBeVisible()
+  await expect(welcome).toContainText('Conheça sua faixa cardíaca')
+  await expect(page.locator('[data-cardio-navigation]')).toHaveAttribute('href', '#calculadora-cardiaca')
+  await welcome.getByRole('button', { name: 'Calcular minha faixa' }).click()
+  await expect(welcome).toBeHidden()
+  await expect(page.locator('[data-cardio-section] [name=age]')).toBeFocused()
+  await page.reload()
+  await expect(welcome).toBeHidden()
+  await expect(page.locator('[data-course-video]')).toBeVisible()
+})
+
+test('novo aluno pode dispensar avaliacao sem salvar dados de saude', async ({ page }) => {
+  await buy(page)
+  await page.goto('/curso/rv30/dia/1')
+  const welcome = page.locator('[data-first-start]')
+  await expect(welcome).toBeVisible()
+  await welcome.getByRole('button', { name: 'Continuar sem calcular' }).click()
+  await expect(welcome).toBeHidden()
+  const keys = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('rv30-cardio-demo-v1:')))
+  expect(keys).toHaveLength(0)
+  await page.getByRole('button', { name: 'Marcar como concluído' }).click()
+  await expect(page.locator('[data-complete]')).toHaveAttribute('aria-pressed', 'true')
+})
+
+
+test('composição RV moodboard desktop e mobile mantém acessos, player e checkout', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const heading = page.locator('#hero-title')
+  await expect(heading).toContainText('30 DIAS')
+  await expect(page.locator('.hero-visual')).toBeVisible()
+  await expect(page.locator('.hero-proof span')).toHaveCount(4)
+  const desktop = await page.locator('.hero-grid').evaluate(e => getComputedStyle(e).display)
+  expect(desktop).toBe('grid')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.reload()
+  const heroPhotoPosition = await page.locator('.hero-visual').evaluate(e => getComputedStyle(e).position)
+  expect(heroPhotoPosition).toBe('absolute')
+  await expect(page.locator('.hero-actions [data-buy]')).toBeVisible()
+  await page.locator('.hero-actions [data-buy]').click()
+  await expect(page.locator('.rv-checkout .checkout-card')).toBeVisible()
+  const formPosition = await page.locator('.checkout-card').evaluate(e => e.getBoundingClientRect().top)
+  const orderPosition = await page.locator('.order-card').evaluate(e => e.getBoundingClientRect().top)
+  expect(formPosition).toBeLessThan(orderPosition)
+})
+
+test('menu RV de aluno e painel lateral da aula aparecem conforme tamanho de tela', async ({ page }) => {
+  await buy(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/curso/rv30/dia/1')
+  await expect(page.locator('.rv-student-nav')).toBeVisible()
+  await expect(page.locator('.rv-lesson-grid .course-video')).toBeVisible()
+  await expect(page.locator('.rv-lesson-details .daily-info article')).toHaveCount(4)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.rv-mobile-course-nav')).toBeVisible()
+  await expect(page.locator('.rv-mobile-course-nav a')).toHaveCount(5)
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  expect(overflow).toBeLessThanOrEqual(1)
+  await page.locator('.rv-mobile-course-nav a[href="#calculadora-cardiaca"]').click()
+  await expect(page.locator('[data-cardio-section]')).toBeVisible()
+})
+
+
+test('retratos reais da Rosangela estão carregados e sem distorção em desktop e mobile', async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    for (const selector of ['.hero-portrait', '.professional-photo img']) {
+      const image = page.locator(selector)
+      await image.scrollIntoViewIfNeeded()
+      await expect(image).toBeVisible()
+      await expect.poll(async () => image.evaluate(el => el.complete && el.naturalWidth > 1000 && el.naturalHeight > 1000)).toBe(true)
+    }
+    const heroFit = await page.locator('.hero-portrait').evaluate(el => getComputedStyle(el).objectFit)
+    expect(heroFit).toBe('cover')
+    if (width === 390) {
+      const buybar = page.locator('.mobile-buybar')
+      await expect(buybar).toContainText('R$ 399,00')
+      await expect(buybar.locator('strong')).toContainText('total')
+    }
+    await page.goto('/checkout/rv30')
+    const checkoutImg = page.locator('.rv-checkout-expert img')
+    await checkoutImg.scrollIntoViewIfNeeded()
+    await expect(checkoutImg).toBeVisible()
+    await expect.poll(async () => checkoutImg.evaluate(el => el.complete && el.naturalWidth > 1000)).toBe(true)
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+    expect(overflow).toBeLessThanOrEqual(1)
+  }
 })

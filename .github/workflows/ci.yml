@@ -1,0 +1,57 @@
+name: RV30 Quality Checks
+on:
+  push:
+    branches:
+      - feature/cardio-onboarding-drive-20261015
+      - design/rv30-performance-marca-20261015
+      - feature/rv30-drive-30-mov-20261015
+      - audit/rv30-lancamento-etapa1-20261015
+      - feature/rv30-etapa2-primeiro-acesso-cardio-20261015
+      - design/rv30-etapa3-fidelidade-moodboard-20261015
+      - feature/rv30-etapa4-validacao-midia-20261015
+      - qa/rv30-release-hardening-20261016
+      - design/rv30-fotos-reais-rosangela-20261022
+  pull_request:
+    branches: [main]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install beautifulsoup4
+      - name: Unit and integration tests
+        run: npm test
+      - name: Static checks and build
+        run: |
+          npm run check
+          npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser end-to-end tests
+        run: npm run test:e2e
+      - name: Upload visual review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rv30-visual-review
+          path: output/qa-previews/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Python audits
+        run: |
+          python tests/smoke_test.py
+          python tests/content_audit.py
+          python tests/deep_audit.py
+          python tests/css_integrity_audit.py
+          python tests/supabase_schema_audit.py
+          python tests/contrast_audit.py

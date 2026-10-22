@@ -1,0 +1,325 @@
+/*
+ * RV 30 — Performance Contemporânea • outubro/2026
+ * Camada visual deliberadamente separada da lógica e dos estilos históricos.
+ * Paleta baseada na marca RV original: branco, grafite e turquesa (#00bbb1).
+ */
+:root{
+  --bg:#08151e;--bg2:#101e28;--panel:#142732;--panel2:#182d39;--panel3:#1b3440;
+  --text:#f5f9f9;--soft:#d9e5e8;--muted:#a9bdc5;--muted2:#a5bac2;
+  --accent:#00bbb1;--accent2:#57e4d8;--accentLine:rgba(0,187,177,.34);
+  --accentSoft:rgba(0,187,177,.09);
+  --line:rgba(183,210,218,.15);--line2:rgba(183,210,218,.26);
+  --border-control:#67828d;--surface-neutral:#152a35;--radius:9px;--radiusLg:13px;
+  --shadow:0 24px 56px rgba(1,9,14,.23);
+  --font:"Manrope","Segoe UI",Arial,sans-serif;
+  --font-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+}
+html{scroll-padding-top:88px}
+body{font-family:var(--font);font-size:1rem;line-height:1.6;letter-spacing:normal!important;background:var(--bg);color:var(--text)}
+h1,h2,h3,.course-title,.price-main strong{font-family:var(--font-display);font-weight:750;line-height:1.08;letter-spacing:-.012em!important}
+h1{font-size:clamp(3.3rem,6vw,6rem)}h2{font-size:clamp(2.25rem,4.25vw,4rem)}h3{font-size:clamp(1.4rem,2.2vw,2.1rem)}
+.eyebrow,.section-mini-head small,.course-panel-head small{letter-spacing:.13em!important}
+.button{min-height:48px;padding:12px 22px;border-radius:8px;font-size:.92rem;font-weight:800;transition:background-color .2s ease,border-color .2s ease,transform .2s cubic-bezier(.22,1,.36,1),color .2s ease}
+.button--primary{background:var(--accent);border-color:var(--accent);color:#062123;box-shadow:none}
+.button--primary:hover:not(:disabled){background:#29d4c7;border-color:#29d4c7;transform:translateY(-2px);filter:none}
+.button--secondary{background:#1a303a;border-color:#60757e;color:#f6f9f9}
+.button--ghost{border-color:var(--line2);background:transparent;color:var(--soft)}
+.button:hover:not(:disabled){transform:translateY(-2px)}
+.button:active:not(:disabled){transform:translateY(0)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{
+ outline:3px solid #28e4d6!important;outline-offset:3px
+}
+img{height:auto}
+[hidden]{display:none!important}
+
+/* MARKETING — estrutura editorial, com hierarquia de conversão. */
+.site-header{background:rgba(8,21,30,.98);border-bottom:1px solid var(--line);backdrop-filter:none}
+.header-inner{min-height:82px;grid-template-columns:1fr auto auto;gap:32px}
+.brand img,.footer-brand img{width:86px;height:46px;object-fit:contain}
+.brand strong{font-family:var(--font-display);font-size:1.15rem;font-weight:700}
+.brand small{color:#c5d4d9;font-size:.7rem}
+.main-nav{gap:clamp(12px,1.8vw,30px)}
+.main-nav a{color:#deeaed;font-size:.78rem;font-weight:750}
+.main-nav a:hover{color:var(--accent2)}
+.button--header{background:transparent;border-color:#52707b;color:#f3f7f7}
+.hero{background:#09151e;border-bottom:0;padding:clamp(42px,5vw,74px) 0 24px}
+.hero-grid-bg{display:none}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.84fr);align-items:stretch;gap:clamp(32px,5vw,76px)}
+.hero-copy{padding:clamp(12px,2vw,28px) 0;max-width:750px}
+.hero .eyebrow{font-size:.79rem;color:#88e3db;margin-bottom:26px;font-weight:800;letter-spacing:.15em!important}
+.hero h1{max-width:10ch;margin:0 0 20px;font-size:clamp(4.5rem,7.4vw,7.6rem);font-weight:800;line-height:.87;text-transform:uppercase;letter-spacing:-.018em!important}
+.hero h1 em{display:block;font-style:normal;color:var(--accent);letter-spacing:inherit!important}
+.hero-tagline{font-family:var(--font);font-size:clamp(1.12rem,1.8vw,1.45rem);font-weight:760;line-height:1.35;color:#f4f8f9;max-width:35ch;margin-bottom:12px}
+.hero-lead{font-size:1rem;color:#c7d7dc;line-height:1.72;max-width:55ch}
+.hero-actions{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-top:24px}
+.hero-actions .button{min-height:54px;padding:14px 28px;font-size:.99rem}
+.hero-actions .text-link{font-size:.87rem;color:#deebed}
+.hero-price{margin-top:25px;padding:17px 0;gap:20px;border-top:1px solid rgba(208,229,232,.22);border-bottom:1px solid rgba(208,229,232,.22)}
+.hero-price>div{display:block}
+.hero-price--v2>div{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px}
+.hero-price--v2>div small{flex-basis:100%;color:#b7c8ce;font-size:.74rem}
+.hero-price--v2>div strong{font-family:var(--font-display);font-size:3rem;font-weight:750;color:#f6f9f9}
+.hero-price--v2>div span{font-size:.78rem;color:#c8d8dc;text-transform:none}
+.hero-price p{font-size:.78rem;color:#bdcdd3}
+.hero-price p b{color:#e9f3f5}
+.hero-visual{margin:0;position:relative;min-width:0;min-height:580px;overflow:hidden;align-self:stretch;border-radius:12px;background:#1c3038}
+.hero-visual:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 65%,rgba(4,18,26,.88) 100%)}
+.hero-portrait{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center 26%;filter:saturate(.84) contrast(1.05)}
+.hero-visual::before{content:"";position:absolute;top:0;left:0;width:5px;height:38%;background:var(--accent);z-index:1}
+.hero-visual-caption{position:absolute;z-index:2;left:28px;right:28px;bottom:25px;display:flex;align-items:end;justify-content:space-between;gap:16px;color:#fff}
+.hero-visual-caption strong{display:block;font-family:var(--font-display);font-size:2rem;line-height:1;letter-spacing:.03em!important;text-transform:uppercase}
+.hero-visual-caption span{display:block;margin-top:5px;font-size:.75rem;color:#d9e8e8}
+.hero-visual-caption b{font-family:var(--font-display);font-size:4.5rem;line-height:.85;color:var(--accent)}
+.hero-proof{margin-top:18px;gap:10px 20px}
+.hero-proof span{font-size:.77rem;color:#dae6e8;padding:0}
+.hero-proof span:before{content:"✓";margin-right:8px;color:var(--accent);font-weight:850}
+.hero-note{margin-top:16px;padding-top:12px}
+.hero-note p{font-size:.8rem!important;color:#cedddf}
+.goal-lockup{margin-top:10px;padding:12px 0 0;background:none;border:0}
+.goal-lockup>small{font-size:.69rem;color:#aac4c9}
+.goal-lockup strong{font-size:1.65rem;color:#e6f0f0}
+.goal-lockup>span{font-size:.9rem;color:#a9c0c6}
+.goal-lockup p{display:block!important;font-size:.74rem;color:#c4d7da;max-width:65ch}
+.trust-strip{background:#111f29;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust-grid article{grid-template-columns:38px 1fr;gap:10px}
+.trust-grid b{color:var(--accent);font-family:var(--font-display);font-size:1.55rem}
+.trust-grid strong{color:#f0f6f6;font-weight:800}
+.section{padding:clamp(76px,7vw,114px) 0}
+.section--surface{background:#11232c}
+.section-heading h2,.pricing-section h2,.faq-layout h2{max-width:16ch}
+.section-heading p{max-width:65ch}
+#proposta,#rosangela{background:#f3f6f5;color:#14232b}
+#proposta h2,#proposta h3,#rosangela h2,#rosangela h3{color:#172831}
+#proposta p:not(.eyebrow),#rosangela p:not(.eyebrow){color:#425961}
+#proposta .eyebrow,#rosangela .eyebrow{color:#006b66}
+#proposta .split-layout article,#proposta .split-layout .step-list article{border-color:rgba(18,48,59,.15)}
+#proposta .split-layout article h3,#proposta .split-layout .step-list article h3{color:#14232b}
+#proposta .split-layout article p,#proposta .split-layout .step-list article p{color:#49626a}
+#proposta .split-layout article span{color:#00786f}
+.professional-photo{border-radius:9px;border-color:rgba(17,57,63,.16);box-shadow:none}
+.professional-role{color:#00736d!important}
+#rosangela .text-link{color:#075f60;border-color:#699b99}
+.qual-grid,.phase-grid,.science-grid,.benefit-grid{gap:14px}
+.qual-card,.phase-card,.science-card,.benefit-card,.catalog-card{background:#172c36;border:1px solid var(--line2);box-shadow:none;border-radius:9px;transition:background .2s ease,border-color .2s ease}
+.qual-card:hover,.phase-card:hover,.science-card:hover,.benefit-card:hover{border-color:var(--accentLine);background:#1b323d;transform:none}
+.phase-card::after{display:none}
+.qual-card h3,.phase-card h3,.science-card h3,.benefit-card h3{font-size:clamp(1.4rem,1.95vw,1.85rem);line-height:1.1}
+.qual-card p,.phase-card p,.science-card p,.benefit-card p{font-size:.87rem;line-height:1.65;color:#cad9dd}
+.phase-card b{font-family:var(--font-display);font-size:4.4rem;color:#438c8a}
+.faq-list summary{font-size:1rem;color:#eef5f6}
+.pricing-section{background:#0e1d26}
+.price-card{background:#17313a;border:1px solid rgba(113,197,198,.38);box-shadow:none;border-radius:10px}
+.price-main strong{font-family:var(--font-display);font-size:clamp(3.7rem,6vw,5.1rem)}
+.price-total{color:#d6e5e6}
+.mobile-buybar{background:#0d222b;border-color:#5b7e84;border-radius:9px;backdrop-filter:blur(12px)}
+.mobile-buybar .button{min-height:44px}
+
+/* CHECKOUT — forms on warm white, dark brand header. */
+.portal-body.rv-checkout{--checkout-ink:#192c34;--checkout-soft:#405861;--checkout-border:#b4c5c8;background:#edf2f1;color:var(--checkout-ink)}
+.rv-checkout .portal-header{background:#08151e;border-bottom:1px solid #33474f}
+.rv-checkout .portal-header-inner{min-height:86px}
+.rv-checkout .portal-header .text-link{color:#ecf7f6;border-color:#78949a}
+.rv-checkout .checkout-page{padding:clamp(26px,4.5vw,64px) 0}
+.rv-checkout .checkout-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(315px,.85fr);grid-template-areas:"form summary";align-items:start;gap:clamp(20px,3vw,48px)}
+.rv-checkout .checkout-card{grid-area:form}
+.rv-checkout .order-card{grid-area:summary}
+.rv-checkout .checkout-card,.rv-checkout .order-card{background:#fff;border:1px solid #d8e1e1;box-shadow:none;border-radius:12px;color:#172932}
+.rv-checkout .checkout-card{padding:clamp(24px,4vw,52px)}
+.rv-checkout .order-card{padding:clamp(22px,3vw,34px);position:sticky;top:108px}
+.rv-checkout .checkout-card h1{font-size:clamp(2.8rem,5vw,4.75rem);color:#172831;margin-bottom:14px}
+.rv-checkout .checkout-card h1 em{color:#00766e}
+.rv-checkout .eyebrow{color:#00746c}
+.rv-checkout .portal-lead{color:#4b6169;font-size:.96rem;max-width:62ch}
+.rv-checkout .portal-form{gap:19px;margin-top:30px}
+.rv-checkout .portal-form label{font-size:.9rem;font-weight:750;color:#263b44}
+.rv-checkout .portal-form input:not([type=checkbox]),.rv-checkout .portal-form textarea{
+ min-height:52px;padding:12px 14px;border:1px solid #aebfc4;background:#fff;color:#142933;border-radius:8px;font-size:1rem
+}
+.rv-checkout .portal-form input::placeholder{color:#526b74}
+.rv-checkout .portal-form input:focus-visible{border-color:#00877f;outline:3px solid rgba(0,145,138,.28)!important;outline-offset:1px}
+.rv-checkout .check-row{gap:12px!important;line-height:1.6;color:#354b53!important;font-size:.85rem!important}
+.rv-checkout .check-row input{min-width:20px;width:20px!important;height:20px;margin-top:2px}
+.rv-checkout .check-row a{color:#006e68;text-decoration:underline;text-underline-offset:3px}
+.rv-checkout .checkout-card .button--primary{width:100%;min-height:55px;font-size:1rem}
+.rv-checkout .order-card>small{font-size:.72rem;color:#49636a;font-weight:850;letter-spacing:.13em!important}
+.rv-checkout .order-product{padding:19px 0;margin:16px 0;border-block:1px solid #dbe5e5}
+.rv-checkout .order-product-mark{background:#0e3339;color:#46d7cb;border-radius:8px}
+.rv-checkout .order-product strong,.rv-checkout .order-total strong{color:#112932}
+.rv-checkout .order-product span,.rv-checkout .order-lines,.rv-checkout .price-total{color:#48616a}
+.rv-checkout .order-lines p{color:#48616a;border-color:#dbe4e4}
+.rv-checkout .order-lines strong{color:#253d46}
+.rv-checkout .order-total{border-top:1px solid #b6c9ca;padding-top:22px;margin-top:13px}
+.rv-checkout .order-total span{color:#1d3239}
+.rv-checkout .order-total strong{font-family:var(--font-display);font-size:3rem;letter-spacing:-.015em!important}
+.rv-checkout .secure-note{background:#f2f8f7;border:1px solid #d0e5e3;border-radius:8px}
+.rv-checkout .secure-note p strong{color:#153b3d}
+.rv-checkout .secure-note small,.rv-checkout .tiny-note{color:#405b62;line-height:1.6}
+.rv-checkout .checkout-config-error{border-radius:8px}
+.rv-checkout .production-payment-box,.rv-checkout .test-payment-box{background:#edf7f6;border-color:#90beb9;color:#193039;border-radius:8px}
+.rv-checkout .production-payment-box p,.rv-checkout .test-payment-box p{color:#2e5557}
+.rv-checkout .order-daily-note{font-size:.78rem;color:#51666f;margin-top:7px}
+
+/* ÁREA DO ALUNO — vídeo e continuidade em primeiro plano. */
+.course-body{background:#08151e}
+.course-header{background:#0b1b24;border-color:var(--line2);backdrop-filter:none}
+.course-header-inner{min-height:80px}
+.course-brand img{width:82px;height:42px}
+.course-brand strong{font-family:var(--font-display);font-size:1.45rem;font-weight:750}
+.course-brand small{font-size:.7rem;color:#bcd0d5}
+.course-header-actions .button{min-height:43px;border-radius:8px}
+.course-shell{grid-template-columns:270px minmax(0,1fr);width:min(100%,1600px)}
+.course-sidebar{top:80px;height:calc(100vh - 80px);padding:24px 16px 36px;background:#0d202a;border-right:1px solid #2a4650}
+.course-progress-card{background:#17313b;border:1px solid #3f626b;border-radius:9px;padding:20px 16px}
+.course-progress-card>small{font-size:.73rem;color:#6ce6dc}
+.course-progress-card h2{font-family:var(--font-display);font-size:2.6rem;margin:8px 0}
+.course-progress-card p{font-size:.75rem;color:#d1e1e5}
+.native-progress{accent-color:var(--accent)}
+.course-day-list{gap:3px;margin-top:20px}
+.course-day-btn{border-radius:7px;padding:11px;min-height:49px}
+.course-day-btn:hover,.course-day-btn.is-active{background:#17343e;border-color:#436f74;color:#f4faf9}
+.course-day-btn.is-active{box-shadow:inset 3px 0 0 #00bbb1}
+.course-day-number{border-radius:6px;background:#0b202a;color:#d9e7e9}
+.course-day-btn strong{font-size:.79rem}
+.course-day-btn small{font-size:.7rem}
+.course-main{padding:clamp(24px,3.7vw,55px);min-width:0}
+.course-main-inner{max-width:1090px;margin:0 auto}
+.course-topline{padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.course-topline .day-pill{border-radius:6px;padding:7px 11px;background:#00bbb1;color:#09282b;font-size:.79rem}
+.course-topline small{font-size:.75rem;color:#b7cdd2}
+.course-title{font-size:clamp(2.9rem,4.8vw,5.1rem);max-width:none;margin-top:25px;text-transform:uppercase}
+.course-lead{max-width:62ch;font-size:1rem;color:#cbdde1}
+.course-video{border-radius:10px;border:1px solid #43616b;box-shadow:none;background:#132831;margin-top:25px}
+.course-video-placeholder{background:radial-gradient(circle at center,#1c3f47,#0b1d27 68%);}
+.course-video-placeholder strong{font-family:var(--font-display);font-size:1.75rem}
+.course-video-placeholder small{color:#c2d9df;font-size:.85rem}
+.daily-info{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.daily-info article{padding:16px;background:#132b35;border:1px solid #36515c;border-radius:8px;min-height:88px}
+.daily-info small{color:#a6c6cc;font-size:.73rem}
+.daily-info strong{font-size:.91rem;color:#f0f7f7}
+.course-panel{border-top:1px solid #35555e;padding-top:28px;margin-top:32px}
+.course-panel-head h2{font-size:clamp(1.75rem,2.2vw,2.35rem)}
+.course-panel-head small{color:#a6cbd0}
+.course-panel p,.comment-card p,.instruction-list span{font-size:.97rem;line-height:1.75}
+.instruction-list li{padding-block:10px}
+.completion-row{background:#14313a;border:1px solid #3f7979;border-radius:9px;padding:18px 20px}
+.completion-row strong{color:#f6fbfb}
+.comment-card{background:#122a34;border:1px solid #395661;border-radius:8px}
+.comment-form textarea{background:#0b202a;border-color:#65818a;color:#f6f9f9;border-radius:8px;min-height:115px}
+.rv-cardio-panel{background:#102933;border:1px solid #3e6870;border-radius:10px;margin-top:34px;padding:clamp(18px,3vw,30px)}
+.rv-cardio-panel .course-panel-head{margin-bottom:16px}
+.rv-cardio-panel .rv-cardio-intro,.rv-cardio-panel .rv-cardio-note{font-size:.84rem;color:#c9dce0}
+.rv-cardio-panel .rv-cardio-fields label{font-size:.85rem}
+.rv-cardio-panel .rv-cardio-results{border-color:#45807f;background:#0c2028}
+.rv-cardio-panel [data-cardio-limits]{color:#68ebe0;font-family:var(--font-display);font-size:2.4rem}
+.rv-cardio-panel .button{min-height:46px}
+.course-nav{gap:12px}
+.course-nav .button{min-height:48px}
+@media(max-width:1100px){
+ .header-inner{grid-template-columns:1fr auto}
+ .hero-grid{grid-template-columns:minmax(0,1fr) minmax(290px,.83fr);gap:28px}
+ .hero-visual{min-height:500px}
+ .course-shell{grid-template-columns:242px minmax(0,1fr)}
+}
+@media(max-width:900px){
+ .hero-grid{grid-template-columns:minmax(0,1fr) minmax(260px,.75fr)}
+ .hero h1{font-size:clamp(3.75rem,7.8vw,5.6rem)}
+ .hero-visual{min-height:490px}
+ .rv-checkout .checkout-grid{grid-template-columns:1fr;grid-template-areas:"summary" "form";gap:16px}
+ .rv-checkout .order-card{position:static;padding:22px}
+ .rv-checkout .checkout-card{padding:28px}
+ .course-shell{grid-template-columns:1fr}
+ .course-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid #355963;overflow:visible;padding:20px}
+ .course-progress-card{padding:15px 20px}
+ .course-day-list{display:none}
+ .mobile-day-picker{display:grid;margin-top:14px}
+ .mobile-day-picker select{background:#122a33;border-color:#678892;color:#f5faf9}
+ .course-main{padding:28px 20px 60px}
+}
+@media(max-width:700px){
+ .container{width:min(calc(100% - 36px),var(--container))}
+ .site-header .header-inner{min-height:68px}
+ .main-nav{background:#0b202a;border-color:#3f6570}
+ .main-nav a{min-height:46px;color:#f4fafb}
+ .menu-toggle{min-width:44px}
+ .hero{padding:30px 0 18px}
+ .hero-grid{display:flex;flex-direction:column;gap:20px}
+ .hero-copy{order:0;padding:0;max-width:none}
+ .hero h1{font-size:clamp(3.85rem,16vw,5.7rem);line-height:.87}
+ .hero-visual{order:1;min-height:300px;max-height:450px;aspect-ratio:3/2}
+ .hero-portrait{object-position:center 30%}
+ .hero-visual-caption strong{font-size:1.65rem}
+ .hero-visual-caption b{font-size:3.4rem}
+ .hero-tagline{font-size:1.2rem;line-height:1.35}
+ .hero-lead{font-size:.95rem}
+ .hero-proof{display:flex;gap:7px 14px}
+ .hero-proof span{font-size:.74rem}
+ .hero-price{margin-top:16px;display:block;padding:14px 0}
+ .hero-price--v2>div strong{font-size:2.6rem}
+ .hero-price p{margin-top:3px}
+ .hero-actions{margin-top:16px}
+ .hero-actions .button{width:100%}
+ .hero-actions .text-link{display:inline-flex;width:auto;min-height:44px}
+ .goal-lockup p{font-size:.8rem!important;line-height:1.6}
+ .goal-lockup>small{display:block}
+ .goal-lockup strong{font-size:1.45rem}
+ .hero-note p{font-size:.75rem!important}
+ .trust-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .trust-grid article{border-right:0;padding:14px 8px;min-height:64px}
+ .section{padding:64px 0}
+ .section-heading h2{max-width:none}
+ .rv-checkout .portal-header-inner{min-height:68px}
+ .rv-checkout .checkout-page{padding:18px 0 45px}
+ .rv-checkout .checkout-grid{gap:12px}
+ .rv-checkout .checkout-card,.rv-checkout .order-card{padding:22px 18px}
+ .rv-checkout .checkout-card h1{font-size:3rem}
+ .rv-checkout .order-product{margin:7px 0 12px;padding:10px 0}
+ .rv-checkout .order-total{padding-top:12px}
+ .rv-checkout .order-total strong{font-size:2.5rem}
+ .rv-checkout .order-daily-note{font-size:.75rem}
+ .course-header-inner{gap:12px;min-height:66px}
+ .course-header-actions{width:100%;justify-content:flex-start}
+ .course-header-actions .button{padding:10px 12px}
+ .course-title{font-size:clamp(2.5rem,11vw,4rem)}
+ .course-topline{flex-wrap:wrap}
+ .course-video{margin-top:16px}
+ .daily-info{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .daily-info article{min-height:76px;padding:12px}
+ .course-panel{margin-top:26px}
+ .rv-cardio-panel{padding:18px}
+ .rv-cardio-panel .rv-cardio-fields{grid-template-columns:1fr}
+ .completion-row{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+ .completion-row .button{width:100%}
+ .course-nav .button{flex:1;min-width:0}
+}
+@media(max-width:380px){
+ .hero h1{font-size:3.55rem}
+ .hero-visual{min-height:270px}
+ .hero-price--v2>div strong{font-size:2.3rem}
+ .checkout-grid,.course-shell{min-width:0}
+ .course-header-actions .button{font-size:.8rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .button,.benefit-card,.phase-card,.qual-card,.reveal{transition:none!important;animation:none!important;transform:none!important}
+}
+
+
+/* ETAPA 2 — PRIMEIRO ACESSO: orientacao educacional nao obrigatoria */
+.rv-welcome-card{display:grid;grid-template-columns:58px minmax(0,1fr);gap:22px;align-items:start;margin:0 0 30px;padding:clamp(20px,3vw,30px);border:1px solid #4c9290;background:#132d36;border-radius:12px}
+.rv-welcome-emblem{display:grid;place-items:center;width:56px;height:56px;border:1px solid #3e7b7c;border-radius:10px;color:#66efe3;background:#123841;font-size:2rem}
+.rv-welcome-label{font-size:.72rem;letter-spacing:.1em!important;font-weight:800;color:#80ece1;margin:0 0 7px}
+.rv-welcome-card h2{font-size:clamp(1.9rem,3vw,3rem);margin:0 0 10px;color:#f4fcfc}
+.rv-welcome-card p:not(.rv-welcome-label){font-size:.92rem;line-height:1.65;max-width:70ch;color:#d6e8eb}
+.rv-welcome-actions{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 0}
+.rv-welcome-actions .button{min-height:48px}
+.rv-sidebar-cardio{display:flex;align-items:center;justify-content:space-between;gap:8px;text-decoration:none;color:#cbf3ef;border:1px solid #477879;background:#12333d;border-radius:8px;padding:13px 12px;font-weight:750;font-size:.84rem;min-height:48px;margin-top:15px}
+.rv-sidebar-cardio:hover,.rv-sidebar-cardio:focus-visible{background:#1b4851;color:#fff}
+.rv-cardio-panel{scroll-margin-top:95px}
+@media(max-width:700px){
+ .rv-welcome-card{grid-template-columns:1fr;padding:18px;gap:10px}
+ .rv-welcome-emblem{height:46px;width:46px;font-size:1.7rem}
+ .rv-welcome-card h2{font-size:2.2rem}
+ .rv-welcome-actions{flex-direction:column}
+ .rv-welcome-actions .button{width:100%;min-height:48px}
+ .rv-sidebar-cardio{margin:10px 0}
+}
+@media(prefers-reduced-motion:reduce){.rv-welcome-card{animation:none}}

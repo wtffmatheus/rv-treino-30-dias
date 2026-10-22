@@ -37,9 +37,28 @@
     }).join('')
   }
 
+  function salesReady(course) {
+    if (!course || course.status !== 'available') return false
+    if (CONFIG.testMode === true) return true
+    return CONFIG.salesEnabled === true &&
+      CONFIG.productionAccessVerified === true &&
+      typeof course.paymentUrl === 'string' &&
+      /^https:\/\//.test(course.paymentUrl)
+  }
+
+  function updateSalesStatus() {
+    const course = CONFIG.courses.find((item) => item.id === 'rv30')
+    if (salesReady(course)) return
+    document.querySelectorAll('[data-buy]').forEach((button) => {
+      button.disabled = true
+      button.setAttribute('aria-label', 'Inscrições ainda não liberadas')
+      button.textContent = 'Inscrições em preparação'
+    })
+  }
+
   function buy(courseId) {
     const course = CONFIG.courses.find((item) => item.id === courseId)
-    if (!course || course.status !== 'available') return
+    if (!salesReady(course)) return
 
     window.RVAnalytics?.track('ViewContent', { content_ids: [course.id], content_name: course.title })
     const checkoutPath = course.slug ? `/checkout/${encodeURIComponent(course.slug)}` : `checkout.html?curso=${encodeURIComponent(course.id)}`
@@ -148,6 +167,7 @@
     document.documentElement.classList.add('js')
     setupPricing()
     renderCatalog()
+    updateSalesStatus()
     setupVideo()
     setupNavigation()
     setupHeader()
