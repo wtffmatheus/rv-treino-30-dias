@@ -347,6 +347,11 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     }
     const heroFit = await page.locator('.hero-portrait').evaluate(el => getComputedStyle(el).objectFit)
     expect(heroFit).toBe('cover')
+    if (width === 390) {
+      const buybar = page.locator('.mobile-buybar')
+      await expect(buybar).toContainText('R$ 399,00')
+      await expect(buybar.locator('strong')).toContainText('total')
+    }
     await page.goto('/checkout/rv30')
     const checkoutImg = page.locator('.rv-checkout-expert img')
     await checkoutImg.scrollIntoViewIfNeeded()
