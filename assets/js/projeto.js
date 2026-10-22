@@ -74,14 +74,14 @@
     if (/youtube\.com|youtu\.be/.test(url)) {
       const id = url.match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{6,})/)?.[1]
       if (!id) return
-      shell.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}" title="Apresentação do RV 30" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+      shell.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}" title="Apresentação do Método RV" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
       return
     }
 
     if (/vimeo\.com/.test(url)) {
       const id = url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1]
       if (!id) return
-      shell.innerHTML = `<iframe src="https://player.vimeo.com/video/${id}" title="Apresentação do RV 30" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
+      shell.innerHTML = `<iframe src="https://player.vimeo.com/video/${id}" title="Apresentação do Método RV" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
       return
     }
 
