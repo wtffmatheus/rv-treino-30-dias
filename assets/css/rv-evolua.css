@@ -166,3 +166,17 @@ linear-gradient(0deg,rgba(8,23,33,.5),transparent 33%)}
  .rv-checkout .checkout-card h1{font-size:clamp(2rem,9vw,2.55rem)}
  .rv-checkout .checkout-card,.rv-checkout .order-card{padding-inline:15px}
 }
+
+
+/* Em smartphones, a fotografia é mostrada ANTES do título sem esconder o rosto. */
+@media(max-width:700px){
+ .hero .container.hero-grid,
+ .hero .hero-copy{min-height:920px}
+ .hero .hero-copy{padding-top:390px;padding-bottom:27px}
+ .hero-grid::before{background:linear-gradient(0deg,#07121d 0%,rgba(7,18,29,.97) 25%,rgba(7,18,29,.9) 43%,rgba(7,18,29,.28) 74%,rgba(7,18,29,.09) 100%)}
+}
+@media(max-width:380px){
+ .hero .container.hero-grid,
+ .hero .hero-copy{min-height:915px}
+ .hero .hero-copy{padding-top:375px;padding-bottom:23px}
+}
