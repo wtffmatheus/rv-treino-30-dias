@@ -20,18 +20,19 @@
     const grid = document.querySelector('[data-catalog-grid]')
     if (!grid) return
 
-    grid.innerHTML = CONFIG.courses.map((course) => {
+    const featured = CONFIG.courses.filter((course) => ['rv30', 'forca'].includes(course.id))
+    grid.innerHTML = featured.map((course) => {
       const available = course.status === 'available'
       const price = available && course.priceCents
-        ? `<strong>${money(course.priceCents)}</strong><small>${course.duration} • ${money(course.dailyPriceCents)}/dia</small>`
-        : '<strong>Em breve</strong><small>Novo projeto RV</small>'
+        ? `<strong>${money(course.dailyPriceCents)}<span class="rv-catalog-per-day">/dia*</span></strong><small>${money(course.priceCents)} por 30 dias, pagamento único</small>`
+        : '<strong>Sob consulta</strong><small>Disponibilidade a confirmar</small>'
 
       return `
         <article class="catalog-card ${available ? 'catalog-card--active' : ''} reveal is-visible">
-          <div class="catalog-card-top"><small>${course.eyebrow}</small>${available ? '<span>DISPONÍVEL</span>' : '<span>EM BREVE</span>'}</div>
+          <div class="catalog-card-top"><small>${course.eyebrow}</small>${available ? '<span>PROGRAMA DE 30 DIAS</span>' : '<span>EM PLANEJAMENTO</span>'}</div>
           <h3>${course.title}</h3>
           <p>${course.description}</p>
-          <div class="catalog-card-bottom"><div>${price}</div>${available ? `<button type="button" class="button button--secondary" data-buy="${course.id}">Ver projeto</button>` : '<button type="button" class="button button--ghost" disabled>Em preparação</button>'}</div>
+          <div class="catalog-card-bottom"><div>${price}</div>${available ? `<button type="button" class="button button--secondary" data-buy="${course.id}">Conhecer inscrição</button>` : '<span class="rv-catalog-upcoming">Ainda não disponível para contratação</span>'}</div>
         </article>
       `
     }).join('')
