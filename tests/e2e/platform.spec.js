@@ -6,7 +6,7 @@ async function adminLogin(page) {
   await page.goto('/admin/entrar')
   await page.getByLabel('E-mail administrativo').fill('admin@rvfisiologia.test')
   await page.getByLabel('Senha', { exact: true }).fill('rv30admin')
-  await page.getByRole('button', { name: 'Entrar no painel RV 30' }).click()
+  await page.getByRole('button', { name: 'Entrar no painel Método RV' }).click()
   await expect(page.getByRole('heading', { name: 'Gestão de alunos', exact: true }).first()).toBeVisible()
 }
 async function studentLogin(page) {
@@ -197,8 +197,9 @@ test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', asyn
 test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
+  await expect(page.locator('.hero-price [data-price-daily]')).toContainText('R$ 13,30')
   await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
-  await expect(page.locator('.hero h1')).toContainText('TREINAMENTO INTELIGENTE PARA')
+  await expect(page.locator('.hero h1')).toContainText('EVOLUA')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
   expect(accent).toBe('#00bbb1')
   const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
@@ -300,7 +301,7 @@ test('composição RV moodboard desktop e mobile mantém acessos, player e check
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const heading = page.locator('#hero-title')
-  await expect(heading).toContainText('30 DIAS')
+  await expect(heading).toContainText('EVOLUA')
   await expect(page.locator('.hero-visual')).toBeVisible()
   await expect(page.locator('.hero-proof span')).toHaveCount(4)
   const desktop = await page.locator('.hero-grid').evaluate(e => getComputedStyle(e).display)
@@ -359,5 +360,49 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     await expect.poll(async () => checkoutImg.evaluate(el => el.complete && el.naturalWidth > 1000)).toBe(true)
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
     expect(overflow).toBeLessThanOrEqual(1)
+  }
+})
+
+
+test('marca RV Fisiologia, Método RV e EVOLUA sem textos quebrados no catálogo', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.site-header .brand strong')).toHaveText('RV Fisiologia')
+  await expect(page.locator('#hero-title')).toContainText('EVOLUA')
+  await expect(page.locator('.hero-tagline')).toHaveText('Seu corpo. Seu ritmo. Sua evolução.')
+  await expect(page.locator('.catalog-card')).toHaveCount(2)
+  await expect(page.locator('.catalog-card').first()).toContainText('Método RV')
+  await expect(page.locator('.catalog-card').last()).toContainText('Treinamento personalizado')
+  const catalog = await page.locator('[data-catalog-grid]').innerText()
+  expect(catalog).not.toMatch(/vÃ|orientaÃ|diÃ|ForÃ|EspaÃ|comentÃ|�/)
+})
+
+test('equivalência diária em destaque com valor total visível sem mensalidade falsa', async ({ page }) => {
+  await page.goto('/')
+  const price = page.locator('#investimento')
+  await expect(price.locator('#investimento-title')).toContainText('R$ 13,30')
+  await expect(price.locator('.price-main')).toContainText('R$ 13,30')
+  await expect(price.locator('.price-total')).toContainText('R$ 399,00')
+  await expect(price.locator('.pricing-lead')).toContainText('pagamento único')
+  await expect(page.locator('.mobile-buybar')).toContainText('R$ 399,00')
+  await page.goto('/checkout/rv30')
+  await expect(page.locator('.order-total')).toContainText('R$ 399,00')
+  await expect(page.locator('.order-product')).toContainText('30 dias')
+})
+
+test('EVOLUA conserva disposição mobile e bloqueia vendas públicas sem backend', async ({ page }) => {
+  await page.route('**/assets/js/config.js*', async route => {
+    const response = await route.fetch()
+    const content = (await response.text())
+      .replace('testMode: localHosts.includes(host)', 'testMode: false')
+      .replace('enablePaymentSimulation: localHosts.includes(host)', 'enablePaymentSimulation: false')
+    await route.fulfill({response, body:content})
+  })
+  for (const width of [320,390,768,1440]) {
+    await page.setViewportSize({width,height:844})
+    await page.goto('/')
+    await expect(page.locator('#hero-title')).toContainText('EVOLUA')
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+    expect(overflow, 'EVOLUA @ ' + width + 'px').toBeLessThanOrEqual(1)
+    await expect(page.locator('.hero-actions [data-buy]')).toBeDisabled()
   }
 })
