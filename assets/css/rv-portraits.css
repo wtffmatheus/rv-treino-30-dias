@@ -1,0 +1,90 @@
+/*
+ * RV 30 / retratos reais — identidade performance contemporânea.
+ * Fotografias originais fornecidas pelo proprietário, convertidas para WebP.
+ * Esta camada altera somente a apresentação, não regras de negócio.
+ */
+.hero .hero-visual{background:#0b2d34}
+.hero .hero-portrait{
+  object-fit:cover;
+  object-position:52% 30%;
+  filter:saturate(.94) contrast(1.02);
+}
+.hero-grid::before{
+  background:
+    linear-gradient(90deg,#07121d 0%,rgba(7,18,29,.97) 29%,rgba(7,18,29,.80) 50%,rgba(7,18,29,.30) 73%,rgba(7,18,29,.12) 100%),
+    linear-gradient(0deg,rgba(7,18,29,.72),transparent 42%);
+}
+.professional-photo{
+  overflow:hidden;
+  background:#17303a;
+  border:1px solid rgba(19,70,75,.17);
+  box-shadow:none;
+  border-radius:12px;
+}
+.professional-photo img{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:4/5;
+  object-fit:cover;
+  object-position:50% 22%;
+}
+.rv-checkout .rv-checkout-expert{
+  display:grid;
+  grid-template-columns:70px minmax(0,1fr);
+  align-items:center;
+  gap:14px;
+  padding:15px 0 19px;
+  border-bottom:1px solid #dbe5e5;
+}
+.rv-checkout .rv-checkout-expert img{
+  display:block;
+  width:70px;
+  height:76px;
+  border-radius:8px;
+  object-fit:cover;
+  object-position:50% 18%;
+  background:#e7efee;
+}
+.rv-checkout .rv-checkout-expert p{margin:0;line-height:1.5;color:#344d55}
+.rv-checkout .rv-checkout-expert strong{
+  display:block;
+  color:#152e35;
+  font-size:.9rem;
+  font-weight:800;
+}
+.rv-checkout .rv-checkout-expert span{
+  display:block;
+  margin-top:4px;
+  color:#4f6670;
+  font-size:.76rem;
+}
+@media (max-width:900px) {
+  .hero .hero-portrait{object-position:50% 20%}
+}
+@media (max-width:700px) {
+  .hero .hero-portrait{
+    object-position:50% 12%;
+    filter:saturate(.92) contrast(1.04);
+  }
+  .hero-grid::before{
+    background:linear-gradient(0deg,#07121d 0%,rgba(7,18,29,.98) 18%,rgba(7,18,29,.87) 42%,rgba(7,18,29,.30) 76%,rgba(7,18,29,.14) 100%);
+  }
+  .rv-checkout .rv-checkout-expert{
+    grid-template-columns:60px minmax(0,1fr);
+    gap:12px;
+    padding:11px 0 14px;
+  }
+  .rv-checkout .rv-checkout-expert img{width:60px;height:68px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero .hero-portrait,.professional-photo img{transition:none!important}
+}
+
+/* Mobile: posiciona o rosto acima do título, mantendo o hero fotográfico. */
+@media (max-width:700px){
+  .hero .hero-portrait{
+    transform:scale(1.22) translateY(-8%);
+    transform-origin:center top;
+  }
+}

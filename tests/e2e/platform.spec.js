@@ -196,7 +196,7 @@ test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', asyn
 
 test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv30-training-hero.webp')
+  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
   await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
   await expect(page.locator('.hero h1')).toContainText('TREINAMENTO INTELIGENTE PARA')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
@@ -332,4 +332,32 @@ test('menu RV de aluno e painel lateral da aula aparecem conforme tamanho de tel
   expect(overflow).toBeLessThanOrEqual(1)
   await page.locator('.rv-mobile-course-nav a[href="#calculadora-cardiaca"]').click()
   await expect(page.locator('[data-cardio-section]')).toBeVisible()
+})
+
+
+test('retratos reais da Rosangela estão carregados e sem distorção em desktop e mobile', async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    for (const selector of ['.hero-portrait', '.professional-photo img']) {
+      const image = page.locator(selector)
+      await image.scrollIntoViewIfNeeded()
+      await expect(image).toBeVisible()
+      await expect.poll(async () => image.evaluate(el => el.complete && el.naturalWidth > 1000 && el.naturalHeight > 1000)).toBe(true)
+    }
+    const heroFit = await page.locator('.hero-portrait').evaluate(el => getComputedStyle(el).objectFit)
+    expect(heroFit).toBe('cover')
+    if (width === 390) {
+      const buybar = page.locator('.mobile-buybar')
+      await expect(buybar).toContainText('R$ 399,00')
+      await expect(buybar.locator('strong')).toContainText('total')
+    }
+    await page.goto('/checkout/rv30')
+    const checkoutImg = page.locator('.rv-checkout-expert img')
+    await checkoutImg.scrollIntoViewIfNeeded()
+    await expect(checkoutImg).toBeVisible()
+    await expect.poll(async () => checkoutImg.evaluate(el => el.complete && el.naturalWidth > 1000)).toBe(true)
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+    expect(overflow).toBeLessThanOrEqual(1)
+  }
 })
