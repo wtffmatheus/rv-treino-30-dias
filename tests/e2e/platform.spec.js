@@ -351,7 +351,8 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     if (width === 390) {
       const buybar = page.locator('.mobile-buybar')
       await expect(buybar).toContainText('R$ 399,00')
-      await expect(buybar.locator('strong')).toContainText('total')
+      await expect(buybar.locator('strong')).toContainText('/dia')
+      await expect(buybar.locator('small')).toContainText('R$ 399,00')
     }
     await page.goto('/checkout/rv30')
     const checkoutImg = page.locator('.rv-checkout-expert img')
