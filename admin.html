@@ -9,7 +9,7 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <title>Gestão RV 30 — Admin</title>
+  <title>Gestão Método RV — Admin</title>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
@@ -21,7 +21,7 @@
 <body class="admin-body">
   <header class="admin-header">
     <div class="container admin-header-inner">
-      <a class="course-brand" href="admin.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>Gestão RV 30</strong><small>Painel administrativo</small></span></a>
+      <a class="course-brand" href="admin.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>Gestão Método RV</strong><small>Painel administrativo</small></span></a>
       <div class="admin-header-actions"><span class="demo-badge">AMBIENTE DE TESTE</span><a class="button button--ghost button--compact" href="index.html">Ver site</a><button class="button button--ghost button--compact" type="button" data-admin-logout>Sair</button></div>
     </div>
   </header>
@@ -29,11 +29,11 @@
   <main class="admin-main container">
     <nav class="admin-section-nav" aria-label="Administração"><a href="/admin" aria-current="page">Alunos e pedidos</a><a href="/admin/suporte">Central de suporte</a><a href="/admin/videos">Revisão de vídeos</a></nav>
     <section class="admin-hero" aria-labelledby="admin-title">
-      <div><p class="eyebrow"><span></span> RV 30</p><h1 id="admin-title">Gestão de alunos</h1><p>Acessos, progresso e dúvidas dos participantes.</p></div>
+      <div><p class="eyebrow"><span></span> Método RV</p><h1 id="admin-title">Gestão de alunos</h1><p>Acessos, progresso e dúvidas dos participantes.</p></div>
       <div class="admin-hero-actions"><button class="button button--secondary" type="button" data-export>Exportar alunos CSV</button><button class="button button--primary" type="button" data-open-create>Adicionar aluno de teste</button></div>
     </section>
 
-    <section class="admin-metrics" aria-label="Resumo do RV 30">
+    <section class="admin-metrics" aria-label="Resumo do Método RV">
       <article><small>ALUNOS</small><strong data-stat-total>0</strong><span>Total com registro no projeto</span></article>
       <article><small>ATIVOS</small><strong data-stat-active>0</strong><span>Com acesso ativo</span></article>
       <article><small>PROGRESSO MÉDIO</small><strong data-stat-progress>0%</strong><span>Entre os alunos cadastrados</span></article>
@@ -44,7 +44,7 @@
 
     <section class="admin-panel" aria-labelledby="students-title">
       <div class="admin-panel-head">
-        <div><small>ALUNOS DO RV 30</small><h2 id="students-title">Gestão de alunos</h2></div>
+        <div><small>ALUNOS DO Método RV</small><h2 id="students-title">Gestão de alunos</h2></div>
         <span class="admin-count" data-student-count>0 alunos</span>
       </div>
       <div class="admin-filters">
@@ -56,7 +56,7 @@
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <caption class="sr-only">Lista de alunos cadastrados no RV 30</caption>
+          <caption class="sr-only">Lista de alunos cadastrados no Método RV</caption>
           <thead><tr><th>Aluno</th><th>Status / acesso</th><th>Progresso</th><th>Dúvidas</th><th>Último acesso</th><th><span class="sr-only">Ações</span></th></tr></thead>
           <tbody data-student-rows></tbody>
         </table>
@@ -82,7 +82,7 @@
   </main>
 
   <dialog class="admin-dialog" data-student-dialog aria-labelledby="student-detail-title">
-    <div class="admin-dialog-head"><div><small>ALUNO RV 30</small><h2 id="student-detail-title" data-detail-name>Aluno</h2><p data-detail-email></p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button></div>
+    <div class="admin-dialog-head"><div><small>ALUNO Método RV</small><h2 id="student-detail-title" data-detail-name>Aluno</h2><p data-detail-email></p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button></div>
     <div class="admin-dialog-body">
       <section class="detail-summary-grid">
         <article><small>STATUS</small><span data-detail-status class="status-chip">Ativo</span></article>
@@ -104,7 +104,7 @@
 
       <section class="admin-detail-section"><div class="admin-detail-head"><div><small>HISTÓRICO COMERCIAL</small><h3>Pedidos vinculados</h3></div></div><ul class="admin-order-list" data-detail-orders></ul></section>
 
-      <section class="admin-detail-section admin-actions-section"><div class="admin-detail-head"><div><small>CONTROLE DA CONTA</small><h3>Ações administrativas</h3></div></div><div class="admin-action-grid"><button class="button button--secondary" type="button" data-toggle-block>Bloquear aluno</button><button class="button button--secondary" type="button" data-toggle-access>Remover acesso ao RV 30</button><button class="button button--secondary" type="button" data-mark-comments>Marcar dúvidas como tratadas</button><button class="button button--danger" type="button" data-reset-progress>Reiniciar progresso</button></div><p class="tiny-note">Ações desta V6 alteram somente o banco de demonstração armazenado neste navegador.</p></section>
+      <section class="admin-detail-section admin-actions-section"><div class="admin-detail-head"><div><small>CONTROLE DA CONTA</small><h3>Ações administrativas</h3></div></div><div class="admin-action-grid"><button class="button button--secondary" type="button" data-toggle-block>Bloquear aluno</button><button class="button button--secondary" type="button" data-toggle-access>Remover acesso ao Método RV</button><button class="button button--secondary" type="button" data-mark-comments>Marcar dúvidas como tratadas</button><button class="button button--danger" type="button" data-reset-progress>Reiniciar progresso</button></div><p class="tiny-note">Ações desta V6 alteram somente o banco de demonstração armazenado neste navegador.</p></section>
     </div>
   </dialog>
 
@@ -116,7 +116,7 @@
       <label>Telefone<input name="phone" inputmode="tel" autocomplete="off"></label>
       <label>Senha temporária de teste<input name="password" minlength="8" value="aluno1234" required autocomplete="off"></label>
       <p class="form-error" data-create-error role="alert"></p>
-      <button class="button button--primary button--wide" type="submit">Criar aluno com acesso ao RV 30</button>
+      <button class="button button--primary button--wide" type="submit">Criar aluno com acesso ao Método RV</button>
     </form>
   </dialog>
 

@@ -46,9 +46,10 @@
       {
         id: 'rv30',
         slug: 'rv30',
-        title: 'RV 30',
-        eyebrow: 'PROJETO 30 DIAS',
-        description: 'Projeto guiado de 30 dias com vÃ­deos, orientaÃ§Ã£o diÃ¡ria, comentÃ¡rios e acompanhamento do progresso.',
+        title: 'Método RV',
+        tagline: 'Seu corpo. Seu ritmo. Sua evolução.',
+        eyebrow: 'MÉTODO RV · EVOLUA',
+        description: 'Projeto guiado de 30 dias com vídeos, orientação diária, comentários e acompanhamento do progresso.',
         duration: '30 dias',
         totalDays: 30,
         priceCents: 39900,
@@ -63,9 +64,9 @@
       },
       {
         id: 'forca',
-        title: 'RV ForÃ§a',
+        title: 'Treinamento personalizado',
         eyebrow: 'PROGRAMA',
-        description: 'EspaÃ§o reservado para um futuro programa RV.',
+        description: 'Acompanhamento individualizado da RV Fisiologia. Disponibilidade e condições serão informadas futuramente.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'
@@ -74,7 +75,7 @@
         id: 'hipertrofia',
         title: 'RV Hipertrofia',
         eyebrow: 'PROGRAMA',
-        description: 'EspaÃ§o reservado para um futuro programa RV.',
+        description: 'Espaço reservado para um futuro programa RV.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'
@@ -83,7 +84,7 @@
         id: 'condicionamento',
         title: 'RV Condicionamento',
         eyebrow: 'PROGRAMA',
-        description: 'EspaÃ§o reservado para um futuro programa RV.',
+        description: 'Espaço reservado para um futuro programa RV.',
         duration: 'Em planejamento',
         priceCents: null,
         status: 'soon'

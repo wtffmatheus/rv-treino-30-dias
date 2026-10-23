@@ -134,7 +134,7 @@
         </td>
         <td>
           <span class="status-chip status-chip--${esc(student.status)}">${esc(statusLabel(student.status))}</span>
-          ${hasAccess ? '<small class="access-note">RV 30 liberado</small>' : '<small class="access-note access-note--off">Sem acesso</small>'}
+          ${hasAccess ? '<small class="access-note">Método RV liberado</small>' : '<small class="access-note access-note--off">Sem acesso</small>'}
         </td>
         <td>
           <div class="admin-progress-cell">
@@ -255,7 +255,7 @@
     status.className = `status-chip status-chip--${student.status}`
     $('[data-detail-progress]').textContent = `${student.completed} de 30 dias (${student.percent}%)`
     $('[data-detail-comments]').textContent = `${student.openComments} pendente${student.openComments === 1 ? '' : 's'}`
-    $('[data-detail-access]').textContent = hasAccess ? 'Acesso liberado' : 'Sem acesso ao RV 30'
+    $('[data-detail-access]').textContent = hasAccess ? 'Acesso liberado' : 'Sem acesso ao Método RV'
 
     const contactForm = $('[data-contact-form]')
     if (contactForm) {
@@ -264,7 +264,7 @@
     }
 
     $('[data-toggle-block]').textContent = student.status === 'blocked' ? 'Desbloquear aluno' : 'Bloquear aluno'
-    $('[data-toggle-access]').textContent = hasAccess ? 'Remover acesso ao RV 30' : 'Liberar acesso ao RV 30'
+    $('[data-toggle-access]').textContent = hasAccess ? 'Remover acesso ao Método RV' : 'Liberar acesso ao Método RV'
     $('[data-mark-comments]').disabled = student.openComments === 0
 
     const progressDays = new Set(student.progress?.[COURSE_ID] || [])

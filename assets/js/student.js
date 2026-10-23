@@ -30,10 +30,10 @@
         <div class="my-course-cover"><span>RV</span><strong>30</strong><small>PROJETO 30 DIAS</small></div>
         <div class="my-course-copy">
           <small>ACESSO LIBERADO</small>
-          <h3>RV 30</h3>
+          <h3>Método RV</h3>
           <p>Seu projeto de 30 dias com vídeos, orientações, comentários e acompanhamento de progresso.</p>
           <div class="student-progress-line"><strong>${summary.completed} de 30 dias</strong><span>${summary.percent}% concluído</span></div>
-          <progress class="native-progress native-progress--small" max="30" value="${summary.completed}" aria-label="Progresso no RV 30"></progress>
+          <progress class="native-progress native-progress--small" max="30" value="${summary.completed}" aria-label="Progresso no Método RV"></progress>
           <a class="button button--primary" href="/curso/rv30?day=${summary.nextDay}">${summary.completed ? 'Continuar de onde parei' : 'Começar projeto'}</a>
         </div>
       </article>` : '').join('')
