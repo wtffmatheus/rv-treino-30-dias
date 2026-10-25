@@ -1,5 +1,36 @@
-(() => {
+(async () => {
   'use strict'
+
+  await window.RVApi?.ready
+  const serverMode = window.RVApi?.serverMode === true || !window.RV_COURSE_CONFIG?.testMode
+  if (serverMode) {
+    document.querySelectorAll('[data-demo-admin]').forEach((element) => { element.hidden = true })
+    const title = document.querySelector('#admin-title')
+    if (title) title.textContent = 'Gestão do RV 30'
+    const lead = document.querySelector('[data-admin-lead]')
+    if (lead) lead.textContent = 'Confira a entrega do programa com os registros do servidor.'
+    const gate = document.querySelector('[data-admin-server-status]')
+    try {
+      const response = await fetch('/api/account', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
+      if (response.status === 401 || response.status === 403) { location.replace('/admin/entrar'); return }
+      if (!response.ok) throw new Error('A área administrativa ainda não foi configurada no servidor.')
+      const account = await response.json()
+      if (account.isAdmin !== true) { location.replace('/admin/entrar'); return }
+      if (gate) gate.hidden = true
+      const panel = document.querySelector('[data-delivery-panel]')
+      if (panel) panel.hidden = false
+      document.querySelector('[data-admin-logout]')?.addEventListener('click', async () => {
+        try {
+          if (window.RVApi?.logout) await window.RVApi.logout()
+          else await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+          location.replace('/admin/entrar')
+        } catch { if (gate) { gate.hidden = false; gate.textContent = 'Não foi possível encerrar a sessão. Tente novamente.' } }
+      })
+    } catch {
+      if (gate) { gate.hidden = false; gate.textContent = 'A área administrativa ainda não foi configurada no servidor. Entre com uma conta autorizada após concluir a configuração.' }
+    }
+    return
+  }
 
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const COURSE_ID = 'rv30'
@@ -19,6 +50,12 @@
     location.replace('admin-login.html')
     return
   }
+
+  document.querySelectorAll('[data-demo-admin]').forEach((element) => { element.hidden = false })
+  const gate = document.querySelector('[data-admin-server-status]')
+  if (gate) gate.hidden = true
+  const delivery = document.querySelector('[data-delivery-panel]')
+  if (delivery) delivery.hidden = false
 
   auth.adminSeedDemoData?.()
 
@@ -134,7 +171,7 @@
         </td>
         <td>
           <span class="status-chip status-chip--${esc(student.status)}">${esc(statusLabel(student.status))}</span>
-          ${hasAccess ? '<small class="access-note">Método RV liberado</small>' : '<small class="access-note access-note--off">Sem acesso</small>'}
+          ${hasAccess ? '<small class="access-note">RV 30 liberado</small>' : '<small class="access-note access-note--off">Sem acesso</small>'}
         </td>
         <td>
           <div class="admin-progress-cell">
@@ -255,7 +292,7 @@
     status.className = `status-chip status-chip--${student.status}`
     $('[data-detail-progress]').textContent = `${student.completed} de 30 dias (${student.percent}%)`
     $('[data-detail-comments]').textContent = `${student.openComments} pendente${student.openComments === 1 ? '' : 's'}`
-    $('[data-detail-access]').textContent = hasAccess ? 'Acesso liberado' : 'Sem acesso ao Método RV'
+    $('[data-detail-access]').textContent = hasAccess ? 'Acesso liberado' : 'Sem acesso ao RV 30'
 
     const contactForm = $('[data-contact-form]')
     if (contactForm) {
@@ -264,7 +301,7 @@
     }
 
     $('[data-toggle-block]').textContent = student.status === 'blocked' ? 'Desbloquear aluno' : 'Bloquear aluno'
-    $('[data-toggle-access]').textContent = hasAccess ? 'Remover acesso ao Método RV' : 'Liberar acesso ao Método RV'
+    $('[data-toggle-access]').textContent = hasAccess ? 'Remover acesso ao RV 30' : 'Liberar acesso ao RV 30'
     $('[data-mark-comments]').disabled = student.openComments === 0
 
     const progressDays = new Set(student.progress?.[COURSE_ID] || [])

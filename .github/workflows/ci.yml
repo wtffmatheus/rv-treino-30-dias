@@ -12,6 +12,7 @@ on:
       - qa/rv30-release-hardening-20261016
       - design/rv30-fotos-reais-rosangela-20261022
       - feature/metodo-rv-evolua-identidade-20261022
+      - rv30-evolucao-20261025
   pull_request:
     branches: [main]
 jobs:
@@ -21,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
       - uses: actions/setup-python@v5
         with:
@@ -29,12 +30,13 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          python -m pip install beautifulsoup4
+          python -m pip install beautifulsoup4 tinycss2
       - name: Unit and integration tests
         run: npm test
       - name: Static checks and build
         run: |
-          npm run check
+          npm run lint
+          npm run typecheck
           npm run build
       - name: Install Chromium
         run: npx playwright install --with-deps chromium

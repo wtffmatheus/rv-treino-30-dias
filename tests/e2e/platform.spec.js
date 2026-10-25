@@ -6,7 +6,7 @@ async function adminLogin(page) {
   await page.goto('/admin/entrar')
   await page.getByLabel('E-mail administrativo').fill('admin@rvfisiologia.test')
   await page.getByLabel('Senha', { exact: true }).fill('rv30admin')
-  await page.getByRole('button', { name: 'Entrar no painel Método RV' }).click()
+  await page.getByRole('button', { name: 'Entrar no painel RV 30' }).click()
   await expect(page.getByRole('heading', { name: 'Gestão de alunos', exact: true }).first()).toBeVisible()
 }
 async function studentLogin(page) {
@@ -79,7 +79,7 @@ test('compra demo, progresso, comentario e conversa aluno-admin persistem', asyn
 test('visitante e aluno nao entram no admin; query nao confirma pagamento', async ({ page }) => {
   for (const route of ['/curso/rv30', '/admin', '/admin/suporte', '/admin/videos', '/suporte']) {
     await page.goto(route)
-    await expect(page.locator('form input[type=password]')).toBeVisible()
+    await expect(page.getByLabel('Senha', { exact: true })).toBeVisible()
     expect(await page.locator('.chat-message').count()).toBe(0)
   }
   await page.goto('/pagamento/sucesso?status=approved')
@@ -194,12 +194,14 @@ test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', asyn
 })
 
 
-test('identidade RV Performance: marca, fotos reais e checkout sem pagamento simulado em producao', async ({ page }) => {
+test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
-  await expect(page.locator('.hero-price [data-price-daily]')).toContainText('R$ 13,30')
-  await expect(page.locator('.hero-price [data-price-total]')).toContainText('R$ 399,00')
-  await expect(page.locator('.hero h1')).toContainText('EVOLUA')
+  await expect(page.locator('#investimento .price-total [data-price-daily]')).toContainText('R$ 13,30')
+  await expect(page.locator('#investimento .price-main [data-price-total]')).toContainText('R$ 399,00')
+  await expect(page.locator('.hero h1')).toContainText('RV 30')
+  await expect(page.locator('.rv30-program-signature .rv30-package-logo')).toHaveAttribute('src', '/assets/brand/rv30-logo.png')
+  await expect(page.locator('.site-header .brand img')).toHaveAttribute('src', '/public/logo-rv.png')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
   expect(accent).toBe('#00bbb1')
   const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
@@ -297,11 +299,11 @@ test('novo aluno pode dispensar avaliacao sem salvar dados de saude', async ({ p
 })
 
 
-test('composição RV moodboard desktop e mobile mantém acessos, player e checkout', async ({ page }) => {
+test('composição RV 30 desktop e mobile mantém fotos, inscrição e checkout', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const heading = page.locator('#hero-title')
-  await expect(heading).toContainText('EVOLUA')
+  await expect(heading).toContainText('RV 30')
   await expect(page.locator('.hero-visual')).toBeVisible()
   await expect(page.locator('.hero-proof span')).toHaveCount(4)
   const desktop = await page.locator('.hero-grid').evaluate(e => getComputedStyle(e).display)
@@ -310,7 +312,13 @@ test('composição RV moodboard desktop e mobile mantém acessos, player e check
   await page.setViewportSize({ width: 390, height: 844 })
   await page.reload()
   const heroPhotoPosition = await page.locator('.hero-visual').evaluate(e => getComputedStyle(e).position)
-  expect(heroPhotoPosition).toBe('absolute')
+  expect(heroPhotoPosition).toBe('relative')
+  const heroGeometry = await page.locator('.hero-grid').evaluate(el => {
+    const copy = el.querySelector('.hero-copy').getBoundingClientRect()
+    const photo = el.querySelector('.hero-visual').getBoundingClientRect()
+    return { copyBottom: copy.bottom, photoTop: photo.top }
+  })
+  expect(heroGeometry.photoTop).toBeGreaterThanOrEqual(heroGeometry.copyBottom)
   await expect(page.locator('.hero-actions [data-buy]')).toBeVisible()
   await page.locator('.hero-actions [data-buy]').click()
   await expect(page.locator('.rv-checkout .checkout-card')).toBeVisible()
@@ -351,7 +359,7 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
     if (width === 390) {
       const buybar = page.locator('.mobile-buybar')
       await expect(buybar).toContainText('R$ 399,00')
-      await expect(buybar.locator('strong')).toContainText('/dia')
+      await expect(buybar.locator('strong')).toContainText('RV 30')
       await expect(buybar.locator('small')).toContainText('R$ 399,00')
     }
     await page.goto('/checkout/rv30')
@@ -365,32 +373,35 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
 })
 
 
-test('marca RV Fisiologia, Método RV e EVOLUA sem textos quebrados no catálogo', async ({ page }) => {
+test('marca institucional RV Fisiologia e pacote RV 30 sem textos quebrados no catálogo', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('.site-header .brand strong')).toHaveText('RV Fisiologia')
-  await expect(page.locator('#hero-title')).toContainText('EVOLUA')
+  await expect(page.locator('#hero-title')).toContainText('RV 30')
   await expect(page.locator('.hero-tagline')).toHaveText('Seu corpo. Seu ritmo. Sua evolução.')
   await expect(page.locator('.catalog-card')).toHaveCount(2)
-  await expect(page.locator('.catalog-card').first()).toContainText('Método RV')
+  await expect(page.locator('.catalog-card').first()).toContainText('RV 30')
   await expect(page.locator('.catalog-card').last()).toContainText('Treinamento personalizado')
   const catalog = await page.locator('[data-catalog-grid]').innerText()
   expect(catalog).not.toMatch(/vÃ|orientaÃ|diÃ|ForÃ|EspaÃ|comentÃ|�/)
 })
 
-test('equivalência diária em destaque com valor total visível sem mensalidade falsa', async ({ page }) => {
+test('valor total em destaque e equivalência diária identificada sem inventar prazo de acesso', async ({ page }) => {
   await page.goto('/')
   const price = page.locator('#investimento')
-  await expect(price.locator('#investimento-title')).toContainText('R$ 13,30')
-  await expect(price.locator('.price-main')).toContainText('R$ 13,30')
-  await expect(price.locator('.price-total')).toContainText('R$ 399,00')
-  await expect(price.locator('.pricing-lead')).toContainText('pagamento único')
+  await expect(price.locator('.price-main')).toContainText('R$ 399,00')
+  await expect(price.locator('.price-total')).toContainText('R$ 13,30')
+  await expect(price.locator('.price-total')).toContainText('Não é cobrança diária')
+  await expect(price.locator('.rv30-availability')).toContainText('Inscrições em preparação')
+  const accessFaq = page.locator('details').filter({ hasText: 'Os 30 dias são o prazo de acesso?' })
+  await accessFaq.locator('summary').click()
+  await expect(accessFaq.locator('p')).toContainText('Os 30 dias descrevem a sequência do programa')
   await expect(page.locator('.mobile-buybar')).toContainText('R$ 399,00')
   await page.goto('/checkout/rv30')
   await expect(page.locator('.order-total')).toContainText('R$ 399,00')
   await expect(page.locator('.order-product')).toContainText('30 dias')
 })
 
-test('EVOLUA conserva disposição mobile e bloqueia vendas públicas sem backend', async ({ page }) => {
+test('RV 30 conserva disposição mobile e bloqueia vendas públicas sem backend', async ({ page }) => {
   await page.route('**/assets/js/config.js*', async route => {
     const response = await route.fetch()
     const content = (await response.text())
@@ -401,9 +412,9 @@ test('EVOLUA conserva disposição mobile e bloqueia vendas públicas sem backen
   for (const width of [320,390,768,1440]) {
     await page.setViewportSize({width,height:844})
     await page.goto('/')
-    await expect(page.locator('#hero-title')).toContainText('EVOLUA')
+    await expect(page.locator('#hero-title')).toContainText('RV 30')
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
-    expect(overflow, 'EVOLUA @ ' + width + 'px').toBeLessThanOrEqual(1)
+    expect(overflow, 'RV 30 @ ' + width + 'px').toBeLessThanOrEqual(1)
     await expect(page.locator('.hero-actions [data-buy]')).toBeDisabled()
   }
 })

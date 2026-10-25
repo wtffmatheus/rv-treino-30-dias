@@ -1,7 +1,16 @@
-(() => {
+(async () => {
   'use strict'
 
-  const CONTENT = Array.isArray(window.RV30_CONTENT) ? window.RV30_CONTENT : []
+  if (window.RVApi) await window.RVApi.ready
+
+  const serverMode = window.RVApi?.serverMode === true
+  const liveLessons = serverMode ? window.RVApi.course().lessons : null
+  const CONTENT = (Array.isArray(window.RV30_CONTENT) ? window.RV30_CONTENT : []).map(item => {
+    if (!serverMode) return item
+    const lesson = liveLessons.find(value => value.day === item.day)
+    return { ...item, title: lesson?.title || item.title, description: lesson?.description || item.description,
+      videoUrl: '', available: lesson?.available === true }
+  })
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const params = new URLSearchParams(location.search)
   const demoMode = window.RV_COURSE_CONFIG?.testMode === true && params.get('demo') === '1'
@@ -17,7 +26,11 @@
     return
   }
 
-  if (!demoMode && (!auth?.isLoggedIn() || !auth?.hasAccess(courseId))) {
+  if (!demoMode && auth?.isLoggedIn() && !auth?.hasAccess(courseId)) {
+    location.replace(window.RVRoute?.resolve('/meus-cursos') || '/meus-cursos')
+    return
+  }
+  if (!demoMode && !auth?.isLoggedIn()) {
     const loginUrl = `/entrar?next=${encodeURIComponent('/curso/rv30')}`
     location.replace(window.RVRoute?.resolve(loginUrl) || loginUrl)
     return
@@ -138,6 +151,10 @@
     video.controls = true
     video.playsInline = true
     video.preload = 'metadata'
+    video.setAttribute('aria-label', title)
+    video.addEventListener('error', () => {
+      shell.innerHTML = '<div class="course-video-placeholder" role="status"><strong>Não foi possível carregar o vídeo.</strong><small>Selecione este dia novamente para renovar o acesso ou tente mais tarde.</small></div>'
+    })
     video.src = url
     shell.append(video)
   }
@@ -202,6 +219,22 @@
     $('[data-next]').disabled = item.day === 30
 
     embedVideo(item.videoUrl, item.videoTitle)
+    if (serverMode && item.available) {
+      const requestedDay = item.day
+      $('[data-course-video]').innerHTML = '<div class="course-video-placeholder" role="status">Carregando sua aula…</div>'
+      window.RVApi.request(`/api/courses/rv30/days/${requestedDay}/video`).then(result => {
+        if (selectedDay !== requestedDay) return
+        if (result.ok) embedVideo(result.url, item.videoTitle)
+        else {
+          embedVideo('', item.videoTitle)
+          $('[data-course-video] small').textContent = result.message
+        }
+      })
+    }
+    if (serverMode) {
+      button.disabled = !item.available
+      $('[data-content-status]').textContent = item.available ? (done.has(item.day) ? 'Conteúdo concluído' : 'Aula disponível') : 'Vídeo em preparação'
+    }
     renderComments(item)
     renderSidebar()
     renderProgress()
@@ -218,10 +251,11 @@
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function toggleComplete() {
+  async function toggleComplete() {
     const done = new Set(progressDays())
-    const result = setProgressDay(selectedDay, !done.has(selectedDay))
+    const result = await setProgressDay(selectedDay, !done.has(selectedDay))
     if (result?.ok) renderContent()
+    else if (result?.message) $('[data-content-status]').textContent = result.message
   }
 
   document.addEventListener('click', (event) => {

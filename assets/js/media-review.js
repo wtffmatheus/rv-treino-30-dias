@@ -5,37 +5,88 @@
   const config = (id) => window.RV_COURSE_CONFIG?.courses?.find((course) => course.id === id && Number.isInteger(course.totalDays))
   const failure = (message) => ({ ok: false, message })
   const read = () => {
-    const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
-    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}
+    try {
+      const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
+      return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}
+    } catch { return {} }
   }
   function driveFileId(value) {
     try {
       const url = new URL(value)
-      if (url.protocol !== 'https:' || url.hostname !== 'drive.google.com' || url.username || url.password) return null
-      return url.pathname.match(/^\/file\/d\/([\w-]+)(?:\/|$)/)?.[1] || null
+      if (url.protocol !== 'https:' || url.hostname !== 'drive.google.com' || url.username || url.password || url.port) return null
+      return url.pathname.match(/^\/file\/d\/([\w-]+)\/?(?:(?:view|preview)\/?)?$/)?.[1] || null
     } catch { return null }
   }
   function parseDay(name) {
-    const normalized = String(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    // Aceita 1.mov ... 30.mov, alem do padrao anterior "video aula 01.mp4".
-    // Apenas um numero sozinho com extensao valida vira "Dia N".
-    const numeric = normalized.match(/^(\d{1,3})\.(?:mov|mp4|m4v|webm)$/)
-    if (numeric) return Number(numeric[1])
-    const match = normalized.match(/^(?:video[ _-]*)?(?:aula|dia)[ _-]*(\d{1,3})(?=[ _.-]|$)/)
+    const normalized = String(name || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    if (!/\.(?:mov|mp4|m4v|webm)$/.test(normalized)) return null
+    const stem = normalized.replace(/\.[^.]+$/, '')
+    // Dois números (ex.: "dia 12 - versao 2") exigem revisão humana.
+    // Nunca escolher o primeiro número silenciosamente.
+    if ((stem.match(/\d+/g) || []).length !== 1) return null
+    const match = stem.match(/^(?:(?:video[ _-]*)?(?:aula|dia)[ _-]*)?(\d{1,3})(?=[ _.-]|$)/)
     return match ? Number(match[1]) : null
+  }
+  function inventory(files, totalDays = 30) {
+    const issues = []
+    const candidates = []
+    if (!Array.isArray(files) || files.length > 1000 || !Number.isInteger(totalDays) || totalDays < 1 || totalDays > 365) {
+      return { items: [], issues: [{ code: 'INVALID_LIST', message: 'Lista de arquivos inválida.' }], missingDays: Array.from({ length: 30 }, (_, i) => i + 1), linked: 0 }
+    }
+    for (const file of files) {
+      const name = typeof file?.name === 'string' ? file.name.trim().slice(0, 240) : ''
+      const day = parseDay(name)
+      if (day === null || day < 0 || day > totalDays) {
+        issues.push({ code: 'AMBIGUOUS_NUMBER', name, message: `Numeração ausente, ambígua ou fora de 0 a ${totalDays}: ${name || '(sem nome)'}.` })
+        continue
+      }
+      if (Object.hasOwn(file, 'day') && file.day !== day) {
+        issues.push({ code: 'DAY_MISMATCH', name, day, message: `O dia declarado não corresponde ao nome ${name}.` })
+        continue
+      }
+      const driveUrl = typeof file.driveUrl === 'string' ? file.driveUrl.trim() : ''
+      if (driveUrl && !driveFileId(driveUrl)) {
+        issues.push({ code: 'INVALID_DRIVE_URL', name, day, message: `Link privado inválido no dia ${day}.` })
+        continue
+      }
+      candidates.push({ ...file, name, day, driveUrl })
+    }
+    const dayCounts = new Map()
+    const sourceCounts = new Map()
+    candidates.forEach((item) => {
+      dayCounts.set(item.day, (dayCounts.get(item.day) || 0) + 1)
+      const id = driveFileId(item.driveUrl)
+      if (id) sourceCounts.set(id, (sourceCounts.get(id) || 0) + 1)
+    })
+    const items = candidates.filter((item) => {
+      if (dayCounts.get(item.day) > 1) {
+        issues.push({ code: 'DUPLICATE_DAY', day: item.day, name: item.name, message: `Dia ${item.day} duplicado: ${item.name}. Nenhuma alternativa foi escolhida.` })
+        return false
+      }
+      if (sourceCounts.get(driveFileId(item.driveUrl)) > 1) {
+        issues.push({ code: 'DUPLICATE_SOURCE', day: item.day, name: item.name, message: `Arquivo reutilizado no dia ${item.day}. As associações conflitantes foram excluídas.` })
+        return false
+      }
+      return true
+    }).sort((a, b) => a.day - b.day)
+    const missingDays = Array.from({ length: totalDays }, (_, i) => i + 1).filter((day) => !items.some((item) => item.day === day && driveFileId(item.driveUrl)))
+    return { items, issues, missingDays, linked: totalDays - missingDays.length }
   }
   window.RVMediaReview = {
     storageKey: KEY,
     parseDay,
     driveFileId,
+    inventory,
     list(courseId) {
       if (!allowed()) return []
-      return read()[courseId]?.items || []
+      return JSON.parse(JSON.stringify(read()[courseId]?.items || []))
     },
     import(courseId, files) {
       if (!allowed()) return failure('Sessão administrativa necessária.')
       const course = config(courseId)
       if (!course || !Array.isArray(files) || !files.length || files.length > course.totalDays + 1) return failure('Lista de vídeos inválida.')
+      const analyzed = inventory(files, course.totalDays)
+      if (analyzed.issues.length) return { ...failure(analyzed.issues[0].message), issues: analyzed.issues }
       const days = new Set()
       const staged = []
       for (const file of files) {
@@ -58,6 +109,25 @@
       db[courseId] = { items, batchApprovedAt: null }
       localStorage.setItem(KEY, JSON.stringify(db))
       return { ok: true, count: staged.length }
+    },
+    importAvailable(courseId, files) {
+      if (!allowed()) return failure('Sessão administrativa necessária.')
+      const course = config(courseId)
+      if (!course) return failure('Curso inválido.')
+      const analyzed = inventory(files, course.totalDays)
+      if (!analyzed.items.length) return { ...failure('Nenhum arquivo sem conflito foi encontrado.'), issues: analyzed.issues }
+      const result = this.import(courseId, analyzed.items)
+      return { ...result, issues: analyzed.issues, missingDays: analyzed.missingDays }
+    },
+    summary(courseId) {
+      if (!allowed()) return null
+      const course = config(courseId)
+      if (!course) return null
+      const items = this.list(courseId)
+      const analyzed = inventory(items, course.totalDays)
+      return { totalDays: course.totalDays, files: items.length, linked: analyzed.linked,
+        approved: items.filter((item) => item.approved).length, missingDays: analyzed.missingDays,
+        unimportedDays: Array.from({ length: course.totalDays }, (_, i) => i + 1).filter((day) => !items.some((item) => item.day === day)) }
     },
     update(courseId, day, changes) {
       if (!allowed()) return failure('Sessão administrativa necessária.')
@@ -86,6 +156,7 @@
     approveBatch(courseId) {
       if (!allowed()) return failure('Sessão administrativa necessária.')
       const course = config(courseId)
+      if (!course) return failure('Curso inválido.')
       const db = read()
       const batch = db[courseId]
       // Os 30 dias sao obrigatorios. Introducao (dia 00) so precisa de

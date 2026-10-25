@@ -1,4 +1,17 @@
-# RV Projeto 30 — V6 / Pente-fino + Painel Admin
+# RV 30 — revisão de 25/10/2026
+
+Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória e verificação administrativa de entrega. **Vendas reais permanecem bloqueadas.**
+
+- [Entrega, configuração e recuperação](docs/ENTREGA_RV30_20261025.md)
+- [Validação e limitações](docs/VALIDACAO_RV30.md)
+- [Backend e migração proposta](backend/SECURE_BACKEND_RV30.md)
+- [Vídeos e dias pendentes](docs/VIDEOS_RV30.md)
+
+Use Node 22+ e `npm ci`, `npm run dev`; prévia em http://127.0.0.1:8081. Sem backend configurado, a demonstração funciona apenas em loopback. Segredos ficam exclusivamente no servidor, conforme `.env.example`. `dist/` contém somente os arquivos estáticos.
+
+Verificações: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:e2e`. A auditoria `npm run audit:launch` mantém **NO_GO** até comprovar a integração em homologação.
+
+## Histórico anterior da V6
 
 Versão de teste/staging do portal comercial do **RV 30**, com a jornada de venda, área do aluno e painel administrativo específico do curso.
 

@@ -15,4 +15,21 @@ if ([...statuses].some(([code, state]) => ['price_gateway_configured','productio
   assert.equal(x.verdict,'NO_GO')
 }
 assert(x.checkedFiles.length >= 7)
-console.log('Release gate: bloqueios de vendas identificados e nenhum link privado publicado.')
+assert.equal(x.verdict, 'NO_GO', 'API preparada não equivale à comprovação de uma implantação real')
+for (const code of ['server_api_prepared', 'payment_adapter_prepared', 'private_playback_adapter_prepared', 'database_migration_prepared', 'sales_disabled_by_default']) {
+  assert.equal(statuses.get(code), 'PASS', 'preparação de código ausente: ' + code)
+}
+for (const code of ['production_auth', 'price_gateway_configured', 'protected_video_delivery', 'deployment_backend_verified', 'database_policies_verified']) {
+  assert.equal(statuses.get(code), 'FAIL', 'não declarar verificação real sem evidência: ' + code)
+}
+assert.equal(x.verification.staticSourceOnly, true)
+assert.equal(x.verification.livePaymentVerified, false)
+assert.equal(x.inventory.authenticatedDriveChecked, false)
+assert.equal(x.inventory.verifiedFiles, 0)
+assert.deepEqual(x.inventory.linkedDays, [])
+assert.deepEqual(x.inventory.pendingDays, Array.from({ length: 30 }, (_, i) => i + 1))
+assert.match(x.inventory.historicalNote, /não foi revalidada/)
+const lastDay = x.findings.find(finding => finding.code === 'day_30_drive_verified')
+assert.match(lastDay.detail, /não verificado nesta sessão/)
+assert.doesNotMatch(lastDay.detail, /30\.MOV ausente|foram encontrados 1\.MOV/)
+console.log('Release gate: API preparada distinguida de homologação real; NO_GO, zero vídeos vinculados e inventário histórico não presumido.')

@@ -18,4 +18,4 @@ for (const file of files) {
   fs.mkdirSync(path.dirname(out), { recursive: true })
   fs.copyFileSync(path.join(root, file), out)
 }
-console.log(`Build: ${files.length} arquivos em dist/. Backend nao conectado; nao liberar vendas reais.`)
+console.log(`Build: ${files.length} arquivos estaticos em dist/. A API Node e hospedada separadamente; este build nao habilita vendas.`)

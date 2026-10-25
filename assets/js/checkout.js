@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   'use strict'
+
+  if (window.RVApi) await window.RVApi.ready
 
   const config = window.RV_COURSE_CONFIG || {}
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
@@ -17,6 +19,47 @@
     manual: 'pagamento configurado pela RV'
   }
   let customer = null
+
+  if (window.RVApi?.serverMode) {
+    window.RVApi.applyPricing()
+    if (form) form.hidden = true
+    if (testBox) testBox.hidden = true
+    if (productionBox) productionBox.hidden = true
+    if (setupError) {
+      setupError.hidden = false
+      setupError.textContent = 'Inscrições em preparação. A compra será disponibilizada após a validação do pagamento e das aulas.'
+    }
+    if (!window.RVApi.configured || !window.RVApi.salesEnabled || !course) return
+    if (!auth.isLoggedIn()) {
+      setupError.textContent = 'Entre em sua conta antes de continuar com a inscrição.'
+      const link = document.createElement('a')
+      link.href = '/entrar?next=/checkout/rv30'
+      link.textContent = 'Entrar ou criar minha conta'
+      link.className = 'button button--primary'
+      setupError.append(document.createElement('br'), link)
+      return
+    }
+    const button = document.createElement('button')
+    button.type = 'button'; button.className = 'button button--primary'
+    button.textContent = 'Continuar para o pagamento'
+    setupError.textContent = `A inscrição será vinculada à conta ${auth.account().email}. O valor e as condições serão exibidos no checkout seguro.`
+    setupError.append(document.createElement('br'), button)
+    const idempotencyKey = crypto.randomUUID()
+    button.addEventListener('click', async () => {
+      button.disabled = true
+      const result = await window.RVApi.request('/api/orders', { method: 'POST', body: { productId: 'rv30' }, headers: { 'Idempotency-Key': idempotencyKey } })
+      if (result.ok && result.order?.checkoutUrl) {
+        try {
+          const target = new URL(result.order.checkoutUrl)
+          if (target.protocol === 'https:' && ['www.mercadopago.com.br', 'sandbox.mercadopago.com.br'].includes(target.hostname)) { location.assign(target.href); return }
+        } catch {}
+      }
+      const note = document.createElement('p'); note.setAttribute('role', 'alert')
+      note.textContent = result.message || 'Checkout indisponível. Nenhum acesso foi liberado.'
+      setupError.append(note); button.disabled = false
+    })
+    return
+  }
 
   if (!course) {
     if (form) form.hidden = true
