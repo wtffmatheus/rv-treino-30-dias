@@ -18,6 +18,21 @@ Ambiente local Windows, Node 24, Chromium e dados exclusivamente fictícios. As 
 | `tests/smoke_test.py` / `tests/deep_audit.py` | Pendente localmente | `beautifulsoup4` não instalado. Tentativa de preparar dependências foi interrompida durante a aprovação; nenhum download concluído. CI está configurado para executá-los com as dependências. |
 | `npm run audit:launch` | `NO_GO` esperado | Saída 2 bloqueia abertura comercial até comprovação real; código preparado e serviços homologados são estados distintos. |
 
+## Validação remota no GitHub
+
+Os dois jobs de qualidade do commit de código `e293212` concluíram com sucesso:
+[push](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/40220696008) e
+[pull request](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/40220725938).
+Além das verificações JavaScript, o workflow executou as seis auditorias Python
+com `beautifulsoup4` e `tinycss2`. Isso resolve a execução dessas duas auditorias
+no CI; a limitação de dependências na máquina local permanece registrada acima.
+
+A Vercel concluiu o build e gerou uma prévia protegida por login. O check separado
+do Cloudflare Workers falhou e permanece pendente: seu resultado aponta somente
+para o painel autenticado, sem disponibilizar os logs nesta sessão. Portanto,
+**não são todos os checks de hospedagem que passaram**. Essa pendência não é
+tratada como aprovação nem altera o `NO_GO` comercial.
+
 ## Principais casos cobertos
 
 - Credenciais inválidas, identidade sem e-mail confirmado, cookie opaco HttpOnly, sessão forjada, expirada, revogada no Auth e sessão removida de `auth.sessions` mesmo com token ainda aceito.
