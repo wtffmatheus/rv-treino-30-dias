@@ -38,6 +38,17 @@ jobs:
           npm run lint
           npm run typecheck
           npm run build
+          npm run check:cloudflare
+      - name: Workers static routing integration
+        run: |
+          npx wrangler dev --local --ip 127.0.0.1 --port 8787 --show-interactive-dev-session=false > /tmp/rv30-wrangler.log 2>&1 &
+          rv30_worker_pid=$!
+          trap 'kill "$rv30_worker_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --silent --fail --max-time 1 http://127.0.0.1:8787/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:cloudflare
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser end-to-end tests

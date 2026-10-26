@@ -4,6 +4,7 @@ Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória 
 
 - [Entrega, configuração e recuperação](docs/ENTREGA_RV30_20261025.md)
 - [Validação e limitações](docs/VALIDACAO_RV30.md)
+- [Correção da paleta azul e publicação do domínio](docs/REVISAO_AZUL_PUBLICACAO_20261026.md)
 - [Backend e migração proposta](backend/SECURE_BACKEND_RV30.md)
 - [Vídeos e dias pendentes](docs/VIDEOS_RV30.md)
 

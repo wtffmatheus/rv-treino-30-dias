@@ -204,6 +204,25 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
   await expect(page.locator('.site-header .brand img')).toHaveAttribute('src', '/public/logo-rv.png')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
   expect(accent).toBe('#00bbb1')
+  const navyPalette = await page.evaluate(() => {
+    const background = selector => getComputedStyle(document.querySelector(selector)).backgroundColor
+    return {
+      page: background('.rv30-landing'),
+      hero: background('.hero'),
+      program: background('#proposta'),
+      professional: background('#rosangela'),
+      faq: background('.rv30-faq'),
+      panel: background('.price-card')
+    }
+  })
+  expect(navyPalette).toEqual({
+    page: 'rgb(8, 21, 30)',
+    hero: 'rgb(8, 21, 30)',
+    program: 'rgb(16, 30, 40)',
+    professional: 'rgb(16, 30, 40)',
+    faq: 'rgb(16, 30, 40)',
+    panel: 'rgb(20, 39, 50)'
+  })
   const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
   expect(heroLayout).toBe('grid')
   await page.locator('.hero-actions [data-buy]').click()

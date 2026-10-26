@@ -1,6 +1,6 @@
 # RV 30 — identidade e referências
 
-Revisão de 25/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.
+Revisão de 26/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.
 
 ## Referências consultadas
 
@@ -17,7 +17,7 @@ Os princípios são interpretações de organização e hierarquia dessas págin
 
 ## Decisões visuais e editoriais
 
-- Grafite com turquesa para o programa; superfícies claras em trechos de leitura e apresentação da profissional.
+- Paleta azul original preservada, conforme a preferência expressa do proprietário: fundo azul-marinho `#08151e`, seções `#101e28`, painéis `#142732`, textos branco e azul-acinzentado `#f5f9f9` / `#d9e5e8` / `#a9bdc5` e turquesa original `#00bbb1` nos destaques. A modernização fica na composição, hierarquia, espaçamento e navegação; não há troca dos fundos por verde ou menta. A mesma paleta se aplica à entrada administrativa e à área do aluno.
 - Segoe UI e Arial como fontes locais, sem dependência de download de fontes. Hierarquia consistente e espaço entre os blocos. A fonte Manrope inicialmente prevista foi substituída pelo conjunto local após indisponibilidade do download autorizado.
 - Fotografia independente do texto, com recorte próprio em celular, sem sobrepor a mensagem ao rosto da profissional.
 - Conteúdo comercial mais curto: programa, experiência, profissional, investimento, catálogo e dúvidas. Removidas as seções repetitivas e imagens de antes/depois cuja autorização e relação com o RV 30 não foram verificadas nesta etapa.

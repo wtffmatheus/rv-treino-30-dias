@@ -8,15 +8,21 @@
     "audit:media": "node scripts/check-private-videos.js",
     "audit:launch": "node scripts/release-audit.js",
     "build": "node scripts/build.js",
+    "check:cloudflare": "wrangler deploy --dry-run --outdir output/cloudflare-dry-run",
     "check": "node scripts/check.js",
-    "test": "node tests/data_flow_test.js && node tests/admin_security_test.js && node tests/support_media_test.js && node tests/cardio_test.js && node tests/release_audit_test.js && node tests/check_private_videos_test.js && node tests/launch_safety_test.js && node tests/video_mapping_test.js && node tests/backend_security_test.js && node tests/backend_review_test.js",
+    "test": "node tests/data_flow_test.js && node tests/admin_security_test.js && node tests/support_media_test.js && node tests/cardio_test.js && node tests/release_audit_test.js && node tests/check_private_videos_test.js && node tests/launch_safety_test.js && node tests/video_mapping_test.js && node tests/backend_security_test.js && node tests/backend_review_test.js && node tests/cloudflare_config_test.js",
     "typecheck": "tsc -p jsconfig.json",
     "lint": "node scripts/check.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:cloudflare": "node tests/cloudflare_runtime_test.js"
+  },
+  "overrides": {
+    "undici": "7.30.1"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "^26.6.5",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "wrangler": "4.152.0"
   }
 }
