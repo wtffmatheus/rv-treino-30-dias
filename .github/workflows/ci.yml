@@ -2,6 +2,7 @@ name: RV30 Quality Checks
 on:
   push:
     branches:
+      - main
       - feature/cardio-onboarding-drive-20261015
       - design/rv30-performance-marca-20261015
       - feature/rv30-drive-30-mov-20261015
@@ -12,6 +13,7 @@ on:
       - qa/rv30-release-hardening-20261016
       - design/rv30-fotos-reais-rosangela-20261022
       - feature/metodo-rv-evolua-identidade-20261022
+      - rv30-evolucao-20261025
   pull_request:
     branches: [main]
 jobs:
@@ -21,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
       - uses: actions/setup-python@v5
         with:
@@ -29,13 +31,25 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          python -m pip install beautifulsoup4
+          python -m pip install beautifulsoup4 tinycss2
       - name: Unit and integration tests
         run: npm test
       - name: Static checks and build
         run: |
-          npm run check
+          npm run lint
+          npm run typecheck
           npm run build
+          npm run check:cloudflare
+      - name: Workers static routing integration
+        run: |
+          npx wrangler dev --local --ip 127.0.0.1 --port 8787 --show-interactive-dev-session=false > /tmp/rv30-wrangler.log 2>&1 &
+          rv30_worker_pid=$!
+          trap 'kill "$rv30_worker_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --silent --fail --max-time 1 http://127.0.0.1:8787/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:cloudflare
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser end-to-end tests

@@ -8,6 +8,7 @@
 
 
   function setupPricing() {
+    if (window.RVApi?.serverMode) { window.RVApi.applyPricing(); return }
     const course = CONFIG.courses.find((item) => item.id === 'rv30')
     if (!course) return
     const total = money(course.priceCents)
@@ -23,9 +24,10 @@
     const featured = CONFIG.courses.filter((course) => ['rv30', 'forca'].includes(course.id))
     grid.innerHTML = featured.map((course) => {
       const available = course.status === 'available'
-      const price = available && course.priceCents
-        ? `<strong>${money(course.dailyPriceCents)}<span class="rv-catalog-per-day">/dia*</span></strong><small>${money(course.priceCents)} por 30 dias, pagamento único</small>`
-        : '<strong>Sob consulta</strong><small>Disponibilidade a confirmar</small>'
+      const verifiedPrice = window.RVApi?.serverMode ? window.RVApi.priceCents : course.priceCents
+      const price = available && verifiedPrice
+        ? `<strong>${money(verifiedPrice)}</strong><small>Programa com sequência de 30 dias</small>`
+        : '<strong>A confirmar</strong><small>Inscrições em preparação</small>'
 
       return `
         <article class="catalog-card ${available ? 'catalog-card--active' : ''} reveal is-visible">
@@ -40,6 +42,7 @@
 
   function salesReady(course) {
     if (!course || course.status !== 'available') return false
+    if (window.RVApi?.serverMode) return window.RVApi.salesEnabled === true
     if (CONFIG.testMode === true) return true
     return CONFIG.salesEnabled === true &&
       CONFIG.productionAccessVerified === true &&
@@ -49,6 +52,21 @@
 
   function updateSalesStatus() {
     const course = CONFIG.courses.find((item) => item.id === 'rv30')
+    const enrollmentOpen = CONFIG.testMode !== true && salesReady(course)
+    const enrollmentCopy = enrollmentOpen ? {
+      '[data-sales-summary]': 'Inscrições disponíveis. Confira as condições do RV 30 antes de concluir a compra.',
+      '[data-sales-label]': 'Inscrições disponíveis',
+      '[data-sales-detail]': 'Consulte as condições de pagamento e de acesso ao programa antes de concluir a compra.',
+      '[data-sales-faq]': 'Você pode iniciar sua inscrição pelos botões desta página. O acesso ao programa depende da confirmação do pagamento.'
+    } : {
+      '[data-sales-summary]': 'Inscrições em preparação. A compra será disponibilizada após a liberação do programa.',
+      '[data-sales-label]': 'Inscrições em preparação',
+      '[data-sales-detail]': 'A compra ainda não está disponível. As condições finais serão apresentadas antes do pagamento.',
+      '[data-sales-faq]': 'As inscrições estão em preparação. A compra será liberada após a confirmação das condições de pagamento e da disponibilidade do programa.'
+    }
+    Object.entries(enrollmentCopy).forEach(([selector, message]) => {
+      document.querySelectorAll(selector).forEach((element) => { element.textContent = message })
+    })
     if (salesReady(course)) return
     document.querySelectorAll('[data-buy]').forEach((button) => {
       button.disabled = true
@@ -75,14 +93,14 @@
     if (/youtube\.com|youtu\.be/.test(url)) {
       const id = url.match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{6,})/)?.[1]
       if (!id) return
-      shell.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}" title="Apresentação do Método RV" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+      shell.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}" title="Apresentação do RV 30" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
       return
     }
 
     if (/vimeo\.com/.test(url)) {
       const id = url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1]
       if (!id) return
-      shell.innerHTML = `<iframe src="https://player.vimeo.com/video/${id}" title="Apresentação do Método RV" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
+      shell.innerHTML = `<iframe src="https://player.vimeo.com/video/${id}" title="Apresentação do RV 30" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
       return
     }
 
@@ -163,7 +181,8 @@
     })
   }
 
-  function boot() {
+  async function boot() {
+    if (window.RVApi) await window.RVApi.ready
     document.documentElement.classList.remove('no-js')
     document.documentElement.classList.add('js')
     setupPricing()

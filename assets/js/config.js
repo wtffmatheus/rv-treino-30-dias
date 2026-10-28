@@ -33,7 +33,7 @@
       password: 'rv30admin'
     },
 
-    whatsapp: '5511991234513',
+    whatsapp: '', // Preencher somente com o contato comercial confirmado.
     introVideoUrl: '',
     studentLoginUrl: '/entrar',
 
@@ -46,9 +46,9 @@
       {
         id: 'rv30',
         slug: 'rv30',
-        title: 'Método RV',
+        title: 'RV 30',
         tagline: 'Seu corpo. Seu ritmo. Sua evolução.',
-        eyebrow: 'MÉTODO RV · EVOLUA',
+        eyebrow: 'RV 30 · PROGRAMA DE TREINOS',
         description: 'Projeto guiado de 30 dias com vídeos, orientação diária, comentários e acompanhamento do progresso.',
         duration: '30 dias',
         totalDays: 30,

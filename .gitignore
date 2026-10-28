@@ -5,6 +5,8 @@
 node_modules/
 dist/
 output/
+.playwright-cli/
+.wrangler/
 *.log
 __pycache__/
 .agents/

@@ -9,43 +9,40 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <title>Admin Método RV — Entrar</title>
+  <title>Acesso profissional | RV Fisiologia</title>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
-  <link rel="stylesheet" href="assets/css/projeto.css?v=20260909-7">
-  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20260910">
-  <script src="assets/js/config.js?v=20260913-3" defer></script>
-  <script src="assets/js/runtime.js?v=20260913-3" defer></script>
-  <script src="assets/js/auth-demo.js?v=20260913-3" defer></script>
-  <script src="assets/js/admin-login.js?v=20260913-3" defer></script>
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20261025">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261025">
+  <link rel="stylesheet" href="/assets/css/admin-access.css?v=20261025">
+  <script src="assets/js/config.js?v=20261025" defer></script>
+  <script src="assets/js/runtime.js?v=20261025" defer></script>
+  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261025" defer></script>
+  <script src="assets/js/admin-login.js?v=20261025" defer></script>
 </head>
 <body class="portal-body admin-login-body">
   <main class="auth-layout auth-layout--admin">
     <section class="auth-brand-panel admin-brand-panel">
-      <a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>RV Fisiologia</strong><small>Administração Método RV</small></span></a>
+      <a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="88" height="44"><span><strong>RV Fisiologia</strong><small>Área profissional</small></span></a>
       <div>
-        <p class="eyebrow"><span></span> PAINEL ADMINISTRATIVO</p>
-        <h1>Controle do Método RV <em>em uma única tela.</em></h1>
-        <p>Alunos, acessos, pagamentos de teste, progresso, comentários e observações internas do projeto atual.</p>
+        <p class="eyebrow">RV 30 · ADMINISTRAÇÃO</p>
+        <h1>O cuidado continua <em>nos detalhes.</em></h1>
+        <p>Conteúdo, alunos e acompanhamento do programa em um espaço reservado à equipe.</p>
       </div>
       <small class="auth-copyright">Área administrativa • não indexada</small>
     </section>
     <section class="auth-form-panel">
       <div class="auth-card">
-        <p class="eyebrow"><span></span> ACESSO PROFISSIONAL</p>
+        <p class="eyebrow">ACESSO PROFISSIONAL</p>
         <h2>Entrar no painel</h2>
-        <p class="portal-lead" data-admin-test-note>Esta versão usa credenciais exclusivas de demonstração. O painel real deverá usar autenticação segura no backend.</p>
-        <div class="admin-demo-credentials" aria-label="Credenciais de demonstração">
-          <small>AMBIENTE DE TESTE</small>
-          <p><span>E-mail</span><strong>admin@rvfisiologia.test</strong></p>
-          <p><span>Senha</span><strong>rv30admin</strong></p>
-        </div>
+        <p class="portal-lead" data-admin-test-note>Use sua conta profissional. O acesso depende de autenticação, e-mail verificado e autorização no servidor.</p>
         <form class="portal-form" data-admin-login-form>
-          <label>E-mail administrativo<input name="email" type="email" autocomplete="username" required placeholder="admin@rvfisiologia.test"></label>
+          <label>E-mail administrativo<input name="email" type="email" autocomplete="username" required placeholder="seu@email.com.br"></label>
           <label>Senha<input name="password" type="password" autocomplete="current-password" required placeholder="Senha administrativa"></label>
-          <p class="form-error" data-form-error role="alert"></p>
-          <button class="button button--primary button--wide" type="submit">Entrar no painel Método RV</button>
+          <p class="form-error" role="alert" aria-live="polite" data-form-error></p>
+          <button class="button button--primary button--wide" type="submit">Entrar no painel RV 30</button>
         </form>
-        <p class="tiny-note">Não use estas credenciais em produção. Elas existem apenas para validar a interface administrativa agora.</p>
+        <p class="tiny-note">Precisa recuperar o acesso? <a href="/entrar#recuperar">Recuperar minha senha</a></p>
+        <a class="text-link" href="/">Voltar ao site</a>
       </div>
     </section>
   </main>
