@@ -52,6 +52,21 @@
 
   function updateSalesStatus() {
     const course = CONFIG.courses.find((item) => item.id === 'rv30')
+    const enrollmentOpen = CONFIG.testMode !== true && salesReady(course)
+    const enrollmentCopy = enrollmentOpen ? {
+      '[data-sales-summary]': 'Inscrições disponíveis. Confira as condições do RV 30 antes de concluir a compra.',
+      '[data-sales-label]': 'Inscrições disponíveis',
+      '[data-sales-detail]': 'Consulte as condições de pagamento e de acesso ao programa antes de concluir a compra.',
+      '[data-sales-faq]': 'Você pode iniciar sua inscrição pelos botões desta página. O acesso ao programa depende da confirmação do pagamento.'
+    } : {
+      '[data-sales-summary]': 'Inscrições em preparação. A compra será disponibilizada após a liberação do programa.',
+      '[data-sales-label]': 'Inscrições em preparação',
+      '[data-sales-detail]': 'A compra ainda não está disponível. As condições finais serão apresentadas antes do pagamento.',
+      '[data-sales-faq]': 'As inscrições estão em preparação. A compra será liberada após a confirmação das condições de pagamento e da disponibilidade do programa.'
+    }
+    Object.entries(enrollmentCopy).forEach(([selector, message]) => {
+      document.querySelectorAll(selector).forEach((element) => { element.textContent = message })
+    })
     if (salesReady(course)) return
     document.querySelectorAll('[data-buy]').forEach((button) => {
       button.disabled = true

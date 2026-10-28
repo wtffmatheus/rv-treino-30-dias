@@ -190,7 +190,11 @@
       return
     }
 
-    const order = auth.createDemoOrder(data)
+    let order
+    try { order = auth.createDemoOrder(data) } catch {
+      if (testError) testError.textContent = 'Não foi possível criar o pedido de teste. Tente novamente.'
+      return
+    }
     if (!order || order.ok === false || !order.id) {
       if (testError) testError.textContent = order?.message || 'Não foi possível criar o pedido de teste.'
       return

@@ -252,6 +252,7 @@ function harness(options = {}) {
     assert.match(sql,/revoke all on function public\.rv30_apply_payment[^;]+from public,anon,authenticated/)
     assert.match(sql,/revoke all on function public\.rv30_session_active\(uuid,uuid\) from public,anon,authenticated/)
     assert.match(sql,/from auth.sessions where id=p_session_id and user_id=p_user_id/)
+    assert.match(sql,/and \(not_after is null or not_after > now\(\)\)/, 'Auth rows may remain after the time-box expires; existence alone must not authorize them')
     assert.match(sql,/primary key\(user_id,product_id,environment\)/)
     assert.match(sql,/unique\(user_id,idempotency_key,environment\)/)
     assert.match(sql,/p_provider_updated_at<o.provider_updated_at/)

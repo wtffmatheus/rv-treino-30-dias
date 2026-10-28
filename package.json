@@ -10,7 +10,7 @@
     "build": "node scripts/build.js",
     "check:cloudflare": "wrangler deploy --dry-run --outdir output/cloudflare-dry-run",
     "check": "node scripts/check.js",
-    "test": "node tests/data_flow_test.js && node tests/admin_security_test.js && node tests/support_media_test.js && node tests/cardio_test.js && node tests/release_audit_test.js && node tests/check_private_videos_test.js && node tests/launch_safety_test.js && node tests/video_mapping_test.js && node tests/backend_security_test.js && node tests/backend_review_test.js && node tests/cloudflare_config_test.js",
+    "test": "node tests/data_flow_test.js && node tests/admin_security_test.js && node tests/support_media_test.js && node tests/cardio_test.js && node tests/release_audit_test.js && node tests/check_private_videos_test.js && node tests/launch_safety_test.js && node tests/video_mapping_test.js && node tests/backend_security_test.js && node tests/backend_review_test.js && node tests/cloudflare_config_test.js && node tests/server_progress_test.js && node tests/connected_backend_audit_test.js",
     "typecheck": "tsc -p jsconfig.json",
     "lint": "node scripts/check.js",
     "test:e2e": "playwright test",

@@ -1,6 +1,6 @@
 # Vídeos e conferência da entrega — RV 30
 
-Verificação local em 25/10/2026. Nenhum arquivo de vídeo foi encontrado no repositório. O arquivo `assets/data/rv30-videos-template.json` contém 30 **nomes de exemplo**, sem links. Esses nomes não comprovam a existência dos vídeos no Drive. Os 31 registros de `content.js` — introdução e dias 1 a 30 — estão sem URL de reprodução.
+Verificação local refeita em 27/10/2026. Nenhum arquivo de vídeo foi encontrado no repositório. O arquivo `assets/data/rv30-videos-template.json` contém 30 **nomes de exemplo**, sem links. Esses nomes não comprovam a existência dos vídeos no Drive. Os 31 registros de `content.js` — introdução e dias 1 a 30 — estão sem URL de reprodução.
 
 **Situação verificável:** 0 arquivos reais vinculados, 0 dias com reprodução e 30 dias pendentes. A introdução também está pendente e é opcional. O relatório estruturado fica em `assets/data/rv30-video-status.json`.
 
@@ -24,6 +24,7 @@ O painel **Revisão de vídeos** aceita uma lista de nomes locais ou um manifest
 - Nomes com mais de um número, como `12 - versão 2.mp4`, exigem revisão. O sistema não presume qual número é o dia.
 - Dias fora de 0 a 30, extensões não aceitas, links que não pertencem ao domínio exato do Drive e divergências entre `day` e o nome são recusados.
 - A interface importa os outros arquivos válidos e mostra os conflitos por escrito. Os dias sem vínculo permanecem listados como pendentes.
+- Se o arquivo já estiver associado a outro dia em um lote anterior, o vínculo anterior é preservado e a associação nova é excluída com aviso. Os outros arquivos novos continuam sendo importados. O resumo considera o catálogo combinado, incluindo os lotes anteriores.
 - `approved: true` recebido do arquivo é ignorado. A revisão precisa ocorrer novamente no painel. Uma nova importação invalida a aprovação da entrada modificada.
 
 O resumo diferencia **arquivos importados**, **arquivos vinculados no Drive** e **arquivos aprovados editorialmente**. Nenhuma dessas etapas equivale à disponibilidade do vídeo no player.
@@ -55,3 +56,21 @@ Não foi criado botão de reprocessamento nem mecanismo de concessão de acesso 
 `node tests/support_media_test.js` continua passando, incluindo revisão obrigatória, reimportação que invalida o aceite, expiração de sessão e bloqueio da demonstração fora de loopback.
 
 Os testes usam exclusivamente identificadores e contas fictícios. A validação real da autorização/RLS, do provedor e dos vídeos depende do ambiente de homologação e está documentada na entrega geral.
+
+## Reauditoria de acesso e inventário em 27/10/2026
+
+A descoberta de integrações foi repetida. O Google Drive aparece disponível para conexão, mas **não instalado/conectado**; nenhuma ferramenta de leitura do Drive ficou disponível. A sugestão de conexão já havia sido apresentada em 25/10 e não foi repetida. Também foi tentada a automação da sessão existente do Chrome: a infraestrutura da ferramenta falhou antes de qualquer leitura de abas ou navegação. Isso não comprova falha de login nem ausência de arquivos no Drive.
+
+A contagem remota permanece **desconhecida**. O inventário JSON identifica expressamente o escopo `repository_only`, mantém `authenticatedDriveChecked: false` e `remoteFileCount: null`. Há zero arquivos vinculados no projeto, sem inventar URLs ou usar os 30 nomes do modelo como evidência. Menções antigas a 29 vídeos continuam sendo históricas, sem revalidação nesta sessão.
+
+Foram corrigidos dois problemas de preparação editorial: conflitos de uma importação nova com lotes anteriores bloqueavam também os arquivos válidos; o validador CLI contava associações com o mesmo ID repetido como se os dias fossem válidos. Agora a importação parcial preserva explicitamente os vínculos anteriores, e a conferência CLI exclui todas as associações conflitantes da contagem. Nenhum arquivo real ou dado de produção foi alterado.
+
+`scripts/check-private-videos.js` aceita os formatos MOV, MP4, M4V e WEBM na entrada editorial e a introdução opcional `0`. Para aprovar o lote, continua exigindo os **30 dias com links privados válidos e exclusivos**, sem ambiguidade nem duplicidade. A introdução, se incluída, também precisa de link válido. Uma entrada ausente não muda os números dos outros dias. O resultado CLI informa apenas números de dias e problemas; não imprime IDs ou URLs privados. Essa verificação é sintática/editorial e não confirma acesso ao arquivo, integridade, aprovação profissional ou reprodução.
+
+Passaram novamente `video_mapping_test.js`, `support_media_test.js` e `check_private_videos_test.js`, incluindo novos casos de conflito entre lotes, conflito em cascata, formatos mistos, introdução opcional, lacuna intermediária e contagem de ID repetido. A execução do validador sobre o modelo público resultou em `readyForEditorialReview: false`, `linked: 0` e dias 1–30 pendentes, como esperado.
+
+Também passaram a regressão de navegador do editor (`revisao exige links, todos os dias e aceite; nao publica aulas`) e quatro cenários de `server-flow.spec.js`: armazenamento local forjado, aluno sem compra, consulta administrativa somente leitura e aula ausente/erro. Os quatro cenários de servidor usam APIs simuladas, sem acessar autenticação, pagamento ou vídeo reais.
+
+Sem um arquivo privado real autorizado, continuam sem execução a reprodução de vídeo, a busca dentro da mídia, a tela cheia, a validade da URL assinada e a compatibilidade de codec em Android/Chrome e iPhone/Safari. Os testes com APIs simuladas validam o estado de aula ausente/erro da interface, sem representar esses testes de mídia reais.
+
+Para avançar: conectar o Google Drive da conta que contém o programa ou disponibilizar um manifesto privado autorizado; conferir os arquivos reais e suas revisões; prepará-los no armazenamento privado; cadastrar cada dia pelo número original; e validar reprodução em homologação com conta compradora e conta sem acesso. Não é necessário tornar a pasta pública nem enviar senhas na conversa.

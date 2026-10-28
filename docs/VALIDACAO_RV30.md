@@ -1,5 +1,10 @@
 # Validação do RV 30 — 25/10/2026
 
+> Registro histórico. A revisão de 27/10 executou as seis auditorias Python
+> localmente, ampliou a suíte para 40 testes de navegador e confirmou a correção
+> do build Cloudflare. A situação atual do domínio e as limitações reais estão em
+> [REVISAO_REQUISITOS_RV30_20261027.md](REVISAO_REQUISITOS_RV30_20261027.md).
+
 Ambiente local Windows, Node 24, Chromium e dados exclusivamente fictícios. As APIs externas nos testes de segurança e de interface foram simuladas. Nenhuma cobrança, envio real de e-mail, migração ou alteração em produção foi executada.
 
 | Verificação | Resultado | Alcance da evidência |

@@ -115,9 +115,28 @@
       const course = config(courseId)
       if (!course) return failure('Curso inválido.')
       const analyzed = inventory(files, course.totalDays)
-      if (!analyzed.items.length) return { ...failure('Nenhum arquivo sem conflito foi encontrado.'), issues: analyzed.issues }
-      const result = this.import(courseId, analyzed.items)
-      return { ...result, issues: analyzed.issues, missingDays: analyzed.missingDays }
+      const existing = this.list(courseId)
+      let available = analyzed.items
+      // Conflitos com lotes anteriores não devem descartar os outros arquivos
+      // válidos. Uma exclusão pode preservar uma associação anterior e revelar
+      // outro conflito; repetir até que o conjunto final esteja consistente.
+      while (available.length) {
+        const replacedDays = new Set(available.map((item) => item.day))
+        const retained = existing.filter((item) => !replacedDays.has(item.day))
+        const filtered = available.filter((item) => {
+          const source = driveFileId(item.driveUrl)
+          const conflict = source && retained.find((previous) => driveFileId(previous.driveUrl) === source)
+          if (!conflict) return true
+          analyzed.issues.push({ code: 'EXISTING_SOURCE_CONFLICT', day: item.day, name: item.name,
+            message: `Dia ${item.day}: arquivo já vinculado ao dia ${conflict.day}. O vínculo anterior foi preservado e a nova associação foi excluída.` })
+          return false
+        })
+        if (filtered.length === available.length) break
+        available = filtered
+      }
+      if (!available.length) return { ...failure('Nenhum arquivo sem conflito foi encontrado.'), issues: analyzed.issues }
+      const result = this.import(courseId, available)
+      return { ...result, issues: analyzed.issues, missingDays: result.ok ? this.summary(courseId).missingDays : analyzed.missingDays }
     },
     summary(courseId) {
       if (!allowed()) return null

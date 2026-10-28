@@ -51,6 +51,27 @@ assert.equal(media.summary('rv30').linked, 2)
 assert.equal(media.approveBatch('unknown').ok, false, 'curso inexistente não lança exceção')
 assert.equal(media.import('rv30', [{ ...file(1), approved: true, approvedAt: '2026-01-01' }]).ok, true)
 assert.equal(media.list('rv30').find((item) => item.day === 1).approved, false, 'aceite vindo do cliente é descartado')
+assert.equal(media.update('rv30', 1, { approved: true }).ok, true)
+const priorConflict = media.importAvailable('rv30', [{ ...file(2), driveUrl: file(1).driveUrl }, file(3)])
+assert.equal(priorConflict.ok, true, 'conflito com lote anterior não bloqueia o arquivo novo válido')
+assert.equal(priorConflict.count, 1)
+assert.equal(priorConflict.issues[0].code, 'EXISTING_SOURCE_CONFLICT')
+assert.equal(media.list('rv30').find((item) => item.day === 1).approved, true, 'vínculo anterior é preservado explicitamente')
+assert.equal(media.list('rv30').some((item) => item.day === 2), false)
+assert.equal(priorConflict.missingDays.includes(1), false, 'resumo deve incluir os vínculos de lotes anteriores')
+assert.equal(priorConflict.missingDays.includes(3), false)
+assert.equal(media.import('rv30', [file(2)]).ok, true)
+const cascadeConflict = media.importAvailable('rv30', [
+  { ...file(3), driveUrl: file(1).driveUrl },
+  { ...file(2), driveUrl: file(3).driveUrl },
+  file(5)
+])
+assert.equal(cascadeConflict.ok, true)
+assert.equal(cascadeConflict.count, 1, 'conflitos revelados pela preservação anterior também devem ser excluídos')
+assert.equal(cascadeConflict.issues.length, 2)
+assert.equal(media.list('rv30').find((item) => item.day === 2).driveUrl, file(2).driveUrl)
+assert.equal(media.list('rv30').find((item) => item.day === 3).driveUrl, file(3).driveUrl)
+assert.equal(media.list('rv30').some((item) => item.day === 5), true)
 
 const snapshot = { users: [{ id: 'buyer_1', email: 'qa@example.test', status: 'active', entitlements: ['rv30'] }], orders: [{ id: 'order_1', userId: 'buyer_1', courseId: 'rv30', status: 'approved', amountCents: 39900 }] }
 const unchanged = JSON.stringify(snapshot)

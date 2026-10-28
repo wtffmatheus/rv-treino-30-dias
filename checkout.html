@@ -44,7 +44,7 @@
           <label>Nome completo<input name="name" autocomplete="name" required placeholder="Seu nome"></label>
           <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
           <label>WhatsApp<input name="phone" inputmode="tel" autocomplete="tel" required placeholder="(11) 99999-9999"></label>
-          <label class="check-row"><input name="terms" type="checkbox" required><span>Li e aceito os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Entendo que, em produção, o acesso depende da confirmação do pagamento.</span></label>
+          <label class="check-row"><input name="terms" type="checkbox" required><span>Li e aceito os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Entendo que meu acesso depende da confirmação do pagamento.</span></label>
           <button class="button button--primary button--wide" type="submit" data-checkout-submit>Continuar para o pagamento</button>
         </form>
 
@@ -56,6 +56,7 @@
         <div class="test-payment-box" data-test-payment hidden>
           <strong>Modo de teste</strong>
           <p>O link definitivo de pagamento ainda não está conectado. Use o botão abaixo para simular um pagamento aprovado e testar todo o fluxo até o curso.</p>
+          <p class="form-error" role="alert" aria-live="polite" data-test-payment-error></p>
           <button class="button button--secondary button--wide" type="button" data-simulate-payment>Simular pagamento aprovado</button>
         </div>
       </section>
@@ -67,10 +68,10 @@
           <p><strong>Com Rosangela Varas</strong><span>Conteúdo organizado pela RV Fisiologia para acompanhar seus 30 dias.</span></p>
         </div>
         <div class="order-lines"><p><span>RV 30</span><strong data-order-total>R$ 399,00</strong></p><p><span>Equivalente diário</span><strong><span data-order-daily>R$ 13,30</span>/dia</strong></p></div>
-        <div class="order-total"><span>Pagamento único</span><strong data-order-total>R$ 399,00</strong></div>
+        <div class="order-total"><span>Valor total</span><strong data-order-total>R$ 399,00</strong></div>
         <p class="order-daily-note">O valor por dia é apenas a equivalência do preço total dividido por 30.</p>
-        <div class="secure-note"><span aria-hidden="true">✓</span><p><strong>Pagamento por provedor externo</strong><small>Este portal não coleta dados de cartão. A etapa financeira acontece no gateway configurado pela RV Fisiologia.</small></p></div>
-        <p class="tiny-note">Em produção, o acesso deverá ser liberado somente após confirmação server-side do pagamento. No teste, usamos o e-mail informado no formulário local.</p>
+        <div class="secure-note"><span aria-hidden="true">✓</span><p><strong>Pagamento seguro</strong><small>Este portal não coleta dados de cartão. Você informa os dados de pagamento diretamente no provedor apresentado antes da compra.</small></p></div>
+        <p class="tiny-note">Seu acesso será liberado após a confirmação do pagamento. Acompanhe o status da compra em sua conta.</p>
       </aside>
 
 

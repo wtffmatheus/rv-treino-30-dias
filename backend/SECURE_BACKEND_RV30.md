@@ -59,7 +59,9 @@ aberto é permitido. A sessão é um cookie HttpOnly, SameSite Strict, Secure em
 produção. O servidor consulta o usuário no Auth a cada operação e exige perfil
 ativo. Depois dessa validação do provedor, extrai `session_id` e `sub` do token
 recebido exclusivamente do Auth e consulta a existência da sessão em `auth.sessions`
-pela função `rv30_session_active`, executável somente por `service_role`. Tokens
+pela função `rv30_session_active`, executável somente por `service_role`. A função
+também exige `not_after` ausente ou posterior ao instante da consulta: uma linha
+Auth remanescente após o limite de duração não é autorização válida. Tokens
 sem esse vínculo ou com sessão removida são recusados, mesmo se `getUser` ainda
 aceitar um access token após logout. Não há aceitação de JWT enviado pelo navegador
 nem autorização baseada apenas em decodificação local. A função é parte da migração
@@ -195,6 +197,8 @@ Referências oficiais consultadas:
 - [Supabase: consulta autenticada do usuário](https://supabase.com/docs/reference/javascript/auth-getuser)
 - [Supabase: confirmação por token de uso único](https://supabase.com/docs/reference/javascript/auth-verifyotp)
 - [Supabase: atributos e confirmação do usuário](https://supabase.com/docs/guides/auth/users)
+- [Supabase: sessões, revogação e limites de duração](https://supabase.com/docs/guides/auth/sessions)
+- [Supabase Auth: definição oficial do campo not_after](https://github.com/supabase/auth/blob/master/migrations/20221114143122_add_session_not_after_column.up.sql)
 - [Mercado Pago: assinatura e consulta de notificações](https://www.mercadopago.com.br/developers/pt/docs/links-and-debts/additional-content/your-integrations/notifications/webhooks)
 - [Supabase Storage: API de informações de objetos](https://supabase.github.io/storage/)
 - [Supabase Storage: arquivos privados e validade das URLs assinadas](https://supabase.com/docs/guides/storage/serving/downloads)

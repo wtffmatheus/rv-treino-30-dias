@@ -184,6 +184,53 @@ test('API simulada: checkout exige conta autenticada antes de criar o pedido', a
   expect(calls.some((call) => call.path === '/api/orders')).toBe(false)
 })
 
+test('API simulada: avisos da inscrição acompanham a disponibilidade confirmada pelo servidor', async ({ page }) => {
+  const { state, calls } = await mockApi(page)
+  await page.goto('/')
+  await expect(page.locator('[data-sales-label]')).toHaveText('Inscrições em preparação')
+  await expect(page.locator('[data-sales-summary]')).toContainText('Inscrições em preparação')
+  await expect(page.locator('.hero-actions [data-buy]')).toBeDisabled()
+  state.salesEnabled = true
+  state.priceCents = 50000 // Isolated fixture, not a commercial definition.
+  await page.reload()
+  await expect(page.locator('[data-sales-label]')).toHaveText('Inscrições disponíveis')
+  await expect(page.locator('[data-sales-summary]')).toContainText('Inscrições disponíveis')
+  await expect(page.locator('[data-sales-detail]')).not.toContainText('ainda não está disponível')
+  await expect(page.locator('.hero-actions [data-buy]')).toBeEnabled()
+  const faq = page.locator('details').filter({ has: page.locator('[data-sales-faq]') })
+  await faq.locator('summary').click()
+  await expect(page.locator('[data-sales-faq]')).toContainText('Você pode iniciar sua inscrição')
+  expect(calls.some((call) => call.path === '/api/orders')).toBe(false)
+})
+
+test('demonstração local: falha na simulação aparece em alerta e não confirma compra', async ({ page }) => {
+  await page.route('**/api/config', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, configured: false, salesEnabled: false }) }))
+  await page.goto('/checkout/rv30')
+  await page.getByLabel('Nome completo').fill('Aluno de Teste')
+  await page.getByLabel('E-mail', { exact: true }).fill('teste.simulacao@example.test')
+  await page.getByLabel('WhatsApp').fill('11999999999')
+  await page.locator('[name=terms]').check()
+  await page.getByRole('button', { name: 'Continuar para o pagamento', exact: true }).click()
+  await expect(page.locator('[data-test-payment]')).toBeVisible()
+  await page.evaluate(() => {
+    window.RVCourseStore.createDemoOrder = () => ({ ok: false, message: 'Não foi possível iniciar esta simulação.' })
+  })
+  await page.getByRole('button', { name: 'Simular pagamento aprovado', exact: true }).click()
+  const error = page.locator('[data-test-payment-error]')
+  await expect(error).toHaveText('Não foi possível iniciar esta simulação.')
+  await expect(error).toHaveAttribute('role', 'alert')
+  await expect(error).toHaveAttribute('aria-live', 'polite')
+  await page.evaluate(() => {
+    window.RVCourseStore.createDemoOrder = () => { throw new Error('Detalhe interno de armazenamento') }
+  })
+  await page.getByRole('button', { name: 'Simular pagamento aprovado', exact: true }).click()
+  await expect(error).toHaveText('Não foi possível criar o pedido de teste. Tente novamente.')
+  await expect(error).not.toContainText('Detalhe interno')
+  expect(new URL(page.url()).pathname).toMatch(/(?:\/checkout\/rv30|\/checkout\.html)$/)
+  const purchases = await page.evaluate(() => (window.dataLayer || []).filter(event => event.event === 'Purchase'))
+  expect(purchases).toEqual([])
+})
+
 test('API simulada: preço vem do servidor e checkout envia somente produto e idempotência', async ({ page }) => {
   // R$ 500,00 is an isolated fixture value, not an RV 30 commercial definition.
   const { state, calls } = await mockApi(page, { authenticated: true })

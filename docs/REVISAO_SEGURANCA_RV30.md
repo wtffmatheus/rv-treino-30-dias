@@ -21,3 +21,41 @@ Validação executada:
 **Limites desta evidência:** a migração não foi executada em PostgreSQL/Supabase. As verificações de SQL nos testes são estáticas; não comprovam as políticas em um banco real. A assinatura de webhook foi testada com HMAC fictício e respostas simuladas do provedor; não houve pagamento de teste no Mercado Pago. A integração real exige homologação com duas contas distintas, sessões revogadas, tentativa direta às tabelas e ao armazenamento, eventos repetidos/fora de ordem e um objeto de vídeo privado autorizado. A confirmação do pagamento deve usar o [endpoint autenticado do Mercado Pago](https://www.mercadopago.com.br/developers/pt/reference/online-payments/checkout-pro-preferences/overview), conforme preparado no código.
 
 Antes de publicar, revisar também o proxy HTTPS, a configuração de confirmação de e-mail, os templates de confirmação/recuperação, a política comercial e o procedimento de backup e restauração. O código não aplica a migração automaticamente.
+
+## Complemento de auditoria — 27/10/2026
+
+Foi confirmado um limite da proposta de consulta de sessão: somente a existência
+da linha em `auth.sessions` não rejeita imediatamente uma sessão cujo prazo máximo
+venceu. A [documentação oficial de sessões](https://supabase.com/docs/guides/auth/sessions)
+explica que a remoção dessas linhas pode ocorrer posteriormente. A
+[migração oficial do Auth](https://github.com/supabase/auth/blob/master/migrations/20221114143122_add_session_not_after_column.up.sql)
+define `not_after` como o instante após o qual a sessão deve ser considerada expirada.
+A migração proposta RV 30 agora verifica `(not_after is null or not_after > now())`,
+mantendo a assinatura da função protegida e sem alterar o schema gerenciado pelo
+Auth. A expressão é verificada estaticamente; o handler já recusa o retorno falso
+da função mesmo se a consulta ao Auth ainda aceitar o JWT. Não foi executada
+migração nem teste de expiração em uma base real.
+
+Outra falha funcional foi reproduzida e corrigida no adaptador: progresso real
+dos dias 1, 2 e 3 retornava o dia 0 para continuar. O resumo agora retorna o dia 4,
+preserva lacunas intermediárias, limita a retomada ao dia 30 e ignora duplicidades
+ou valores inválidos. `tests/server_progress_test.js` cobre seis cenários com
+respostas de API simuladas.
+
+A auditoria das conexões encontrou onze nomes de variáveis Secret no projeto
+Vercel, direcionadas a produção e preview, mas a API não revela seus valores.
+Um segundo preview isolado executou `scripts/audit-connected-backend.js` durante
+o build, sem publicar endpoint nem fazer consultas de dados. O ambiente foi
+identificado como preview; as onze chaves estavam definidas, porém nenhuma tinha
+conteúdo não vazio utilizável pelo script. `ADMIN_EMAIL`, o identificador de
+recebedor e a flag de vendas não estavam definidos. Essa evidência se limita
+àquele build de preview: não revela nem comprova valores em produção. O script
+retornou `not_configured` e não fez nenhuma requisição externa. Nenhuma base,
+conta, sessão real, cobrança ou política de armazenamento foi modificada.
+
+Permanece a diferença de hospedagem: o domínio público responde 404 em
+`/api/config` e `/api/account`; o código Node ainda não foi implantado naquele
+ambiente. A implantação de uma API em Functions exige substituir sessões e
+limites em memória por mecanismo compatível com múltiplas instâncias, além de
+homologar as origens, os cookies, o banco e o provedor de pagamento. O diagnóstico
+e os testes simulados não substituem essas verificações.

@@ -83,9 +83,10 @@
       adminLogout: async () => window.RVCourseStore.logout(),
       progress: () => [...course.progress],
       courseProgressSummary: () => {
-        const days = course.progress.filter(day => day >= 1 && day <= 30)
-        let nextDay = 0
-        while (nextDay < 30 && course.progress.includes(nextDay)) nextDay++
+        const days = [...new Set(course.progress.filter(day => Number.isInteger(day) && day >= 1 && day <= 30))]
+        const completedDays = new Set(days)
+        let nextDay = 1
+        while (nextDay < 30 && completedDays.has(nextDay)) nextDay++
         return { completed: days.length, percent: Math.round(days.length / 30 * 100), nextDay }
       },
       setDayComplete: async (id, day, complete) => {

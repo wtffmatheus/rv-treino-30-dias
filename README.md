@@ -1,8 +1,9 @@
-# RV 30 — revisão de 25/10/2026
+# RV 30 — revisão de 27/10/2026
 
 Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória e verificação administrativa de entrega. **Vendas reais permanecem bloqueadas.**
 
 - [Entrega, configuração e recuperação](docs/ENTREGA_RV30_20261025.md)
+- [Revisão completa dos requisitos e situação do domínio em 27/10](docs/REVISAO_REQUISITOS_RV30_20261027.md)
 - [Validação e limitações](docs/VALIDACAO_RV30.md)
 - [Correção da paleta azul e publicação do domínio](docs/REVISAO_AZUL_PUBLICACAO_20261026.md)
 - [Backend e migração proposta](backend/SECURE_BACKEND_RV30.md)
