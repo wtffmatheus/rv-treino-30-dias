@@ -7,7 +7,7 @@ const source = fs.readFileSync(path.join(__dirname, '../assets/js/api-client.js'
 
 async function summary(progress) {
   const window = { RV_COURSE_CONFIG: { testMode:false } }
-  const document = { querySelectorAll:() => [], documentElement:{ classList:{ remove(){} } } }
+  const document = { querySelector:() => null, querySelectorAll:() => [], documentElement:{ classList:{ remove(){} } } }
   const fetch = async route => ({ ok:true, json:async () => {
     if (route === '/api/config') return { ok:true, configured:true, salesEnabled:false }
     if (route === '/api/account') return { ok:true, account:{ id:'fixture', entitlements:['rv30'] }, isAdmin:false }

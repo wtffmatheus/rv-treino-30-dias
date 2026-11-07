@@ -18,7 +18,7 @@ function catalog(env){
   }
   return items
 }
-export function createReviewHandler({html,css,js,logo}){
+export function createReviewHandler({html,css,js,logo,qaHtml,qaJs}){
   return {async fetch(request,env,ctx){
     try{
       // The platform supplies ctx.access after authenticating this invocation.
@@ -26,7 +26,23 @@ export function createReviewHandler({html,css,js,logo}){
       if(!env.ACCESS_AUD||!env.ADMIN_EMAIL||!ctx.access||ctx.access.aud!==env.ACCESS_AUD)return reply('Autenticação necessária.',403)
       const identity=await ctx.access.getIdentity()
       if(!identity?.email||identity.email.trim().toLowerCase()!==env.ADMIN_EMAIL.trim().toLowerCase())return reply('Acesso restrito à revisão do RV 30.',403)
+      const pathname=new URL(request.url).pathname
+      if(pathname==='/api/qa/set-password'&&request.method==='POST'){
+        if(request.headers.get('origin')!==new URL(request.url).origin)return reply('Origem não autorizada.',403)
+        if(!request.headers.get('content-type')?.startsWith('application/json'))return reply('Formulário inválido.',415)
+        const reader=request.body?.getReader();let size=0,text=''
+        const decoder=new TextDecoder()
+        if(reader)for(;;){const part=await reader.read();if(part.done)break;size+=part.value.byteLength;if(size>4096){await reader.cancel();return reply('Formulário muito grande.',413)}text+=decoder.decode(part.value,{stream:true})}
+        text+=decoder.decode()
+        let input;try{input=JSON.parse(text)}catch{return reply('Formulário inválido.',400)}
+        if(typeof input?.password!=='string'||input.password.length<12||input.password.length>128)return reply('Use uma senha de 12 a 128 caracteres.',400)
+        if(!env.QA_CONTROL)return reply('A conta está sendo preparada.',503)
+        await env.QA_CONTROL.setPassword(input.password)
+        return reply(JSON.stringify({ok:true,message:'Senha definida. Entre no site com aluno@rv.com.br.'}),200,'application/json; charset=utf-8')
+      }
       if(!['GET','HEAD'].includes(request.method))return reply('Método não permitido.',405,undefined,{Allow:'GET, HEAD'})
+      if(pathname==='/conta-teste'&&qaHtml)return reply(request.method==='HEAD'?null:qaHtml,200,'text/html; charset=utf-8')
+      if(pathname==='/qa-account.js'&&qaJs)return reply(request.method==='HEAD'?null:qaJs,200,'text/javascript; charset=utf-8')
       const url=new URL(request.url),items=catalog(env)
       if(!items||!env.VIDEOS)return reply('Os vídeos estão sendo preparados.',503)
       if(url.pathname==='/'||url.pathname==='/revisao')return reply(request.method==='HEAD'?null:html,200,'text/html; charset=utf-8')
@@ -41,7 +57,12 @@ export function createReviewHandler({html,css,js,logo}){
       if(!match)return reply('Página não encontrada.',404)
       const item=items.find(x=>x.day===Number(match[1]))
       if(!item)return reply('Este vídeo ainda está pendente.',404)
-      const head=await env.VIDEOS.head(item.key)
+      return streamVideo(request,env.VIDEOS,item)
+    }catch{return reply('Não foi possível carregar este conteúdo. Tente novamente.',503)}
+  }}
+}
+export async function streamVideo(request,bucket,item){
+      const head=await bucket.head(item.key)
       if(!head||head.size!==item.bytes)return reply('Vídeo temporariamente indisponível.',503)
       const headers={'Content-Type':'video/mp4','Accept-Ranges':'bytes','Content-Disposition':'inline','ETag':head.httpEtag}
       let range
@@ -57,10 +78,8 @@ export function createReviewHandler({html,css,js,logo}){
       }
       headers['Content-Length']=String(range?range.length:head.size)
       if(request.method==='HEAD')return reply(null,range?206:200,'video/mp4',headers)
-      const object=await env.VIDEOS.get(item.key,range?{range}:undefined)
+      const object=await bucket.get(item.key,range?{range}:undefined)
       if(!object||!object.body||object.size!==item.bytes||object.httpEtag!==head.httpEtag)return reply('Vídeo temporariamente indisponível.',503)
       return reply(object.body,range?206:200,'video/mp4',headers)
-    }catch{return reply('Não foi possível carregar este conteúdo. Tente novamente.',503)}
-  }}
 }
 export {catalog}

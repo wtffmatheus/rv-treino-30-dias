@@ -1,4 +1,5 @@
 /* RV Cursos: tokens e ajustes compartilhados, sem dependencias de UI. */
+.rv-qa-notice { padding: 14px 18px; border: 1px solid #344d71; border-radius: 8px; background: #13243e; color: #d9e7fa; line-height: 1.6; font-size: 14px; }
 :root {
   --radius: 8px;
   --radiusLg: 8px;

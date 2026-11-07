@@ -18,6 +18,14 @@
   api.refresh = async () => {
     const result = await api.request('/api/account')
     account = result.ok ? result.account : null
+    document.querySelector('[data-qa-account]')?.remove()
+    if (account?.testAccount) {
+      const notice = document.createElement('p')
+      notice.dataset.qaAccount = 'true'
+      notice.className = 'rv-qa-notice'
+      notice.textContent = 'Conta de teste · acesso de validação por 365 dias, sem cobrança. Seu progresso é salvo no servidor. Vídeos 1 a 29 disponíveis; dia 30 pendente.'
+      document.querySelector('main')?.prepend(notice)
+    }
     admin = result.ok && result.isAdmin === true
     course = { lessons: [], progress: [] }
     if (account?.entitlements?.includes('rv30')) {
@@ -44,6 +52,7 @@
   api.ready = (async () => {
     const status = await api.request('/api/config')
     api.configured = status.ok === true && status.configured === true
+    api.qaOnly = api.configured && status.qaOnly === true
     api.serverMode = api.configured || !config.testMode
     api.salesEnabled = api.configured && status.salesEnabled === true
     const approvedProduct = config.courses?.find(product => product.id === 'rv30' && product.commercialApproved === true)

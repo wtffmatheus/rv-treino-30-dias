@@ -1,0 +1,13 @@
+{
+ "$schema":"./node_modules/wrangler/config-schema.json",
+ "name":"rv30-qa-access",
+ "account_id":"d0636456db3515c826fdc78467f5c899",
+ "main":"backend/qa/worker.mjs",
+ "compatibility_date":"2026-11-07",
+ "workers_dev":true,
+ "preview_urls":false,
+ "d1_databases":[{"binding":"QA_DB","database_name":"rv30-qa-access","database_id":"2f34d2b6-48ca-45a8-bb85-c40d98656bc0"}],
+ "r2_buckets":[{"binding":"VIDEOS","bucket_name":"rv30-videos-private"}],
+ "observability":{"enabled":true,"traces":{"enabled":true}},
+ "vars":{"PUBLIC_SITE_URL":"https://treino.rvfisiologista.com.br"}
+}

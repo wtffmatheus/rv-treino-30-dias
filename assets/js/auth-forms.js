@@ -12,6 +12,11 @@
     return
   }
   panel.hidden = false
+  if (window.RVApi.qaOnly) {
+    panel.hidden = true
+    if (message) message.textContent = 'Acesso de validação RV 30. Use a conta de teste liberada pelo responsável. Cadastros e vendas serão abertos após a homologação.'
+    return
+  }
   function bind(selector, endpoint, read, onSuccess) {
     const form = panel.querySelector(selector)
     form.addEventListener('submit', async event => {

@@ -28,6 +28,16 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.equal((await call('/media/1',{},ctx,{...env,REVIEW_MEDIA_MANIFEST:JSON.stringify([{...item,key:'other/private.mp4'}])})).status,503)
  assert.equal((await call('/media/1',{},ctx,{...env,VIDEOS:{head:async()=>({size:1})}})).status,503)
  const html=await call('/');assert.equal(html.status,200);assert.match(html.headers.get('content-security-policy'),/media-src 'self'/)
+ const qa=createReviewHandler({qaHtml:'<h1>Conta de teste</h1>',qaJs:'void 0'})
+ let passwordCalls=0
+ const qaEnv={...env,QA_CONTROL:{setPassword:async()=>{passwordCalls++}}}
+ const setPassword=(context=ctx,origin='https://review.example.test',password='fixture-password-123')=>qa.fetch(new Request('https://review.example.test/api/qa/set-password',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify({password})}),qaEnv,context)
+ assert.equal((await setPassword({})).status,403)
+ assert.equal((await setPassword(ctx,'https://evil.example.test')).status,403)
+ assert.equal((await setPassword(ctx,undefined,'short')).status,400)
+ assert.equal(passwordCalls,0)
+ assert.equal((await setPassword()).status,200);assert.equal(passwordCalls,1)
+ assert.equal((await qa.fetch(new Request('https://review.example.test/conta-teste'),qaEnv,ctx)).status,200)
  new vm.Script(fs.readFileSync(path.join(__dirname,'../backend/review/viewer.js.txt'),'utf8'))
  console.log('Revisão privada: contexto Access, administrador, catálogo sem chaves, streaming, HEAD, ranges, dia ausente e falhas fechadas passaram com fixtures.')
 })().catch(e=>{console.error(e);process.exitCode=1})

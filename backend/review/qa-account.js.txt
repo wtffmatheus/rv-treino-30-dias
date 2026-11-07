@@ -1,0 +1,12 @@
+const form=document.querySelector('#qa-password')
+form.addEventListener('submit',async event=>{
+ event.preventDefault()
+ const status=form.querySelector('[role=status]'),button=form.querySelector('button'),data=new FormData(form)
+ if(data.get('password')!==data.get('confirm')){status.textContent='As senhas precisam ser iguais.';return}
+ button.disabled=true;status.textContent='Definindo senha…'
+ try{
+  const response=await fetch('/api/qa/set-password',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:data.get('password')}),cache:'no-store'})
+  if(!response.ok)throw new Error('Não foi possível definir a senha. Verifique sua sessão administrativa e tente novamente.')
+  const result=await response.json();status.textContent=result.message;form.reset()
+ }catch(error){status.textContent=error.message}finally{button.disabled=false}
+})
