@@ -40,6 +40,7 @@ jobs:
           npm run typecheck
           npm run build
           npm run check:cloudflare
+          npm run check:review
       - name: Workers static routing integration
         run: |
           npx wrangler dev --local --ip 127.0.0.1 --port 8787 --show-interactive-dev-session=false > /tmp/rv30-wrangler.log 2>&1 &

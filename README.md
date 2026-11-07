@@ -5,6 +5,7 @@ Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória 
 - [Situação atual, testes e pendências de integração](docs/RETOMADA_RV30_20261107.md)
 - [Asaas, pagamento único e acesso de 365 dias](backend/ASAAS_ACCESS365.md)
 - [Arquivos reais encontrados e preparação de envio privado](docs/UPLOAD_VIDEOS_RV30_20261107.md)
+- [Assistir aos vídeos na área privada de revisão](docs/REPRODUCAO_PRIVADA_RV30_20261107.md)
 - [Entrega, configuração e recuperação — histórico](docs/ENTREGA_RV30_20261025.md)
 - [Revisão completa dos requisitos e situação do domínio em 27/10](docs/REVISAO_REQUISITOS_RV30_20261027.md)
 - [Validação e limitações](docs/VALIDACAO_RV30.md)

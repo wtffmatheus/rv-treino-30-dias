@@ -1,5 +1,9 @@
 # Preparação e envio privado dos vídeos — 07/11/2026
 
+> Atualização posterior: os 29 arquivos já estão vinculados à
+> [área privada para assistir e revisar](REPRODUCAO_PRIVADA_RV30_20261107.md).
+> O vínculo com aulas de compradores no banco continua pendente.
+
 ## Origem e conferência
 
 O proprietário confirmou que a referência dos vídeos é a pasta Drive já
