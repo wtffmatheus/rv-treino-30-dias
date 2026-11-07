@@ -1,0 +1,30 @@
+'use strict';
+(async()=>{
+  const video=document.querySelector('video'),days=document.querySelector('[data-days]'),message=document.querySelector('[data-player-message]'),error=document.querySelector('[data-error]');
+  const previous=document.querySelector('[data-prev]'),next=document.querySelector('[data-next]');
+  let lessons=[],current=0;
+  const duration=seconds=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
+  function select(day){
+    const item=lessons.find(x=>x.day===day&&x.available);if(!item)return;
+    video.pause();current=day;error.hidden=true;message.hidden=false;message.textContent='Carregando vídeo…';
+    video.src=item.videoPath;video.load();document.querySelector('#video-title').textContent=item.title;video.setAttribute('aria-label',`Vídeo do ${item.title}`);
+    document.querySelector('[data-duration]').textContent=duration(item.duration);document.querySelector('[data-position]').textContent=`Dia ${day} de 30`;
+    previous.disabled=!lessons.some(x=>x.available&&x.day<day);next.disabled=!lessons.some(x=>x.available&&x.day>day);
+    for(const button of days.querySelectorAll('button'))button.setAttribute('aria-current',String(Number(button.dataset.day)===day));
+    const url=new URL(location.href);url.searchParams.set('dia',String(day));history.replaceState(null,'',url.pathname+url.search);
+  }
+  previous.addEventListener('click',()=>{const item=lessons.filter(x=>x.available&&x.day<current).at(-1);if(item)select(item.day)});
+  next.addEventListener('click',()=>{const item=lessons.find(x=>x.available&&x.day>current);if(item)select(item.day)});
+  video.addEventListener('loadeddata',()=>{message.hidden=true});video.addEventListener('playing',()=>{message.hidden=true});
+  video.addEventListener('error',()=>{message.hidden=true;error.textContent='Não foi possível carregar o vídeo. Se sua sessão terminou, saia e entre novamente; depois selecione o dia para tentar de novo.';error.hidden=false});
+  try{
+    const response=await fetch('/api/lessons',{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000)});
+    if(!response.ok)throw new Error();const result=await response.json();
+    if(!result.ok||result.mode!=='private_review'||!Array.isArray(result.lessons))throw new Error();
+    lessons=result.lessons;document.querySelector('[data-count]').textContent=`${lessons.filter(x=>x.available).length} disponíveis`;
+    const pending=lessons.filter(x=>!x.available).map(x=>x.day);document.querySelector('.pending-note').textContent=pending.length?`Aguardando arquivo: ${pending.map(x=>`dia ${x}`).join(', ')}.`:'Todos os 30 vídeos estão disponíveis para revisão.';
+    for(const item of lessons){const button=document.createElement('button');button.className='day';button.type='button';button.dataset.day=String(item.day);button.disabled=!item.available;button.setAttribute('aria-current','false');
+      const number=document.createElement('span'),name=document.createElement('strong'),time=document.createElement('small');number.textContent=String(item.day).padStart(2,'0');name.textContent=item.title;time.textContent=item.available?duration(item.duration):'Pendente';button.append(number,name,time);button.addEventListener('click',()=>select(item.day));days.append(button)}
+    const requested=Number(new URL(location.href).searchParams.get('dia'));select(lessons.find(x=>x.day===requested&&x.available)?.day||lessons.find(x=>x.available)?.day);
+  }catch{message.textContent='Acesso indisponível.';error.textContent='Não foi possível abrir a lista de vídeos. Confirme seu acesso e tente novamente.';error.hidden=false}
+})();

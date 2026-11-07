@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   'use strict'
+
+  if (window.RVApi) await window.RVApi.ready
 
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const form = document.querySelector('[data-login-form]')
@@ -116,7 +118,8 @@
         '/area.html',
         '/aluno',
         '/curso/rv30',
-        '/suporte'
+        '/suporte',
+        '/checkout/rv30'
       ])
 
       return allowed.has(url.pathname)
@@ -133,12 +136,12 @@
     message.textContent = 'Acesso criado. Entre agora com o e-mail da compra e a senha que você acabou de definir.'
   }
 
-  if (auth?.isLoggedIn?.()) {
+  if (auth?.isLoggedIn?.() && !location.hash.includes('token_hash=')) {
     location.replace(window.RVRoute?.resolve(next) || next)
     return
   }
 
-  form?.addEventListener('submit', (event) => {
+  form?.addEventListener('submit', async (event) => {
     event.preventDefault()
 
     if (error) error.textContent = ''
@@ -146,10 +149,13 @@
     const data = new FormData(form)
     const email = data.get('email')
     const password = data.get('password')
+    const button = form.querySelector('button[type=submit]')
+    if (button) button.disabled = true
 
     ensureDemoStudent(email, password)
 
-    const result = auth.login(email, password)
+    const result = await auth.login(email, password)
+    if (button) button.disabled = false
 
     if (!result.ok) {
       if (error) error.textContent = result.message

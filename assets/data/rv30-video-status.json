@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "courseId": "rv30",
+  "verifiedAt": "2026-11-07",
+  "source": "local_files_and_private_r2",
+  "verificationScope": "local_decode_and_remote_metadata_without_lesson_binding",
+  "authenticatedDriveChecked": false,
+  "remoteFileCount": null,
+  "verifiedFiles": 29,
+  "localFileCount": 29,
+  "localMissingDays": [30],
+  "privateStorageFileCount": 29,
+  "privateStorageMetadataVerified": true,
+  "privateStorageBytes": 672319279,
+  "publishedLessonCount": 0,
+  "privateReviewAvailable": true,
+  "privateReviewLinkedCount": 29,
+  "linkedDays": [],
+  "missingDays": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+  "introAvailable": false,
+  "note": "29 cópias locais reais (dias 1–29) convertidas em MP4 H.264/AAC, decodificadas integralmente e enviadas ao R2 privado; tamanhos e MD5 remotos conferidos. O dia 30 não foi encontrado na origem local. A quantidade e as versões no Drive seguem desconhecidas, sem acesso autenticado. linkedDays e missingDays referem-se ao vínculo com aulas, ainda inexistente; envio não publica conteúdo nem homologa o player. Nenhuma URL ou chave de objeto privado consta deste arquivo."
+}

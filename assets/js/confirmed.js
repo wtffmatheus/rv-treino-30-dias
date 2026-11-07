@@ -1,9 +1,27 @@
-(() => {
+(async () => {
   'use strict'
+
+  if (window.RVApi) await window.RVApi.ready
 
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const params = new URLSearchParams(location.search)
   const requestedOrderId = params.get('pedido')
+  if (window.RVApi?.serverMode) {
+    const result = requestedOrderId ? await window.RVApi.request(`/api/orders/${encodeURIComponent(requestedOrderId)}`) : null
+    const confirmed = result?.ok && result.order?.status === 'approved'
+    document.querySelector('h1').textContent = confirmed ? 'Pagamento aprovado.' : 'Acompanhando sua inscrição.'
+    document.querySelector('.eyebrow').textContent = 'STATUS DO PEDIDO'
+    document.querySelector('[data-create-access-form]').hidden = true
+    document.querySelector('.success-icon').hidden = !confirmed
+    document.querySelector('[data-confirm-copy]').textContent = confirmed
+      ? 'Seu acesso ao RV 30 dura 365 dias a partir do pagamento aprovado. Consulte Meus cursos para acompanhar seu acesso ao programa.'
+      : result?.ok && ['refunded', 'chargeback'].includes(result.order.status)
+        ? 'O reembolso ou a contestação da compra foram confirmados e o acesso ao programa foi removido. Sua conta e seu histórico são mantidos.'
+        : result?.ok ? `Seu pedido está ${{pending:'pendente',declined:'recusado',canceled:'cancelado'}[result.order.status] || 'em análise'}. Aguarde a confirmação do pagamento e atualize esta página.` : 'Entre na conta da compra para consultar o pedido. A visita a esta página não confirma um pagamento.'
+    const link = document.createElement('a'); link.href = '/meus-cursos'; link.textContent = 'Ir para meus cursos'; link.className = 'button button--primary'
+    document.querySelector('[data-confirm-copy]').after(link)
+    return
+  }
   const order = requestedOrderId ? auth.orderById(requestedOrderId) : auth.currentOrder()
   const form = document.querySelector('[data-create-access-form]')
   const email = document.querySelector('[data-order-email]')

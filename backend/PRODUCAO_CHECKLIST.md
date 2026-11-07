@@ -1,5 +1,10 @@
 # Checklist para sair do modo demo — V6
 
+> Checklist histórico da demonstração. Para a API atual e a publicação pendente,
+> seguir [SECURE_BACKEND_RV30.md](SECURE_BACKEND_RV30.md) e
+> [ASAAS_ACCESS365.md](ASAAS_ACCESS365.md). Não aplicar o esquema legado como
+> substituto das migrações `rv30_*`.
+
 ## Infraestrutura
 - [ ] Criar projeto/ambiente de produção e staging.
 - [ ] Revisar `backend/supabase-schema.sql` antes de executar.

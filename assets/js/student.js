@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   'use strict'
+
+  if (window.RVApi) await window.RVApi.ready
 
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   if (!auth.isLoggedIn()) {
@@ -22,25 +24,33 @@
   const items = Array.isArray(account.entitlements) ? account.entitlements : []
 
   if (!items.length) {
-    grid.innerHTML = '<div class="course-empty">Nenhum curso está liberado para esta conta. Se você acabou de comprar, aguarde a confirmação do pagamento ou fale com a RV Fisiologia.</div>'
+    grid.innerHTML = '<div class="course-empty">Nenhum programa está com acesso ativo nesta conta. Se você acabou de comprar, aguarde a confirmação do pagamento. O fim do prazo de acesso não exclui sua conta ou histórico. Em caso de dúvida, fale com a RV Fisiologia.</div>'
   } else {
     const summary = auth.courseProgressSummary('rv30')
     grid.innerHTML = items.map((id) => id === 'rv30' ? `
       <article class="my-course-card">
-        <div class="my-course-cover"><span>RV</span><strong>30</strong><small>PROJETO 30 DIAS</small></div>
+        <div class="my-course-cover"><img src="/assets/brand/rv30-logo.png" alt="RV 30" width="160" height="160"><small>PROGRAMA DE 30 DIAS</small></div>
         <div class="my-course-copy">
           <small>ACESSO LIBERADO</small>
-          <h3>Método RV</h3>
+          <h3>RV 30</h3>
           <p>Seu projeto de 30 dias com vídeos, orientações, comentários e acompanhamento de progresso.</p>
+          <p class="tiny-note">${account.testAccount ? 'Liberação de teste por 365 dias, sem cobrança, com encerramento automático ao final do prazo.' : 'Programa de 30 dias · Acesso por 365 dias a partir do pagamento aprovado, com encerramento automático ao final do prazo.'}</p>
           <div class="student-progress-line"><strong>${summary.completed} de 30 dias</strong><span>${summary.percent}% concluído</span></div>
-          <progress class="native-progress native-progress--small" max="30" value="${summary.completed}" aria-label="Progresso no Método RV"></progress>
+          <progress class="native-progress native-progress--small" max="30" value="${summary.completed}" aria-label="Progresso no RV 30"></progress>
           <a class="button button--primary" href="/curso/rv30?day=${summary.nextDay}">${summary.completed ? 'Continuar de onde parei' : 'Começar projeto'}</a>
         </div>
       </article>` : '').join('')
   }
 
-  document.querySelector('[data-logout]')?.addEventListener('click', () => {
-    auth.logout()
+  document.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    const result = await auth.logout()
+    if (result?.ok === false) {
+      const notice = document.createElement('p')
+      notice.setAttribute('role', 'alert')
+      notice.textContent = result.message || 'Não foi possível encerrar a sessão. Tente novamente.'
+      document.querySelector('main').prepend(notice)
+      return
+    }
     location.href = window.RVRoute?.resolve('/entrar') || '/entrar'
   })
 })()

@@ -11,5 +11,7 @@ Disallow: /pagamento-confirmado
 Disallow: /pagamento/
 Disallow: /admin-login
 Disallow: /admin
+Disallow: /api/
+Disallow: /suporte
 
-Sitemap: https://projeto.rvfisiologista.com.br/sitemap.xml
+Sitemap: https://treino.rvfisiologista.com.br/sitemap.xml

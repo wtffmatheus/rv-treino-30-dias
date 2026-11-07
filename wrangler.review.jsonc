@@ -1,0 +1,15 @@
+{
+  "$schema":"./node_modules/wrangler/config-schema.json",
+  "name":"rv30-revisao",
+  "account_id":"d0636456db3515c826fdc78467f5c899",
+  "main":"backend/review/worker.mjs",
+  "compatibility_date":"2026-11-07",
+  "workers_dev":true,
+  "routes":[{"pattern":"revisao-treino.rvfisiologista.com.br","custom_domain":true}],
+  "preview_urls":false,
+  "r2_buckets":[{"binding":"VIDEOS","bucket_name":"rv30-videos-private"}],
+  "services":[{"binding":"QA_CONTROL","service":"rv30-qa-access","entrypoint":"QaAdmin"}],
+  "rules":[{"type":"Text","globs":["**/*.html","**/*.css","**/*.txt"],"fallthrough":true},{"type":"Data","globs":["**/*.png"],"fallthrough":true}],
+  "observability":{"enabled":true,"traces":{"enabled":true}},
+  "vars":{"ACCESS_AUD":"ced03d4b2288355f4445699c1b7b53b37914fd9e20aee0f4afe49f5fd4557479"}
+}

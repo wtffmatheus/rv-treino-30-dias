@@ -11,7 +11,7 @@
   --line:rgba(183,210,218,.15);--line2:rgba(183,210,218,.26);
   --border-control:#67828d;--surface-neutral:#152a35;--radius:9px;--radiusLg:13px;
   --shadow:0 24px 56px rgba(1,9,14,.23);
-  --font:"Manrope","Segoe UI",Arial,sans-serif;
+  --font:"Segoe UI",Arial,sans-serif;
   --font-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
 }
 html{scroll-padding-top:88px}

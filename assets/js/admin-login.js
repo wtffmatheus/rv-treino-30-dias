@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   'use strict'
+
+  if (window.RVApi) await window.RVApi.ready
 
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const form = document.querySelector('[data-admin-login-form]')
@@ -11,7 +13,7 @@
     note.textContent = 'Sua sessÃ£o administrativa expirou. Entre novamente para continuar.'
   }
 
-  if (!window.RV_COURSE_CONFIG?.testMode) {
+  if ((window.RVApi?.serverMode || !window.RV_COURSE_CONFIG?.testMode) && !window.RVApi?.configured) {
     if (note) note.textContent = 'O login administrativo de demonstraÃ§Ã£o estÃ¡ desativado.'
     if (form) form.hidden = true
     return
@@ -22,13 +24,16 @@
     return
   }
 
-  form?.addEventListener('submit', (event) => {
+  form?.addEventListener('submit', async (event) => {
     event.preventDefault()
 
     if (error) error.textContent = ''
 
     const data = new FormData(form)
-    const result = auth.adminLogin(data.get('email'), data.get('password'))
+    const button = form.querySelector('button[type=submit]')
+    button.disabled = true
+    const result = await auth.adminLogin(data.get('email'), data.get('password'))
+    button.disabled = false
 
     if (!result.ok) {
       if (error) error.textContent = result.message

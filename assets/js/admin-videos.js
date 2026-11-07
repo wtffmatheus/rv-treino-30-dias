@@ -1,5 +1,27 @@
-(() => {
+(async () => {
   'use strict'
+  await window.RVApi?.ready
+  const serverMode = window.RVApi?.serverMode === true || !window.RV_COURSE_CONFIG?.testMode
+  if (serverMode) {
+    document.querySelectorAll('[data-local-video-editor]').forEach((element) => { element.hidden = true })
+    const note = document.querySelector('[data-video-environment-note]')
+    try {
+      const response = await fetch('/api/account', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
+      if (response.status === 401 || response.status === 403) { location.replace('/admin/entrar'); return }
+      if (!response.ok) throw new Error('configuration')
+      const account = await response.json()
+      if (!account.isAdmin) { location.replace('/admin/entrar'); return }
+      if (note) note.textContent = 'Os vídeos pagos são publicados no servidor após revisão e preparação do armazenamento privado. O editor de demonstração não altera aulas reais. Consulte a documentação de preparação do RV 30 e use a verificação de entrega no painel.'
+      document.querySelector('[data-summary]').textContent = 'RV 30 · 30 dias. Catálogo privado gerenciado no servidor.'
+      document.querySelector('[data-exit]')?.addEventListener('click', async () => {
+        try { await window.RVApi?.logout(); location.replace('/admin/entrar') } catch { if (note) note.textContent = 'Não foi possível encerrar a sessão. Tente novamente.' }
+      })
+    } catch {
+      if (note) note.textContent = 'A gestão privada de vídeos ainda não foi configurada no servidor. Nenhum vídeo foi publicado por esta tela.'
+    }
+    return
+  }
+  document.querySelectorAll('[data-local-video-editor]').forEach((element) => { element.hidden = false })
   const store = window.RVCourseStore
   const media = window.RVMediaReview
   const $ = (s) => document.querySelector(s)
@@ -30,8 +52,12 @@
     $('[data-drive]').hidden = courseId() !== 'rv30'
     const items = media.list(courseId())
     const approved = items.filter((i) => i.approved).length
+    const summary = media.summary(courseId())
     $('[data-summary]').textContent = `${course.title} · ${course.totalDays} aulas (introdução opcional)`
-    $('[data-count]').textContent = `${items.length} arquivos · ${approved} aprovados`
+    $('[data-count]').textContent = `${items.length} arquivos · ${summary.linked} vinculados · ${approved} aprovados`
+    $('[data-missing-days]').textContent = summary.missingDays.length
+      ? `Dias sem arquivo vinculado: ${summary.missingDays.map((day) => String(day).padStart(2, '0')).join(', ')}. A numeração original será preservada.`
+      : 'Todos os 30 dias têm um arquivo vinculado para revisão. A reprodução privada ainda depende da preparação no servidor.'
     $('[data-approve]').disabled = !$('[data-confirm]').checked || !batchReady(course, items)
     const list = $('[data-video-list]')
     list.replaceChildren()
@@ -59,9 +85,19 @@
       list.append(row)
     })
   }
+  function importFiles(selectedCourse, files) {
+    const result = perform(() => media.importAvailable(selectedCourse, files))
+    const issues = result.issues || []
+    if (issues.length) $('[data-error]').textContent = issues.map((issue) => issue.message).join(' ')
+    if (result.ok) {
+      $('[data-confirm]').checked = false
+      render()
+      $('[data-feedback]').textContent = `${result.count} arquivos sem conflito importados, em ordem numérica. ${issues.length ? 'Os arquivos com problemas foram excluídos desta importação e precisam de revisão.' : 'Nenhuma aula foi publicada.'}`
+    }
+  }
   $('[data-files]').addEventListener('change', (event) => {
     const files = Array.from(event.target.files).map((file) => ({ name: file.name, size: file.size, lastModified: file.lastModified }))
-    if (files.length && perform(() => media.import(courseId(), files)).ok) { $('[data-confirm]').checked = false; render() }
+    if (files.length) importFiles(courseId(), files)
     event.target.value = ''
   })
   $('[data-manifest]').addEventListener('change', async (event) => {
@@ -73,7 +109,7 @@
       if (file.size > 256000) throw new Error('size')
       const data = JSON.parse(await file.text())
       if (courseId() !== selectedCourse || data.courseId !== selectedCourse || data.schemaVersion !== 1) throw new Error('course')
-      if (perform(() => media.import(selectedCourse, data.items)).ok) { $('[data-confirm]').checked = false; render() }
+      importFiles(selectedCourse, data.items)
     } catch { $('[data-error]').textContent = 'Manifesto inválido: use schemaVersion 1, o curso selecionado e um arquivo de até 256 KB.' }
     input.value = ''
   })

@@ -12,4 +12,13 @@ const files = [
   'public/logo-rv.png', 'public/icons/favicon-64.png', 'public/icons/apple-touch-icon.png',
   '_headers', '_redirects', 'robots.txt', 'sitemap.xml'
 ]
-module.exports = { root, files }
+function assertPublishableFiles(list) {
+  for (const file of list) {
+    if (/\.(?:mov|mp4|m4v|webm)$|(?:^|\/)manifest\.private\.json$|\.private\./i.test(file)) {
+      throw new Error('Arquivo de mídia ou manifesto privado bloqueado no build: ' + file)
+    }
+  }
+}
+// Shared by build, dev server and static checks: no accidental course uploads.
+assertPublishableFiles(files)
+module.exports = { root, files, assertPublishableFiles }

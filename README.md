@@ -1,4 +1,24 @@
-# RV Projeto 30 — V6 / Pente-fino + Painel Admin
+# RV 30 — revisão de 07/11/2026
+
+Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória e verificação administrativa de entrega. **Vendas reais permanecem bloqueadas.**
+
+- [Situação atual, testes e pendências de integração](docs/RETOMADA_RV30_20261107.md)
+- [Asaas, pagamento único e acesso de 365 dias](backend/ASAAS_ACCESS365.md)
+- [Arquivos reais encontrados e preparação de envio privado](docs/UPLOAD_VIDEOS_RV30_20261107.md)
+- [Assistir aos vídeos na área privada de revisão](docs/REPRODUCAO_PRIVADA_RV30_20261107.md)
+- [Liberação aos compradores nas próximas compras](docs/COMPRAS_FUTURAS_RV30_20261107.md)
+- [Entrega, configuração e recuperação — histórico](docs/ENTREGA_RV30_20261025.md)
+- [Revisão completa dos requisitos e situação do domínio em 27/10](docs/REVISAO_REQUISITOS_RV30_20261027.md)
+- [Validação e limitações](docs/VALIDACAO_RV30.md)
+- [Correção da paleta azul e publicação do domínio](docs/REVISAO_AZUL_PUBLICACAO_20261026.md)
+- [Backend e migração proposta](backend/SECURE_BACKEND_RV30.md)
+- [Vídeos e dias pendentes](docs/VIDEOS_RV30.md)
+
+Use Node 22+ e `npm ci`, `npm run dev`; prévia em http://127.0.0.1:8081. Sem backend configurado, a demonstração funciona apenas em loopback. Segredos ficam exclusivamente no servidor, conforme `.env.example`. `dist/` contém somente os arquivos estáticos.
+
+Verificações: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:e2e`. A auditoria `npm run audit:launch` mantém **NO_GO** até comprovar a integração em homologação.
+
+## Histórico anterior da V6
 
 Versão de teste/staging do portal comercial do **RV 30**, com a jornada de venda, área do aluno e painel administrativo específico do curso.
 
