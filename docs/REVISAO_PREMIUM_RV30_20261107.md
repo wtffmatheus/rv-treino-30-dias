@@ -1,5 +1,7 @@
 # RV 30 — rodada de preview em 07/11/2026
 
+> Atualização posterior: o responsável autorizou publicar as atualizações após validação. A versão validada foi publicada no domínio principal. Consulte [autorização e publicação](AUTORIZACAO_PUBLICACAO_RV30.md). As menções a preview exclusivo abaixo registram a condição anterior à autorização.
+
 ## Resumo executivo
 
 O pedido desta rodada determina preview antes de produção. A branch `rv30-premium-preview-20261107` parte da versão publicada `3f6acb7`. O domínio principal e os dados de produção não são o ambiente desta validação.
