@@ -1,5 +1,11 @@
 # Vídeos e conferência da entrega — RV 30
 
+> Atualização de 07/11: foram encontradas cópias locais reais dos dias 1–29 e
+> enviadas e verificadas 29 cópias MP4 no R2 privado. A conferência do Drive e o dia 30 continuam
+> pendentes. Consulte [o relatório atual](UPLOAD_VIDEOS_RV30_20261107.md).
+> O inventário e os testes de outubro abaixo são históricos; envio ao R2 não
+> equivale a vínculo ou publicação de aulas no banco.
+
 Verificação local refeita em 27/10/2026. Nenhum arquivo de vídeo foi encontrado no repositório. O arquivo `assets/data/rv30-videos-template.json` contém 30 **nomes de exemplo**, sem links. Esses nomes não comprovam a existência dos vídeos no Drive. Os 31 registros de `content.js` — introdução e dias 1 a 30 — estão sem URL de reprodução.
 
 **Situação verificável:** 0 arquivos reais vinculados, 0 dias com reprodução e 30 dias pendentes. A introdução também está pendente e é opcional. O relatório estruturado fica em `assets/data/rv30-video-status.json`.

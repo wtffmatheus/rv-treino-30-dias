@@ -72,7 +72,7 @@ function check() {
   add('launch_visual_review', false,
     'Revisão visual final pela responsável ainda não registrada. Capturas e testes automatizados são evidências técnicas, não aprovação comercial.', 'manual')
   add('day_30_drive_verified', false,
-    'Dia 30 não verificado nesta sessão. Não há acesso autenticado atual ao Drive; nenhum arquivo real está vinculado. Menções históricas a 29 arquivos não são inventário atual.', 'manual')
+    'Dia 30 não verificado no Drive. Na origem local foram encontrados os dias 1–29, sem o dia 30. Não há acesso autenticado atual ao Drive e nenhum arquivo está vinculado às aulas.', 'manual')
   add('legal_health_content_approved', false,
     'Preço, prazo e revogação definidos; Asaas preparado, com conta e proposta pendentes. Revisão final dos termos, privacidade e conteúdo profissional ainda pendente.', 'manual')
   return {
@@ -84,8 +84,10 @@ function check() {
     inventory: {
       scope: 'repository_record_only', source: inventoryRecord.source || 'not_recorded', verifiedAt: inventoryRecord.verifiedAt || null,
       authenticatedDriveChecked: false, verifiedFiles: Number.isInteger(inventoryRecord.verifiedFiles) ? inventoryRecord.verifiedFiles : 0,
+      localFileCount: Number.isInteger(inventoryRecord.localFileCount) ? inventoryRecord.localFileCount : 0,
+      privateStorageFileCount: Number.isInteger(inventoryRecord.privateStorageFileCount) ? inventoryRecord.privateStorageFileCount : 0,
       linkedDays, pendingDays,
-      historicalNote: 'Documentos anteriores mencionam 29 arquivos. Essa informação não foi revalidada e não comprova vínculo ou reprodução nesta entrega.'
+      historicalNote: 'A pasta Drive não foi revalidada. A conferência local e os objetos no R2 são evidências separadas; armazenamento não comprova vínculo, revisão editorial ou reprodução autenticada na plataforma.'
     },
     verification: { staticSourceOnly: true, backendDeploymentVerified: false, liveAuthVerified: false, liveDatabaseVerified: false, livePaymentVerified: false, liveVideoPlaybackVerified: false }
   }

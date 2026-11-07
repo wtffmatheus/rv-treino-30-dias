@@ -1,5 +1,10 @@
 # Admin e videos RV
 
+> Atualização de 07/11: cópias locais 1.MOV–29.MOV foram encontradas e estão em
+> armazenadas e verificadas em MP4 no R2 privado. O proprietário confirmou o Drive como referência;
+> ainda falta compará-las com essa pasta e localizar o dia 30. Consulte
+> [a conferência atual](../docs/UPLOAD_VIDEOS_RV30_20261107.md).
+
 ## Acesso para testar
 
 Execute `npm.cmd run dev` na raiz e abra http://127.0.0.1:8081/admin/entrar.
