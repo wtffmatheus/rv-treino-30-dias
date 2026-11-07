@@ -3,7 +3,7 @@
  * Fotografias originais fornecidas pelo proprietário, convertidas para WebP.
  * Esta camada altera somente a apresentação, não regras de negócio.
  */
-.hero .hero-visual{background:#0b2d34}
+.hero .hero-visual{background:#0b1e34}
 .hero .hero-portrait{
   object-fit:cover;
   object-position:52% 30%;
@@ -16,7 +16,7 @@
 }
 .professional-photo{
   overflow:hidden;
-  background:#17303a;
+  background:#17273a;
   border:1px solid rgba(19,70,75,.17);
   box-shadow:none;
   border-radius:12px;
@@ -35,7 +35,7 @@
   align-items:center;
   gap:14px;
   padding:15px 0 19px;
-  border-bottom:1px solid #dbe5e5;
+  border-bottom:1px solid #dbe0e5;
 }
 .rv-checkout .rv-checkout-expert img{
   display:block;
@@ -44,19 +44,19 @@
   border-radius:8px;
   object-fit:cover;
   object-position:50% 18%;
-  background:#e7efee;
+  background:#e7ebef;
 }
-.rv-checkout .rv-checkout-expert p{margin:0;line-height:1.5;color:#344d55}
+.rv-checkout .rv-checkout-expert p{margin:0;line-height:1.5;color:#344355}
 .rv-checkout .rv-checkout-expert strong{
   display:block;
-  color:#152e35;
+  color:#152435;
   font-size:.9rem;
   font-weight:800;
 }
 .rv-checkout .rv-checkout-expert span{
   display:block;
   margin-top:4px;
-  color:#4f6670;
+  color:#4f5e70;
   font-size:.76rem;
 }
 @media (max-width:900px) {

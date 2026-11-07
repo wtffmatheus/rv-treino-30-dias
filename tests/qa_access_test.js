@@ -34,6 +34,23 @@ const {Miniflare,convertV4MiniflareOptions}=require('miniflare')
   cookie='';assert.equal((await call('/auth/login','POST',{email,password})).status,401)
   const next=await call('/auth/login','POST',{email,password:'new-fixture-password-123'});assert.equal(next.status,200);cookie=next.headers.get('set-cookie').split(';')[0]
   assert.equal((await call('/auth/logout','POST',{})).status,200);assert.equal((await call('/account')).status,401)
+  await assert.rejects(()=>hashPassword('123456',pepper),/12 a 128/)
+  const short=await hashPassword('123456',pepper,{preview:true})
+  await db.prepare('insert into qa_users(id,email,name,password_salt,password_hash,created_at) values(?,?,?,?,?,?)').bind('fixture-admin','admin@example.test','Administrador',short.salt,short.hash,now).run()
+  await db.prepare('delete from qa_limits').run();cookie=''
+  assert.equal((await call('/auth/login','POST',{email:'admin@example.test',password:'123456'})).status,401,'admin de preview não existe no modo de produção')
+  Object.assign(env,{QA_PREVIEW:'true',QA_ADMIN_EMAIL:'admin@example.test',PREVIEW_ORIGINS:env.PUBLIC_SITE_URL})
+  const admin=await call('/auth/login','POST',{email:'admin@example.test',password:'123456'});assert.equal(admin.status,200);assert.equal((await admin.clone().json()).isAdmin,true);cookie=admin.headers.get('set-cookie').split(';')[0]
+  const students=await(await call('/admin/students')).json();assert.equal(students.students.length,1);assert.equal(students.students[0].email,email)
+  assert.equal((await call('/admin/students/fixture-admin','PATCH',{status:'blocked'})).status,404,'admin não pode mudar a própria permissão')
+  assert.equal((await call('/admin/students/fixture-user','PATCH',{access:'revoke'})).status,200)
+  assert.equal((await(await call('/admin/students')).json()).students[0].hasAccess,false)
+  assert.equal((await call('/admin/students/fixture-user','PATCH',{access:'grant'})).status,200)
+  assert.equal((await call('/admin/students/fixture-user','PATCH',{status:'blocked'})).status,200)
+  assert.equal((await(await call('/admin/students')).json()).students[0].status,'blocked')
+  assert.equal((await call('/admin/students/fixture-user','PATCH',{status:'active'})).status,200)
+  assert.equal((await call('/orders','POST',{})).status,503,'nem o administrador de preview habilita cobranças')
+  await db.prepare('delete from qa_limits').run();cookie=''
   for(let i=0;i<11;i++)await call('/auth/login','POST',{email,password:'wrong'})
   assert.equal((await call('/auth/login','POST',{email,password})).status,429)
   console.log('QA: D1/R2, senha, cookie, origem, grant/expiração, ranges, progresso persistente, revogação de sessões, isolamento e rate limit passaram.')

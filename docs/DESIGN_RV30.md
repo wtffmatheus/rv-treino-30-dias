@@ -1,5 +1,7 @@
 # RV 30 — identidade e referências
 
+> Rodada de 07/11/2026: o novo prompt substitui a orientação anterior de turquesa por uma paleta integralmente azul, com acabamento de vidro sutil. Consulte [revisão premium e validação](REVISAO_PREMIUM_RV30_20261107.md). As decisões abaixo registram a versão anterior quando houver divergência de cores.
+
 Revisão de 27/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.
 
 ## Referências consultadas

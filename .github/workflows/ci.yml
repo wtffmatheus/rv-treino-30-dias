@@ -14,6 +14,7 @@ on:
       - design/rv30-fotos-reais-rosangela-20261022
       - feature/metodo-rv-evolua-identidade-20261022
       - rv30-evolucao-20261025
+      - rv30-premium-preview-20261107
   pull_request:
     branches: [main]
 jobs:

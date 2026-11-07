@@ -10,8 +10,9 @@ async function passwordKey(password,salt,pepper){
  const input=await crypto.subtle.importKey('raw',enc.encode(password+'\0'+pepper),'PBKDF2',false,['deriveKey'])
  return crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:bytes(salt),iterations:100000},input,{name:'HMAC',hash:'SHA-256',length:256},false,['sign','verify'])
 }
-export async function hashPassword(password,pepper){
- if(typeof password!=='string'||password.length<12||password.length>128)fail(400,'PASSWORD_INVALID','Use uma senha de 12 a 128 caracteres.')
+export async function hashPassword(password,pepper,{preview=false}={}){
+ const minimum=preview?6:12
+ if(typeof password!=='string'||password.length<minimum||password.length>128)fail(400,'PASSWORD_INVALID',`Use uma senha de ${minimum} a 128 caracteres.`)
  if(typeof pepper!=='string'||pepper.length<32)fail(503,'QA_NOT_CONFIGURED','O acesso de validação ainda está em configuração.')
  const salt=hex(crypto.getRandomValues(new Uint8Array(32))),key=await passwordKey(password,salt,pepper)
  return{salt,hash:hex(await crypto.subtle.sign('HMAC',key,enc.encode('rv30-qa-password-v1')))}
@@ -49,8 +50,9 @@ async function authenticate(request,env){
  const user=await env.QA_DB.prepare(`select u.id,u.email,u.name,u.status,g.expires_at as grant_expires,g.revoked from qa_sessions s
  join qa_users u on u.id=s.user_id left join qa_grants g on g.user_id=u.id
  where s.token_hash=? and s.expires_at>? and s.credential_version=u.credential_version`).bind(tokenHash,now).first()
- if(!user||user.status!=='active'||user.email!==env.QA_EMAIL.toLowerCase())fail(401,'SESSION_INVALID','Sua sessão terminou. Entre novamente.')
- return{user,tokenHash,hasAccess:!user.revoked&&user.grant_expires>now}
+ const isAdmin=env.QA_PREVIEW==='true'&&!!env.QA_ADMIN_EMAIL&&user?.email===env.QA_ADMIN_EMAIL.trim().toLowerCase()
+ if(!user||user.status!=='active'||(!isAdmin&&user.email!==env.QA_EMAIL.trim().toLowerCase()))fail(401,'SESSION_INVALID','Sua sessão terminou. Entre novamente.')
+ return{user,tokenHash,isAdmin,hasAccess:!user.revoked&&user.grant_expires>now}
 }
 async function limit(request,env){
  const period=Math.floor(Date.now()/900000),key=await sha('login:'+String(request.headers.get('CF-Connecting-IP')||'unknown'))
@@ -62,21 +64,23 @@ export function createQaHandler(){return{async fetch(request,env){
  try{
   const url=new URL(request.url),origin=env.PUBLIC_SITE_URL
   if(!env.QA_DB||!env.QA_EMAIL||!env.QA_PASSWORD_PEPPER||env.QA_PASSWORD_PEPPER.length<32||!origin)fail(503,'QA_NOT_CONFIGURED','O acesso de validação está em configuração.')
-  if(!['GET','HEAD'].includes(request.method)&&request.headers.get('origin')!==origin)fail(403,'ORIGIN_REJECTED','Origem não autorizada.')
+  const requestOrigin=request.headers.get('origin'),preview=env.QA_PREVIEW==='true'
+  const origins=preview?String(env.PREVIEW_ORIGINS||'').split(',').filter(Boolean):[origin]
+  if(!['GET','HEAD'].includes(request.method)&&!origins.includes(requestOrigin))fail(403,'ORIGIN_REJECTED','Origem não autorizada.')
   const items=catalog({REVIEW_MEDIA_MANIFEST:env.QA_MEDIA_MANIFEST})
   if(!items||!env.VIDEOS)fail(503,'MEDIA_NOT_CONFIGURED','Os vídeos estão em configuração.')
   if(request.method==='GET'&&url.pathname==='/api/config')return json({ok:true,configured:true,qaOnly:true,salesEnabled:false,environment:'test',product:{id:'rv30',title:'RV 30',totalDays:30,priceCents:39900,currency:'BRL',accessDurationDays:365}})
   if(request.method==='POST'&&url.pathname==='/api/auth/login'){
    await limit(request,env);const input=await body(request)
    if(typeof input.email!=='string'||typeof input.password!=='string'||input.password.length<1||input.password.length>128)fail(401,'LOGIN_FAILED','E-mail ou senha inválidos.')
-   const email=input.email.trim().toLowerCase(),row=email===env.QA_EMAIL.toLowerCase()?await env.QA_DB.prepare('select * from qa_users where email=?').bind(email).first():null
+   const email=input.email.trim().toLowerCase(),allowed=[env.QA_EMAIL.trim().toLowerCase(),...(preview&&env.QA_ADMIN_EMAIL?[env.QA_ADMIN_EMAIL.trim().toLowerCase()]:[])],row=allowed.includes(email)?await env.QA_DB.prepare('select * from qa_users where email=?').bind(email).first():null
    const valid=await verifyPassword(input.password,row,env.QA_PASSWORD_PEPPER)
    if(!valid||row.status!=='active')fail(401,'LOGIN_FAILED','E-mail ou senha inválidos. A senha de teste é definida pelo responsável na área privada.')
    const token=hex(crypto.getRandomValues(new Uint8Array(32))),tokenHash=await sha(token)
    const result=await env.QA_DB.prepare(`insert into qa_sessions(token_hash,user_id,credential_version,expires_at)
     select ?,id,credential_version,? from qa_users where id=? and credential_version=? and status='active'`).bind(tokenHash,Date.now()+3600000,row.id,row.credential_version).run()
    if(result.meta.changes!==1)fail(401,'SESSION_INVALID','A senha foi atualizada. Entre novamente.')
-   return json({ok:true,user:{id:row.id,email:row.email},isAdmin:false,testAccount:true},200,{'Set-Cookie':cookie(token,3600)})
+   return json({ok:true,user:{id:row.id,email:row.email},isAdmin:preview&&email===env.QA_ADMIN_EMAIL?.trim().toLowerCase(),testAccount:true},200,{'Set-Cookie':cookie(token,3600)})
   }
   if(request.method==='POST'&&url.pathname==='/api/auth/logout'){
    const session=await authenticate(request,env);await env.QA_DB.prepare('delete from qa_sessions where token_hash=?').bind(session.tokenHash).run()
@@ -85,8 +89,28 @@ export function createQaHandler(){return{async fetch(request,env){
   if(url.pathname.startsWith('/api/auth/'))fail(503,'PUBLIC_AUTH_PENDING','Cadastros e recuperação públicos ainda estão em preparação. A senha da conta de validação é definida na área privada do responsável.')
   if(url.pathname.startsWith('/api/orders')||url.pathname.startsWith('/api/webhooks'))fail(503,'SALES_DISABLED','Vendas reais continuam desativadas. Este acesso não registra pagamentos.')
   const session=await authenticate(request,env),user=session.user
-  if(url.pathname.startsWith('/api/admin/'))fail(403,'ADMIN_REQUIRED','Esta conta é de aluno e não tem acesso administrativo.')
-  if(request.method==='GET'&&url.pathname==='/api/account')return json({ok:true,isAdmin:false,account:{id:user.id,email:user.email,name:user.name,status:'active',testAccount:true,accessSource:'owner_validation',entitlements:session.hasAccess?['rv30']:[],access:[{courseId:'rv30',status:session.hasAccess?'active':'expired',expiresAt:new Date(user.grant_expires).toISOString(),source:'owner_validation'}]}})
+  if(url.pathname.startsWith('/api/admin/')){
+   if(!session.isAdmin)fail(403,'ADMIN_REQUIRED','Esta conta não tem acesso administrativo.')
+   if(request.method==='GET'&&url.pathname==='/api/admin/students'){
+    const rows=await env.QA_DB.prepare(`select u.id,u.name,u.email,u.status,g.expires_at,g.revoked from qa_users u left join qa_grants g on g.user_id=u.id where u.email=?`).bind(env.QA_EMAIL.trim().toLowerCase()).all()
+    const students=[]
+    for(const row of rows.results){const progress=await env.QA_DB.prepare('select day from qa_progress where user_id=? order by day').bind(row.id).all();students.push({...row,hasAccess:row.status==='active'&&!row.revoked&&row.expires_at>Date.now(),progress:progress.results.map(x=>x.day)})}
+    return json({ok:true,students,qaOnly:true})
+   }
+   const match=url.pathname.match(/^\/api\/admin\/students\/([a-zA-Z0-9-]+)$/)
+   if(match&&request.method==='PATCH'){
+    const student=await env.QA_DB.prepare('select id from qa_users where id=? and email=?').bind(match[1],env.QA_EMAIL.trim().toLowerCase()).first()
+    if(!student)fail(404,'STUDENT_NOT_FOUND','Aluno de teste não localizado.')
+    const input=await body(request)
+    if(['active','blocked'].includes(input.status))await env.QA_DB.batch([env.QA_DB.prepare('update qa_users set status=?,credential_version=credential_version+1 where id=?').bind(input.status,student.id),env.QA_DB.prepare('delete from qa_sessions where user_id=?').bind(student.id)])
+    else if(input.access==='revoke')await env.QA_DB.prepare('update qa_grants set revoked=1 where user_id=?').bind(student.id).run()
+    else if(input.access==='grant')await env.QA_DB.prepare("insert into qa_grants(user_id,source,expires_at,revoked) values(?,'owner_validation',?,0) on conflict(user_id) do update set revoked=0,expires_at=case when expires_at>? then expires_at else excluded.expires_at end").bind(student.id,Date.now()+365*86400000,Date.now()).run()
+    else fail(400,'INVALID_ACTION','Escolha uma ação válida.')
+    return json({ok:true})
+   }
+   fail(404,'API_NOT_FOUND','Operação administrativa indisponível neste teste.')
+  }
+  if(request.method==='GET'&&url.pathname==='/api/account')return json({ok:true,isAdmin:session.isAdmin,account:{id:user.id,email:user.email,name:user.name,status:'active',testAccount:true,accessSource:'owner_validation',entitlements:session.hasAccess?['rv30']:[],access:user.grant_expires?[{courseId:'rv30',status:session.hasAccess?'active':'expired',expiresAt:new Date(user.grant_expires).toISOString(),source:'owner_validation'}]:[]}})
   if(!session.hasAccess)fail(403,'PURCHASE_REQUIRED','O acesso de validação está vencido ou foi revogado.')
   if(request.method==='GET'&&url.pathname==='/api/courses/rv30'){
    const progress=await env.QA_DB.prepare('select day from qa_progress where user_id=? order by day').bind(user.id).all()
@@ -95,7 +119,7 @@ export function createQaHandler(){return{async fetch(request,env){
   const video=url.pathname.match(/^\/api\/courses\/rv30\/days\/([1-9]|[12]\d|30)\/(video|media)$/)
   if(video&&['GET','HEAD'].includes(request.method)){
    const item=items.find(x=>x.day===Number(video[1]));if(!item)fail(404,'VIDEO_PENDING','O vídeo deste dia ainda está pendente.')
-   if(video[2]==='video')return json({ok:true,url:`${origin}/api/courses/rv30/days/${item.day}/media`,expiresIn:Math.min(120,Math.floor((user.grant_expires-Date.now())/1000))})
+   if(video[2]==='video')return json({ok:true,url:preview?`/api/courses/rv30/days/${item.day}/media`:`${origin}/api/courses/rv30/days/${item.day}/media`,expiresIn:Math.min(120,Math.floor((user.grant_expires-Date.now())/1000))})
    return streamVideo(request,env.VIDEOS,item)
   }
   const progress=url.pathname.match(/^\/api\/courses\/rv30\/progress\/([1-9]|[12]\d|30)$/)

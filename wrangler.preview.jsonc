@@ -1,0 +1,12 @@
+{
+ "$schema":"./node_modules/wrangler/config-schema.json",
+ "name":"rv30-premium-preview",
+ "account_id":"d0636456db3515c826fdc78467f5c899",
+ "main":"backend/qa/worker.mjs",
+ "compatibility_date":"2026-11-07",
+ "workers_dev":true,"preview_urls":false,
+ "d1_databases":[{"binding":"QA_DB","database_name":"rv30-premium-preview","database_id":"32514098-399c-4035-b486-fca08ca21a7d"}],
+ "r2_buckets":[{"binding":"VIDEOS","bucket_name":"rv30-videos-private"}],
+ "vars":{"QA_PREVIEW":"true","PUBLIC_SITE_URL":"https://rv30-premium-preview.user-matheus169.workers.dev"},
+ "observability":{"enabled":true,"traces":{"enabled":true}}
+}

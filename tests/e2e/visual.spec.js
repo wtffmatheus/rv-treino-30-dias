@@ -21,7 +21,7 @@ test('gera capturas desktop e mobile para revisão visual por comparação', asy
       await expect(page.locator(screen.ready)).toBeVisible()
       if (screen.name === 'checkout') {
         const nameColor = await page.locator('.portal-header .course-brand strong').evaluate(e => getComputedStyle(e).color)
-        expect(nameColor).toBe('rgb(245, 252, 252)')
+        expect(nameColor).toBe('rgb(245, 248, 252)')
       }
       await page.locator('body').evaluate(() => document.fonts?.ready)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)

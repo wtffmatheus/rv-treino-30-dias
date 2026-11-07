@@ -10,11 +10,11 @@
   const note = document.querySelector('[data-admin-test-note]')
 
   if (params.get('expired') === '1' && note) {
-    note.textContent = 'Sua sessÃ£o administrativa expirou. Entre novamente para continuar.'
+    note.textContent = 'Sua sessão administrativa expirou. Entre novamente para continuar.'
   }
 
   if ((window.RVApi?.serverMode || !window.RV_COURSE_CONFIG?.testMode) && !window.RVApi?.configured) {
-    if (note) note.textContent = 'O login administrativo de demonstraÃ§Ã£o estÃ¡ desativado.'
+    if (note) note.textContent = 'O acesso administrativo está em preparação.'
     if (form) form.hidden = true
     return
   }

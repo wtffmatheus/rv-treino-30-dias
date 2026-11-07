@@ -17,8 +17,51 @@
       const account = await response.json()
       if (account.isAdmin !== true) { location.replace('/admin/entrar'); return }
       if (gate) gate.hidden = true
+      if (window.RVApi?.qaOnly) {
+        const previewPanel = document.createElement('section')
+        previewPanel.className = 'admin-panel qa-admin-panel'
+        const title = document.createElement('h2')
+        title.textContent = 'Aluno de teste'
+        const note = document.createElement('p')
+        note.textContent = 'Gerencie a liberação, o bloqueio e o progresso desta conta de validação. Nenhuma ação registra compra ou cobrança.'
+        const list = document.createElement('div')
+        const status = document.createElement('p')
+        status.setAttribute('role', 'status')
+        previewPanel.append(title, note, list, status)
+        document.querySelector('main').append(previewPanel)
+        async function renderStudents() {
+          const result = await window.RVApi.request('/api/admin/students')
+          if (!result.ok) { status.textContent = result.message; return }
+          list.replaceChildren()
+          for (const student of result.students) {
+            const card = document.createElement('article')
+            card.className = 'qa-student-card'
+            const heading = document.createElement('h3')
+            heading.textContent = student.name
+            const details = document.createElement('p')
+            details.textContent = `${student.email} · ${student.status === 'blocked' ? 'Bloqueado' : 'Ativo'} · ${student.hasAccess ? 'Acesso liberado' : 'Sem acesso'} · ${student.progress.length} de 30 dias concluídos`
+            const actions = document.createElement('div')
+            actions.className = 'qa-student-actions'
+            for (const [label, body] of [[student.revoked ? 'Liberar acesso' : 'Revogar acesso', { access: student.revoked ? 'grant' : 'revoke' }], [student.status === 'blocked' ? 'Desbloquear aluno' : 'Bloquear aluno', { status: student.status === 'blocked' ? 'active' : 'blocked' }]]) {
+              const button = document.createElement('button')
+              button.className = 'button button--secondary'
+              button.textContent = label
+              button.addEventListener('click', async () => {
+                actions.querySelectorAll('button').forEach(item => { item.disabled = true })
+                const response = await window.RVApi.request(`/api/admin/students/${encodeURIComponent(student.id)}`, { method: 'PATCH', body })
+                status.textContent = response.ok ? 'Conta de teste atualizada.' : response.message
+                await renderStudents()
+              })
+              actions.append(button)
+            }
+            card.append(heading, details, actions)
+            list.append(card)
+          }
+        }
+        await renderStudents()
+      }
       const panel = document.querySelector('[data-delivery-panel]')
-      if (panel) panel.hidden = false
+      if (panel) panel.hidden = window.RVApi?.qaOnly === true
       document.querySelector('[data-admin-logout]')?.addEventListener('click', async () => {
         try {
           if (window.RVApi?.logout) await window.RVApi.logout()
