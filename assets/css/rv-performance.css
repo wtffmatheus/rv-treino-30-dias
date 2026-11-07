@@ -115,49 +115,49 @@ img{height:auto}
 .mobile-buybar .button{min-height:44px}
 
 /* CHECKOUT — forms on warm white, dark brand header. */
-.portal-body.rv-checkout{--checkout-ink:#1c3550;--checkout-soft:#49617c;--checkout-border:#b4bdc8;background:#edeff2;color:var(--checkout-ink)}
-.rv-checkout .portal-header{background:#081525;border-bottom:1px solid #344b66}
+.portal-body.rv-checkout{--checkout-ink:#1c3550;--checkout-soft:#49617c;--checkout-border:#b4bdc8;background:var(--bg);color:var(--muted)}
+.rv-checkout .portal-header{background:var(--bg2);border-bottom:1px solid #344b66}
 .rv-checkout .portal-header-inner{min-height:86px}
-.rv-checkout .portal-header .text-link{color:#ecf1f7;border-color:#78889a}
+.rv-checkout .portal-header .text-link{color:var(--muted);border-color:#78889a}
 .rv-checkout .checkout-page{padding:clamp(26px,4.5vw,64px) 0}
 .rv-checkout .checkout-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(315px,.85fr);grid-template-areas:"form summary";align-items:start;gap:clamp(20px,3vw,48px)}
 .rv-checkout .checkout-card{grid-area:form}
 .rv-checkout .order-card{grid-area:summary}
-.rv-checkout .checkout-card,.rv-checkout .order-card{background:#fff;border:1px solid #d8dce1;box-shadow:none;border-radius:12px;color:#172432}
+.rv-checkout .checkout-card,.rv-checkout .order-card{background:var(--glass);border:1px solid #d8dce1;box-shadow:none;border-radius:12px;color:var(--muted)}
 .rv-checkout .checkout-card{padding:clamp(24px,4vw,52px)}
 .rv-checkout .order-card{padding:clamp(22px,3vw,34px);position:sticky;top:108px}
-.rv-checkout .checkout-card h1{font-size:clamp(2.8rem,5vw,4.75rem);color:#172331;margin-bottom:14px}
-.rv-checkout .checkout-card h1 em{color:#003776}
-.rv-checkout .eyebrow{color:#003674}
-.rv-checkout .portal-lead{color:#4b5969;font-size:.96rem;max-width:62ch}
+.rv-checkout .checkout-card h1{font-size:clamp(2.8rem,5vw,4.75rem);color:var(--text);margin-bottom:14px}
+.rv-checkout .checkout-card h1 em{color:var(--accent)}
+.rv-checkout .eyebrow{color:var(--accent)}
+.rv-checkout .portal-lead{color:var(--muted);font-size:.96rem;max-width:62ch}
 .rv-checkout .portal-form{gap:19px;margin-top:30px}
-.rv-checkout .portal-form label{font-size:.9rem;font-weight:750;color:#263444}
+.rv-checkout .portal-form label{font-size:.9rem;font-weight:750;color:var(--muted)}
 .rv-checkout .portal-form input:not([type=checkbox]),.rv-checkout .portal-form textarea{
- min-height:52px;padding:12px 14px;border:1px solid #aeb8c4;background:#fff;color:#142233;border-radius:8px;font-size:1rem
+ min-height:52px;padding:12px 14px;border:1px solid #aeb8c4;background:#0b1c30;color:var(--muted);border-radius:8px;font-size:1rem
 }
-.rv-checkout .portal-form input::placeholder{color:#526274}
-.rv-checkout .portal-form input:focus-visible{border-color:#003f87;outline:3px solid rgba(0,145,138,.28)!important;outline-offset:1px}
-.rv-checkout .check-row{gap:12px!important;line-height:1.6;color:#354353!important;font-size:.85rem!important}
+.rv-checkout .portal-form input::placeholder{color:var(--muted)}
+.rv-checkout .portal-form input:focus-visible{border-color:#003f87;outline:3px solid rgba(130,191,232,.35)!important;outline-offset:1px}
+.rv-checkout .check-row{gap:12px!important;line-height:1.6;color:var(--muted);font-size:.85rem!important}
 .rv-checkout .check-row input{min-width:20px;width:20px!important;height:20px;margin-top:2px}
-.rv-checkout .check-row a{color:#00336e;text-decoration:underline;text-underline-offset:3px}
+.rv-checkout .check-row a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 .rv-checkout .checkout-card .button--primary{width:100%;min-height:55px;font-size:1rem}
-.rv-checkout .order-card>small{font-size:.72rem;color:#49586a;font-weight:850;letter-spacing:.13em!important}
+.rv-checkout .order-card>small{font-size:.72rem;color:var(--muted);font-weight:850;letter-spacing:.13em!important}
 .rv-checkout .order-product{padding:19px 0;margin:16px 0;border-block:1px solid #dbe0e5}
-.rv-checkout .order-product-mark{background:#0e2239;color:#468ad7;border-radius:8px}
-.rv-checkout .order-product strong,.rv-checkout .order-total strong{color:#112032}
-.rv-checkout .order-product span,.rv-checkout .order-lines,.rv-checkout .price-total{color:#48586a}
-.rv-checkout .order-lines p{color:#48586a;border-color:#dbdfe4}
-.rv-checkout .order-lines strong{color:#253446}
+.rv-checkout .order-product-mark{background:var(--glass);color:var(--muted);border-radius:8px}
+.rv-checkout .order-product strong,.rv-checkout .order-total strong{color:var(--text)}
+.rv-checkout .order-product span,.rv-checkout .order-lines,.rv-checkout .price-total{color:var(--muted)}
+.rv-checkout .order-lines p{color:var(--muted);border-color:#dbdfe4}
+.rv-checkout .order-lines strong{color:var(--text)}
 .rv-checkout .order-total{border-top:1px solid #b6bfca;padding-top:22px;margin-top:13px}
-.rv-checkout .order-total span{color:#1d2a39}
+.rv-checkout .order-total span{color:var(--muted)}
 .rv-checkout .order-total strong{font-family:var(--font-display);font-size:3rem;letter-spacing:-.015em!important}
-.rv-checkout .secure-note{background:#f2f5f8;border:1px solid #d0dae5;border-radius:8px}
-.rv-checkout .secure-note p strong{color:#15283d}
-.rv-checkout .secure-note small,.rv-checkout .tiny-note{color:#405062;line-height:1.6}
+.rv-checkout .secure-note{background:var(--glass);border:1px solid #d0dae5;border-radius:8px}
+.rv-checkout .secure-note p strong{color:var(--text)}
+.rv-checkout .secure-note small,.rv-checkout .tiny-note{color:var(--muted);line-height:1.6}
 .rv-checkout .checkout-config-error{border-radius:8px}
-.rv-checkout .production-payment-box,.rv-checkout .test-payment-box{background:#edf2f7;border-color:#90a5be;color:#192839;border-radius:8px}
-.rv-checkout .production-payment-box p,.rv-checkout .test-payment-box p{color:#2e4157}
-.rv-checkout .order-daily-note{font-size:.78rem;color:#515f6f;margin-top:7px}
+.rv-checkout .production-payment-box,.rv-checkout .test-payment-box{background:var(--glass);border-color:#90a5be;color:var(--muted);border-radius:8px}
+.rv-checkout .production-payment-box p,.rv-checkout .test-payment-box p{color:var(--muted)}
+.rv-checkout .order-daily-note{font-size:.78rem;color:var(--muted);margin-top:7px}
 
 /* ÁREA DO ALUNO — vídeo e continuidade em primeiro plano. */
 .course-body{background:#081525}

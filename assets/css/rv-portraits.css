@@ -43,20 +43,17 @@
   height:76px;
   border-radius:8px;
   object-fit:cover;
-  object-position:50% 18%;
-  background:#e7ebef;
+  object-position:50% 18%;background:var(--glass);
 }
-.rv-checkout .rv-checkout-expert p{margin:0;line-height:1.5;color:#344355}
+.rv-checkout .rv-checkout-expert p{margin:0;line-height:1.5;color:var(--muted)}
 .rv-checkout .rv-checkout-expert strong{
-  display:block;
-  color:#152435;
+  display:block;color:var(--text);
   font-size:.9rem;
   font-weight:800;
 }
 .rv-checkout .rv-checkout-expert span{
   display:block;
-  margin-top:4px;
-  color:#4f5e70;
+  margin-top:4px;color:var(--muted);
   font-size:.76rem;
 }
 @media (max-width:900px) {
