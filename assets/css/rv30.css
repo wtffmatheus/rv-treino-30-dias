@@ -174,8 +174,8 @@
 .portal-body .auth-brand-panel{background:#142732}
 .rv30-login-signature{display:flex;align-items:center;gap:18px;margin-bottom:26px}
 .rv30-login-signature img{width:72px;height:72px;object-fit:contain;border-radius:6px;flex-shrink:0}
-.rv30-login-signature .eyebrow{margin:0;font-size:.8rem;line-height:1.9;color:#f5f9f9}
-.rv30-login-signature .eyebrow span{color:#a9bdc5;font-size:.62rem}
+.rv30-login-signature strong{display:block;font-size:.9rem;line-height:1.8;color:#f5f9f9;letter-spacing:.08em}
+.rv30-login-signature small{display:block;color:#a9bdc5;font-size:.62rem;line-height:1.7;letter-spacing:.04em}
 .portal-body .auth-brand-panel h1{font-family:"Segoe UI",Arial,sans-serif;font-size:clamp(2.5rem,4.8vw,4.7rem);font-weight:800;letter-spacing:-.055em!important;line-height:1.15;max-width:12ch}
 .portal-body .auth-brand-panel h1 em{color:#57e4d8}
 .portal-body .auth-brand-panel>div>p:last-child{line-height:1.9;font-size:.9rem;color:#c7d7dc;max-width:43ch}
