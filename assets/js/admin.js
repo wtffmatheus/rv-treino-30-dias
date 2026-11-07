@@ -8,7 +8,7 @@
     const title = document.querySelector('#admin-title')
     if (title) title.textContent = 'Gestão do RV 30'
     const lead = document.querySelector('[data-admin-lead]')
-    if (lead) lead.textContent = 'Confira a entrega do programa com os registros do servidor.'
+    if (lead) lead.textContent = window.RVApi?.qaOnly ? 'Gerencie a conta de aluno e acompanhe o progresso de validação.' : 'Confira a entrega do programa com os registros do servidor.'
     const gate = document.querySelector('[data-admin-server-status]')
     try {
       const response = await fetch('/api/account', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })

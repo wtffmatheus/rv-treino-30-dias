@@ -23,7 +23,9 @@
       const notice = document.createElement('p')
       notice.dataset.qaAccount = 'true'
       notice.className = 'rv-qa-notice'
-      notice.textContent = 'Conta de teste · acesso de validação por 365 dias, sem cobrança. Seu progresso é salvo no servidor. Vídeos 1 a 29 disponíveis; dia 30 pendente.'
+      notice.textContent = result.isAdmin === true
+        ? 'Administração de teste · gerencie a conta de aluno e consulte o progresso de validação. Nenhuma compra ou cobrança é registrada.'
+        : 'Conta de teste · acesso de validação por 365 dias, sem cobrança. Seu progresso é salvo no servidor. Vídeos 1 a 29 disponíveis; dia 30 pendente.'
       document.querySelector('main')?.prepend(notice)
     }
     admin = result.ok && result.isAdmin === true
