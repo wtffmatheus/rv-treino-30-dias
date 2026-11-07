@@ -4,11 +4,11 @@
 // Never prints values, URLs, tokens, upstream messages, user records or responses.
 // All network requests are GET; PostgREST always receives limit=0.
 const REQUIRED_TABLES = {
-  rv30_products:'id,title,status,price_cents,currency,commercial_approved',
+  rv30_products:'id,title,status,price_cents,currency,commercial_approved,provider,access_days',
   rv30_profiles:'user_id,name,status',
   rv30_lessons:'product_id,day,title,is_published,storage_path',
-  rv30_orders:'id,user_id,product_id,amount_cents,currency,environment,status,payment_id',
-  rv30_entitlements:'user_id,product_id,environment,order_id,status',
+  rv30_orders:'id,user_id,product_id,amount_cents,currency,environment,status,payment_id,provider,approved_at,checkout_claimed_at',
+  rv30_entitlements:'user_id,product_id,environment,order_id,status,expires_at',
   rv30_progress:'user_id,product_id,environment,day',
   rv30_payment_events:'event_key,order_id,payment_id,provider_status,provider_updated_at,result'
 }
@@ -27,7 +27,9 @@ function allowedOrigin(value) {
 async function auditEnvironment({ env=process.env,fetchImpl=globalThis.fetch,now=()=>new Date() }={}) {
   const expected=['PUBLIC_SITE_URL','SUPABASE_URL','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','ADMIN_EMAIL',
     'PAYMENT_PROVIDER','PAYMENT_URL','MERCADO_PAGO_ACCESS_TOKEN','MERCADO_PAGO_WEBHOOK_SECRET','MERCADO_PAGO_COLLECTOR_ID',
-    'STONE_API_KEY','STONE_WEBHOOK_SECRET','RV30_SALES_ENABLED','VITE_ENABLE_PAYMENT_SIMULATION']
+    'STONE_API_KEY','STONE_WEBHOOK_SECRET','RV30_SALES_ENABLED','VITE_ENABLE_PAYMENT_SIMULATION',
+    'STONE_GATEWAY','STONE_PAGARME_SECRET_KEY','STONE_PAGARME_ACCOUNT_ID','STONE_INTEGRATION_VERIFIED','PAYMENT_ENVIRONMENT',
+    'ASAAS_API_KEY','ASAAS_ACCOUNT_ID','ASAAS_WEBHOOK_TOKEN','ASAAS_INTEGRATION_VERIFIED','ASAAS_WEBHOOK_UTC_OFFSET']
   const defined=Object.fromEntries(expected.map(key=>[key,Object.hasOwn(env,key)]))
   const flags=Object.fromEntries(expected.map(key=>[key,typeof env[key]==='string'&&env[key].trim().length>0]))
   const report = {

@@ -1,5 +1,8 @@
 # Validação do RV 30 — 25/10/2026
 
+> Situa??o atual em 07/11: [retomada, testes e pend?ncias](RETOMADA_RV30_20261107.md).
+> Os resultados e decis?es anteriores abaixo s?o hist?ricos.
+
 > Registro histórico. A revisão de 27/10 executou as seis auditorias Python
 > localmente, ampliou a suíte para 40 testes de navegador e confirmou a correção
 > do build Cloudflare. A situação atual do domínio e as limitações reais estão em

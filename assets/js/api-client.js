@@ -38,6 +38,7 @@
     const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100)
     document.querySelectorAll('[data-price-total], [data-order-total]').forEach(el => { el.textContent = api.priceCents ? money(api.priceCents) : 'A confirmar' })
     document.querySelectorAll('[data-price-daily], [data-order-daily]').forEach(el => { el.textContent = api.priceCents ? money(api.priceCents / 30) : 'A confirmar' })
+    document.querySelectorAll('[data-access-duration]').forEach(el => { el.textContent = String(api.accessDurationDays || 365) })
     document.querySelectorAll('.price-total, .order-lines, .order-total, .order-daily-note').forEach(el => { el.hidden = !api.priceCents })
   }
   api.ready = (async () => {
@@ -45,7 +46,14 @@
     api.configured = status.ok === true && status.configured === true
     api.serverMode = api.configured || !config.testMode
     api.salesEnabled = api.configured && status.salesEnabled === true
-    api.priceCents = api.salesEnabled && Number.isInteger(status.product?.priceCents) && status.product.priceCents > 0 ? status.product.priceCents : null
+    const approvedProduct = config.courses?.find(product => product.id === 'rv30' && product.commercialApproved === true)
+    const serverProduct = status.ok === true && status.product?.id === 'rv30' ? status.product : null
+    api.priceCents = serverProduct?.currency === 'BRL' && Number.isInteger(serverProduct.priceCents) && serverProduct.priceCents > 0
+      ? serverProduct.priceCents
+      : approvedProduct?.currency === 'BRL' && Number.isInteger(approvedProduct.priceCents) && approvedProduct.priceCents > 0 ? approvedProduct.priceCents : null
+    api.accessDurationDays = Number.isInteger(serverProduct?.accessDurationDays) && serverProduct.accessDurationDays > 0
+      ? serverProduct.accessDurationDays
+      : approvedProduct?.accessDurationDays || 365
     if (!api.serverMode) return
     // Real sessions never read the demonstration database, even on localhost.
     config.testMode = false

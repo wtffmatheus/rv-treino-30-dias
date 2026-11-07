@@ -26,7 +26,7 @@
       const available = course.status === 'available'
       const verifiedPrice = window.RVApi?.serverMode ? window.RVApi.priceCents : course.priceCents
       const price = available && verifiedPrice
-        ? `<strong>${money(verifiedPrice)}</strong><small>Programa com sequência de 30 dias</small>`
+        ? `<strong>${money(verifiedPrice)}</strong><small>Programa de 30 dias · ${course.accessDurationDays || 365} dias de acesso</small>`
         : '<strong>A confirmar</strong><small>Inscrições em preparação</small>'
 
       return `
@@ -56,13 +56,13 @@
     const enrollmentCopy = enrollmentOpen ? {
       '[data-sales-summary]': 'Inscrições disponíveis. Confira as condições do RV 30 antes de concluir a compra.',
       '[data-sales-label]': 'Inscrições disponíveis',
-      '[data-sales-detail]': 'Consulte as condições de pagamento e de acesso ao programa antes de concluir a compra.',
+      '[data-sales-detail]': 'R$ 399,00 pelo programa, com 365 dias de acesso a partir do pagamento aprovado. Consulte as formas de pagamento no checkout Asaas.',
       '[data-sales-faq]': 'Você pode iniciar sua inscrição pelos botões desta página. O acesso ao programa depende da confirmação do pagamento.'
     } : {
       '[data-sales-summary]': 'Inscrições em preparação. A compra será disponibilizada após a liberação do programa.',
       '[data-sales-label]': 'Inscrições em preparação',
-      '[data-sales-detail]': 'A compra ainda não está disponível. As condições finais serão apresentadas antes do pagamento.',
-      '[data-sales-faq]': 'As inscrições estão em preparação. A compra será liberada após a confirmação das condições de pagamento e da disponibilidade do programa.'
+      '[data-sales-detail]': 'O programa custa R$ 399,00 e oferece 365 dias de acesso após o pagamento aprovado. As inscrições serão liberadas após a preparação do checkout Asaas e das aulas.',
+      '[data-sales-faq]': 'As inscrições estão em preparação. O preço é R$ 399,00, com pagamento pela Asaas e acesso por 365 dias após a aprovação. A compra será liberada quando o checkout e as aulas estiverem disponíveis.'
     }
     Object.entries(enrollmentCopy).forEach(([selector, message]) => {
       document.querySelectorAll(selector).forEach((element) => { element.textContent = message })

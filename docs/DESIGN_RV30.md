@@ -1,6 +1,6 @@
 # RV 30 — identidade e referências
 
-Revisão de 26/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.
+Revisão de 27/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.
 
 ## Referências consultadas
 
@@ -21,7 +21,7 @@ Os princípios são interpretações de organização e hierarquia dessas págin
 - Segoe UI e Arial como fontes locais, sem dependência de download de fontes. Hierarquia consistente e espaço entre os blocos. A fonte Manrope inicialmente prevista foi substituída pelo conjunto local após indisponibilidade do download autorizado.
 - Fotografia independente do texto, com recorte próprio em celular, sem sobrepor a mensagem ao rosto da profissional.
 - Conteúdo comercial mais curto: programa, experiência, profissional, investimento, catálogo e dúvidas. Removidas as seções repetitivas e imagens de antes/depois cuja autorização e relação com o RV 30 não foram verificadas nesta etapa.
-- Valor total em destaque, com equivalência diária secundária; os 30 dias do programa não são apresentados como prazo de acesso. O valor de R$ 399,00 já constava no projeto e exige validação comercial antes da abertura de vendas.
+- Valor total em destaque, com equivalência diária secundária; os 30 dias do programa não são apresentados como prazo de acesso. O proprietário aprovou em 27/10/2026 o preço total de R$ 399,00, pagamento pela Stone e acesso de 365 dias a partir do pagamento aprovado, com encerramento automático no vencimento. Reembolso e contestação removem o acesso. As vendas continuam bloqueadas até a homologação das integrações.
 - Sem depoimentos inventados, garantia de resultado, prazo de reembolso ou credenciais acrescentadas.
 - Estados de indisponibilidade presentes. A prévia da área do aluno é expressamente ilustrativa e não afirma que vídeos pendentes já foram publicados.
 

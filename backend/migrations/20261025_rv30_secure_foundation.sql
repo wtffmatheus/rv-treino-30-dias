@@ -2,7 +2,7 @@
 -- Apply ONLY after reviewed backup + restore drill in a separate staging project.
 -- Existing rv_course_* tables, accounts, purchases and content remain untouched.
 begin;
-create extension if not exists pgcrypto;
+-- gen_random_uuid() is provided by PostgreSQL core (13+); pgcrypto is not required.
 
 -- Auth access JWTs may remain cryptographically valid after signout. This bounded
 -- service-only query checks the live Auth session after provider validation.
@@ -142,13 +142,21 @@ revoke all on public.rv30_products,public.rv30_profiles,public.rv30_lessons,publ
 grant all on public.rv30_products,public.rv30_profiles,public.rv30_lessons,public.rv30_orders,public.rv30_entitlements,public.rv30_progress,public.rv30_payment_events to service_role;
 grant select on public.rv30_profiles,public.rv30_orders,public.rv30_entitlements,public.rv30_progress to authenticated;
 drop policy if exists rv30_profile_own on public.rv30_profiles;
-create policy rv30_profile_own on public.rv30_profiles for select to authenticated using(user_id=auth.uid());
+create policy rv30_profile_own on public.rv30_profiles as restrictive for select to authenticated using(user_id=auth.uid());
+drop policy if exists rv30_profile_read on public.rv30_profiles;
+create policy rv30_profile_read on public.rv30_profiles for select to authenticated using(user_id=auth.uid());
 drop policy if exists rv30_order_own on public.rv30_orders;
-create policy rv30_order_own on public.rv30_orders for select to authenticated using(user_id=auth.uid());
+create policy rv30_order_own on public.rv30_orders as restrictive for select to authenticated using(user_id=auth.uid());
+drop policy if exists rv30_order_read on public.rv30_orders;
+create policy rv30_order_read on public.rv30_orders for select to authenticated using(user_id=auth.uid());
 drop policy if exists rv30_entitlement_own on public.rv30_entitlements;
-create policy rv30_entitlement_own on public.rv30_entitlements for select to authenticated using(user_id=auth.uid());
+create policy rv30_entitlement_own on public.rv30_entitlements as restrictive for select to authenticated using(user_id=auth.uid());
+drop policy if exists rv30_entitlement_read on public.rv30_entitlements;
+create policy rv30_entitlement_read on public.rv30_entitlements for select to authenticated using(user_id=auth.uid());
 drop policy if exists rv30_progress_own on public.rv30_progress;
-create policy rv30_progress_own on public.rv30_progress for select to authenticated using(user_id=auth.uid());
+create policy rv30_progress_own on public.rv30_progress as restrictive for select to authenticated using(user_id=auth.uid());
+drop policy if exists rv30_progress_read on public.rv30_progress;
+create policy rv30_progress_read on public.rv30_progress for select to authenticated using(user_id=auth.uid());
 
 -- Storage private; every playback URL must be signed by the authorized server.
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)

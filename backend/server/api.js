@@ -2,6 +2,8 @@
 
 // No secrets, provider tokens or session identifiers are returned to JavaScript.
 const crypto = require('node:crypto')
+const {createAsaasClient,AsaasError}=require('./asaas')
+const {PRICE_CENTS,CURRENCY,ACCESS_DAYS,PROVIDER,isEntitlementActive,entitlementState}=require('../access-terms')
 /** @typedef {'pending'|'approved'|'declined'|'canceled'|'refunded'|'chargeback'} PaymentStatus */
 /** @typedef {'test'|'production'} PaymentEnvironment */
 /**
@@ -17,21 +19,12 @@ const crypto = require('node:crypto')
  * @property {string|null} [payment_id]
  * @property {string|null} [checkout_url]
  * @property {boolean} [manual_review]
+ * @property {string} [provider]
+ * @property {string|null} [preference_id]
  */
-/**
- * @typedef {object} ProviderPayment
- * @property {number|string} id
- * @property {string} external_reference
- * @property {{order_id?:string,product_id?:string,user_id?:string}} [metadata]
- * @property {number|string} transaction_amount
- * @property {string} currency_id
- * @property {boolean} live_mode
- * @property {number|string} collector_id
- * @property {string} status
- * @property {string} date_last_updated
- */
+
 /** @typedef {{user_id:string,name?:string,status?:'active'|'blocked'|'pending'}} Profile */
-/** @typedef {{order_id:string,status:'active'|'revoked'|'expired'}} Entitlement */
+/** @typedef {{order_id:string,status:'active'|'revoked'|'expired',expires_at?:string|null}} Entitlement */
 /** @typedef {{day:number,title?:string,description?:string,is_published:boolean,storage_path?:string|null,storage_verified?:boolean}} Lesson */
 /** @typedef {{available:boolean,confirmed:boolean,status:PaymentStatus|null,mismatch?:boolean}} ProviderDiagnostic */
 /** @typedef {{token:string,userId:string,expiresAt:number}} Session */
@@ -40,8 +33,6 @@ const crypto = require('node:crypto')
 /** @typedef {import('node:http').ServerResponse} OutgoingResponse */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const emailOf = value => String(value || '').trim().toLowerCase()
-/** @type {Record<string,PaymentStatus>} */
-const paymentStates = { pending:'pending', in_process:'pending', authorized:'pending', approved:'approved', rejected:'declined', cancelled:'canceled', refunded:'refunded', charged_back:'chargeback' }
 class ApiError extends Error {
   /** @param {number} status @param {string} code @param {string} message */
   constructor(status, code, message) { super(message); this.status=status; this.code=code }
@@ -49,42 +40,8 @@ class ApiError extends Error {
 /** @param {number} status @param {string} code @param {string} message @returns {never} */
 const fail = (status, code, message) => { throw new ApiError(status, code, message) }
 
-/** @param {{signature:string,requestId:string,dataId:string,secret:string,now?:number}} input */
-function verifySignature({ signature, requestId, dataId, secret, now = Date.now() }) {
-  if (!secret || !requestId || !/^[a-zA-Z0-9_-]{1,120}$/.test(String(dataId || ''))) return false
-  const fields = Object.fromEntries(String(signature || '').split(',').map(part => part.trim().split('=')))
-  if (!/^\d{10,13}$/.test(fields.ts || '') || !/^[a-f0-9]{64}$/i.test(fields.v1 || '')) return false
-  const milliseconds = fields.ts.length === 13 ? Number(fields.ts) : Number(fields.ts) * 1000
-  if (Math.abs(now - milliseconds) > 5 * 60 * 1000) return false
-  const canonical = `id:${String(dataId).toLowerCase()};request-id:${requestId};ts:${fields.ts};`
-  const expected = crypto.createHmac('sha256', secret).update(canonical).digest()
-  return crypto.timingSafeEqual(expected, Buffer.from(fields.v1, 'hex'))
-}
-
-/** @param {ProviderPayment} payment @param {Order} order @param {PaymentEnvironment} environment @param {string} collectorId */
-function validatePayment(payment, order, environment, collectorId) {
-  const status = Object.hasOwn(paymentStates,payment.status) ? paymentStates[payment.status] : undefined
-  const amount = Number(payment.transaction_amount)
-  const checks = [
-    status,
-    String(payment.external_reference) === order.id,
-    payment.metadata?.order_id === order.id,
-    payment.metadata?.product_id === order.product_id,
-    payment.metadata?.user_id === order.user_id,
-    payment.currency_id === order.currency,
-    Number.isFinite(amount) && Math.abs(amount * 100 - order.amount_cents) < 0.00001,
-    payment.live_mode === (environment === 'production'),
-    order.environment === environment,
-    String(payment.collector_id) === String(collectorId),
-    (!order.payment_id || String(payment.id) === order.payment_id || ['pending','declined','canceled'].includes(order.status)),
-    Number.isFinite(Date.parse(payment.date_last_updated))
-  ]
-  if (checks.some(check => !check)) fail(422, 'PAYMENT_MISMATCH', 'O pagamento não corresponde ao pedido, comprador, produto, valor ou ambiente esperado.')
-  return { status, paymentId: String(payment.id), updatedAt: payment.date_last_updated }
-}
-
 /** @param {{order:Order,profile:Profile|null,entitlement:Entitlement|null,lessons:Lesson[],provider:ProviderDiagnostic}} input */
-function deliveryResult({ order, profile, entitlement, lessons, provider }) {
+function deliveryResult({ order, profile, entitlement, lessons, provider },currentTime=Date.now()) {
   const availableDays = new Set(lessons.filter(row => row.is_published && row.storage_path && row.storage_verified !== false && Number.isInteger(row.day) && row.day >= 1 && row.day <= 30).map(row => row.day))
   const missingDays = Array.from({ length:30 }, (_, i) => i + 1).filter(day => !availableDays.has(day))
   const reasons = []
@@ -94,14 +51,15 @@ function deliveryResult({ order, profile, entitlement, lessons, provider }) {
   if (!provider.available) reasons.push('Confirmação atual do provedor indisponível; o status local não substitui esta consulta.')
   else if (!provider.confirmed) reasons.push('O provedor não confirmou um pagamento aprovado correspondente ao pedido.')
   if (order.status !== 'approved') reasons.push(`Pedido com status ${order.status}.`)
-  if (order.manual_review) reasons.push('Reembolso ou contestação aguardando definição da política comercial de acesso.')
-  if (!entitlement || entitlement.status !== 'active' || entitlement.order_id !== order.id) reasons.push('Direito de acesso ativo e vinculado a este pedido não encontrado.')
+  if (order.manual_review) reasons.push('Este pedido requer conciliação antes da liberação do acesso.')
+  const accessActive=isEntitlementActive(entitlement,currentTime)
+  if (!accessActive || entitlement.order_id !== order.id) reasons.push('Direito de acesso vigente, dentro dos 365 dias e vinculado a este pedido não encontrado.')
   if (missingDays.length) reasons.push(`${missingDays.length} dia(s) ainda sem vídeo privado publicado.`)
-  const error = order.product_id !== 'rv30' || !profile || profile.user_id !== order.user_id || profile.status && profile.status !== 'active' || provider.mismatch || (order.status === 'approved' && (!entitlement || entitlement.status !== 'active' || entitlement.order_id !== order.id))
+  const error = order.product_id !== 'rv30' || !profile || profile.user_id !== order.user_id || profile.status && profile.status !== 'active' || provider.mismatch || (order.status === 'approved' && (!accessActive || entitlement.order_id !== order.id))
   return { ok:true, result:reasons.length ? (error ? 'error' : 'pending') : 'correct', reasons,
     order:{ id:order.id, courseId:order.product_id, status:order.status, amountCents:order.amount_cents, currency:order.currency, environment:order.environment },
     product:{ id:'rv30', title:'RV 30' }, account:profile ? { id:order.user_id, email:order.buyer_email } : null,
-    provider, entitlement:{ exists:Boolean(entitlement), status:entitlement?.status || 'missing' },
+    provider, entitlement:{ exists:Boolean(entitlement), status:entitlementState(entitlement,currentTime),expiresAt:entitlement?.expires_at||null },
     lessons:{ expected:30, available:availableDays.size, missingDays }
   }
 }
@@ -120,7 +78,8 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
   const attempts = new Map()
   const cookieName = production ? '__Host-rv30_session' : 'rv30_session'
   const adminEmail = emailOf(env.ADMIN_EMAIL)
-  const paymentReady = () => configured && env.PAYMENT_PROVIDER === 'mercado_pago' && Boolean(env.MERCADO_PAGO_ACCESS_TOKEN && env.MERCADO_PAGO_WEBHOOK_SECRET && env.MERCADO_PAGO_COLLECTOR_ID) && env.RV30_SALES_ENABLED === 'true'
+  const payments=createAsaasClient({env,fetchImpl,now})
+  const paymentReady = () => configured && payments.configured && env.RV30_SALES_ENABLED === 'true'
 
   /** @param {OutgoingResponse} res @param {number} status @param {unknown} body */
   function send(res, status, body) {
@@ -228,14 +187,12 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
   /** @param {string} userId */
   async function access(userId) {
     /** @type {Entitlement|null} */
-    const entitlement = first(await db('rv30_entitlements', { user_id:`eq.${userId}`, product_id:'eq.rv30', environment:`eq.${environment}`, status:'eq.active', select:'user_id,product_id,status,order_id' }))
-    if (!entitlement) fail(403, 'PURCHASE_REQUIRED', 'Seu acesso ao RV 30 ainda não foi confirmado.')
+    const entitlement = first(await db('rv30_entitlements', { user_id:`eq.${userId}`, product_id:'eq.rv30', environment:`eq.${environment}`, status:'eq.active',expires_at:`gt.${new Date(now()).toISOString()}`,select:'user_id,product_id,status,order_id,expires_at' }))
+    if (!isEntitlementActive(entitlement,now())) fail(403, 'PURCHASE_REQUIRED', 'Seu acesso ao RV 30 não está vigente. O programa fica disponível por 365 dias após a confirmação do pagamento.')
     return entitlement
   }
-  /** @param {string} paymentId @returns {Promise<ProviderPayment>} */
-  const mp = paymentId => request(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, { headers:{ Authorization:`Bearer ${env.MERCADO_PAGO_ACCESS_TOKEN}` } })
   /** @param {Order} order */
-  const safeOrder = order => ({ id:order.id, courseId:order.product_id, status:order.status, amountCents:order.amount_cents, currency:order.currency, environment:order.environment, checkoutUrl:order.checkout_url || null })
+  const safeOrder = order => ({ id:order.id, courseId:order.product_id, status:order.status, amountCents:order.amount_cents, currency:order.currency,provider:order.provider,environment:order.environment,checkoutUrl:order.checkout_url&&order.provider===PROVIDER?`/api/orders/${order.id}/checkout`:null })
 
   /** @param {IncomingRequest} req @param {OutgoingResponse} res @returns {Promise<boolean>} */
   return async function handleApi(req, res) {
@@ -244,15 +201,15 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
     try {
       if (production && (!origin.startsWith('https://') || String(req.headers['x-forwarded-proto'] || '').split(',')[0] !== 'https' && !('encrypted' in req.socket && req.socket.encrypted))) fail(400, 'HTTPS_REQUIRED', 'Conexão segura necessária.')
       limit(req, 'api', 180)
-      const webhook = url.pathname === '/api/webhooks/mercado-pago'
+      const webhook = url.pathname === '/api/webhooks/asaas'
       if (!['GET','HEAD'].includes(req.method) && !webhook && req.headers.origin !== origin) fail(403, 'ORIGIN_REJECTED', 'Origem da solicitação não autorizada.')
       if (req.method === 'GET' && url.pathname === '/api/config') {
         let product = null
         if (paymentReady()) {
-          try { product = first(await db('rv30_products', { id:'eq.rv30',status:'eq.active',select:'id,price_cents,currency,commercial_approved' })) } catch {}
+          try { product = first(await db('rv30_products', { id:'eq.rv30',status:'eq.active',select:'id,price_cents,currency,provider,access_days,commercial_approved' })) } catch {}
         }
-        const salesEnabled = Boolean(paymentReady() && product?.commercial_approved === true && Number.isInteger(product?.price_cents) && product.price_cents > 0 && product.currency === 'BRL')
-        send(res, 200, { ok:true, configured, salesEnabled, environment, product:{ id:'rv30', title:'RV 30', totalDays:30, ...(salesEnabled ? {priceCents:product.price_cents,currency:product.currency} : {}) } }); return true
+        const salesEnabled = Boolean(paymentReady() && product?.commercial_approved === true && product.price_cents===PRICE_CENTS && product.currency===CURRENCY && product.provider===PROVIDER && product.access_days===ACCESS_DAYS)
+        send(res, 200, { ok:true, configured, salesEnabled, environment, product:{id:'rv30',title:'RV 30',totalDays:30,priceCents:PRICE_CENTS,currency:CURRENCY,provider:PROVIDER,accessDurationDays:ACCESS_DAYS} }); return true
       }
       if (!configured || !origin) fail(503, 'BACKEND_NOT_CONFIGURED', 'O acesso seguro ainda está em configuração. As inscrições permanecem indisponíveis.')
       if (req.method === 'POST' && url.pathname.startsWith('/api/auth/')) {
@@ -300,25 +257,25 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
       }
       if (req.method === 'POST' && webhook) {
         limit(req, 'webhook', 100)
-        if (!env.MERCADO_PAGO_WEBHOOK_SECRET || !env.MERCADO_PAGO_ACCESS_TOKEN || !env.MERCADO_PAGO_COLLECTOR_ID) fail(503, 'PAYMENT_NOT_CONFIGURED', 'Integração de pagamento indisponível.')
+        if (!payments.configured) fail(503, 'PAYMENT_NOT_CONFIGURED', 'A integração de pagamento ainda não está disponível.')
         const body = await readBody(req)
-        const dataId = url.searchParams.get('data.id')
-        if (!dataId || String(body.data?.id) !== dataId || body.type !== 'payment' || !verifySignature({ signature:String(req.headers['x-signature'] || ''), requestId:String(req.headers['x-request-id'] || ''), dataId, secret:env.MERCADO_PAGO_WEBHOOK_SECRET, now:now() })) fail(401, 'INVALID_SIGNATURE', 'Notificação não autenticada.')
-        const payment = await mp(dataId)
-        if (String(payment.id) !== dataId) fail(422, 'PAYMENT_MISMATCH', 'Identificador de pagamento divergente.')
-        if (!UUID.test(String(payment.external_reference || ''))) fail(422, 'UNKNOWN_ORDER', 'Pedido não reconhecido.')
-        const order = first(await db('rv30_orders', { id:`eq.${payment.external_reference}`, select:'*' }))
+        const notification=await payments.notification(body,req.headers['asaas-access-token'])
+        if(notification.ignored){send(res,200,{ok:true,ignored:true});return true}
+        const remote=notification.remote
+        const matchedOrders=await db('rv30_orders', { preference_id:`eq.${notification.checkoutId}`,provider:'eq.asaas',environment:`eq.${environment}`,select:'*' })
+        if(!Array.isArray(matchedOrders)||matchedOrders.length!==1)fail(422,'ORDER_REVIEW_REQUIRED','O vínculo entre o pagamento e o pedido precisa de conferência.')
+        const order=matchedOrders[0]
         if (!order) fail(422, 'UNKNOWN_ORDER', 'Pedido não reconhecido.')
-        const valid = validatePayment(payment, order, environment, env.MERCADO_PAGO_COLLECTOR_ID)
+        const valid = payments.validate(remote,order,notification.event)
         // Transactional function locks the order and ignores stale/repeated provider versions.
-        await db('rpc/rv30_apply_payment', {}, { method:'POST', body:{ p_order_id:order.id, p_payment_id:valid.paymentId, p_status:valid.status, p_provider_updated_at:valid.updatedAt, p_event_key:crypto.createHash('sha256').update(`${dataId}:${valid.updatedAt}:${valid.status}`).digest('hex'), p_refund_policy:env.RV30_REFUND_ACCESS_POLICY || 'review' } })
+        await db('rpc/rv30_apply_payment', {}, { method:'POST', body:{ p_order_id:order.id, p_payment_id:valid.paymentId, p_status:valid.status, p_provider_updated_at:valid.updatedAt, p_event_key:crypto.createHash('sha256').update(`asaas:${notification.eventId}`).digest('hex'), p_refund_policy:'revoke',p_approved_at:valid.approvedAt } })
         send(res, 200, { ok:true }); return true
       }
       const context = await userFor(req, url.pathname.startsWith('/api/admin/'))
       const { user, profile, isAdmin } = context
       if (req.method === 'GET' && url.pathname === '/api/account') {
-        const entitlements = await db('rv30_entitlements', { user_id:`eq.${user.id}`, environment:`eq.${environment}`, select:'product_id,status' })
-        send(res, 200, { ok:true, account:{ id:user.id, email:user.email, name:profile.name, status:profile.status, entitlements:entitlements.filter(item => item.status === 'active').map(item => item.product_id) }, isAdmin }); return true
+        const entitlements = await db('rv30_entitlements', { user_id:`eq.${user.id}`, environment:`eq.${environment}`, select:'product_id,status,expires_at' })
+        send(res, 200, { ok:true, account:{id:user.id,email:user.email,name:profile.name,status:profile.status,entitlements:entitlements.filter(item=>isEntitlementActive(item,now())).map(item=>item.product_id),access:entitlements.map(item=>({courseId:item.product_id,status:item.status==='active'&&!isEntitlementActive(item,now())?'expired':item.status,expiresAt:item.expires_at||null}))},isAdmin }); return true
       }
       if (req.method === 'GET' && url.pathname === '/api/courses/rv30') {
         await access(user.id)
@@ -328,17 +285,19 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
       }
       const videoDay = url.pathname.match(/^\/api\/courses\/rv30\/days\/(\d+)\/video$/)?.[1]
       if (req.method === 'GET' && videoDay !== undefined) {
-        await access(user.id)
+        const entitlement=await access(user.id)
         const day = Number(videoDay)
         if (!Number.isInteger(day) || day < 1 || day > 30) fail(400, 'INVALID_DAY', 'Dia inválido.')
         const lesson = first(await db('rv30_lessons', { product_id:'eq.rv30', day:`eq.${day}`, select:'day,is_published,storage_path' }))
         if (!lesson?.is_published || !lesson.storage_path) fail(404, 'VIDEO_PENDING', 'A aula deste dia ainda não está disponível.')
         const storagePath = lesson.storage_path.split('/').map(encodeURIComponent).join('/')
-        const signed = await request(`${env.SUPABASE_URL}/storage/v1/object/sign/rv30-videos/${storagePath}`, { method:'POST', headers:{ apikey:env.SUPABASE_SERVICE_ROLE_KEY, Authorization:`Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn:120 }) })
+        const expiresIn=Math.min(120,Math.floor((Date.parse(entitlement.expires_at)-now())/1000))
+        if(expiresIn<1)fail(403,'ACCESS_EXPIRED','Seu período de acesso ao RV 30 terminou.')
+        const signed = await request(`${env.SUPABASE_URL}/storage/v1/object/sign/rv30-videos/${storagePath}`, { method:'POST', headers:{ apikey:env.SUPABASE_SERVICE_ROLE_KEY, Authorization:`Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn }) })
         if (typeof signed?.signedURL !== 'string') fail(503, 'VIDEO_UNAVAILABLE', 'Vídeo temporariamente indisponível.')
         const signedUrl = new URL(signed.signedURL.startsWith('/object/') ? `${env.SUPABASE_URL}/storage/v1${signed.signedURL}` : signed.signedURL, `${env.SUPABASE_URL}/storage/v1/`)
         if (signedUrl.origin !== new URL(env.SUPABASE_URL).origin) fail(503, 'VIDEO_UNAVAILABLE', 'Vídeo temporariamente indisponível.')
-        send(res, 200, { ok:true, url:signedUrl.toString(), expiresIn:120 }); return true
+        send(res, 200, { ok:true, url:signedUrl.toString(), expiresIn }); return true
       }
       const progressDay = url.pathname.match(/^\/api\/courses\/rv30\/progress\/(\d+)$/)?.[1]
       if (req.method === 'PUT' && progressDay !== undefined) {
@@ -357,28 +316,38 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
         if (!paymentReady()) fail(503, 'SALES_DISABLED', 'As inscrições ainda não estão disponíveis.')
         const body = await readBody(req)
         if (body.productId !== 'rv30') fail(400, 'INVALID_PRODUCT', 'Produto inválido.')
-        const product = first(await db('rv30_products', { id:'eq.rv30', status:'eq.active', select:'id,title,price_cents,currency,commercial_approved' }))
-        if (!product?.commercial_approved || !Number.isInteger(product.price_cents) || product.price_cents <= 0 || product.currency !== 'BRL') fail(503, 'PRODUCT_PENDING', 'As condições comerciais ainda precisam de confirmação.')
+        const product = first(await db('rv30_products', { id:'eq.rv30', status:'eq.active', select:'id,title,price_cents,currency,provider,access_days,commercial_approved' }))
+        if (!product?.commercial_approved || product.price_cents!==PRICE_CENTS || product.currency!==CURRENCY || product.provider!==PROVIDER || product.access_days!==ACCESS_DAYS) fail(503, 'PRODUCT_PENDING', 'As condições comerciais ainda precisam de confirmação.')
+        const existingAccess=first(await db('rv30_entitlements',{user_id:`eq.${user.id}`,product_id:'eq.rv30',environment:`eq.${environment}`,select:'status,expires_at'}))
+        if(isEntitlementActive(existingAccess,now()))fail(409,'ACCESS_ALREADY_ACTIVE','Você já tem acesso ativo ao RV 30. Continue pela área do aluno.')
         const key = typeof req.headers['idempotency-key'] === 'string' ? req.headers['idempotency-key'] : ''
         if (!/^[a-zA-Z0-9_-]{16,100}$/.test(key || '')) fail(400, 'IDEMPOTENCY_REQUIRED', 'Identificador de compra inválido.')
         let order = first(await db('rv30_orders', { user_id:`eq.${user.id}`, environment:`eq.${environment}`, idempotency_key:`eq.${key}`, select:'*' }))
         if (!order) {
           const orderId = crypto.randomUUID()
-          order = first(await db('rv30_orders', { on_conflict:'user_id,idempotency_key,environment' }, { method:'POST', body:{ id:orderId, user_id:user.id, buyer_email:emailOf(user.email), product_id:'rv30', amount_cents:product.price_cents, currency:product.currency, environment, idempotency_key:key }, prefer:'resolution=ignore-duplicates,return=representation' }))
+          order = first(await db('rv30_orders', { on_conflict:'user_id,idempotency_key,environment' }, { method:'POST', body:{ id:orderId, user_id:user.id, buyer_email:emailOf(user.email), product_id:'rv30',provider:PROVIDER, amount_cents:PRICE_CENTS, currency:CURRENCY, environment, idempotency_key:key }, prefer:'resolution=ignore-duplicates,return=representation' }))
           if (!order) order = first(await db('rv30_orders', { user_id:`eq.${user.id}`, environment:`eq.${environment}`, idempotency_key:`eq.${key}`, select:'*' }))
         }
         if (!order) fail(503, 'ORDER_PENDING', 'Não foi possível preparar seu pedido. Tente novamente.')
+        if(order.provider!==PROVIDER||order.product_id!=='rv30'||order.amount_cents!==PRICE_CENTS||order.currency!==CURRENCY||order.user_id!==user.id||order.environment!==environment)fail(409,'ORDER_MISMATCH','O pedido não corresponde à inscrição solicitada.')
         if (order.status !== 'pending') { send(res, 200, { ok:true, order:{ ...safeOrder(order), checkoutUrl:null } }); return true }
         if (!order.checkout_url) {
-          const preference = await request('https://api.mercadopago.com/checkout/preferences', { method:'POST', headers:{ Authorization:`Bearer ${env.MERCADO_PAGO_ACCESS_TOKEN}`, 'Content-Type':'application/json', 'X-Idempotency-Key':order.id }, body:JSON.stringify({ items:[{ id:'rv30', title:'RV 30', quantity:1, currency_id:order.currency, unit_price:order.amount_cents / 100 }], external_reference:order.id, metadata:{ order_id:order.id, product_id:'rv30', user_id:user.id }, notification_url:`${origin}/api/webhooks/mercado-pago`, back_urls:{ success:`${origin}/pagamento/sucesso?pedido=${order.id}`, pending:`${origin}/pagamento/sucesso?pedido=${order.id}`, failure:`${origin}/checkout/rv30` } }) })
-          const checkoutUrl = environment === 'test' ? preference.sandbox_init_point : preference.init_point
-          let checkout
-          try { checkout = new URL(checkoutUrl) } catch { fail(503, 'CHECKOUT_UNAVAILABLE', 'Checkout temporariamente indisponível.') }
-          if (checkout.protocol !== 'https:' || !['mercadopago.com','mercadopago.com.br'].some(host => checkout.hostname === host || checkout.hostname.endsWith(`.${host}`))) fail(503, 'CHECKOUT_UNAVAILABLE', 'Checkout temporariamente indisponível.')
-          await db('rv30_orders', { id:`eq.${order.id}`, user_id:`eq.${user.id}` }, { method:'PATCH', body:{ checkout_url:checkoutUrl, preference_id:String(preference.id) } })
-          order.checkout_url = checkoutUrl
+          const claimed=await db('rpc/rv30_claim_checkout',{}, {method:'POST',body:{p_order_id:order.id,p_user_id:user.id,p_environment:environment}})
+          if(claimed!==true)fail(409,'CHECKOUT_PENDING','O pagamento está sendo preparado ou precisa de conferência. Tente consultar novamente mais tarde.')
+          const checkout=await payments.createCheckout(order)
+          await db('rv30_orders', { id:`eq.${order.id}`, user_id:`eq.${user.id}`,provider:'eq.asaas',environment:`eq.${environment}` }, { method:'PATCH', body:{ checkout_url:checkout.url,preference_id:checkout.id } })
+          order.checkout_url=checkout.url;order.preference_id=checkout.id
         }
         send(res, 200, { ok:true, order:safeOrder(order) }); return true
+      }
+      const checkoutOrderId=url.pathname.match(/^\/api\/orders\/([a-f0-9-]+)\/checkout$/i)?.[1]
+      if(req.method==='GET'&&checkoutOrderId&&UUID.test(checkoutOrderId)){
+        if(!paymentReady())fail(503,'SALES_DISABLED','As inscrições ainda não estão disponíveis.')
+        const order=first(await db('rv30_orders',{id:`eq.${checkoutOrderId}`,user_id:`eq.${user.id}`,provider:'eq.asaas',environment:`eq.${environment}`,select:'*'}))
+        if(!order)fail(404,'ORDER_NOT_FOUND','Pedido não encontrado.')
+        const target=order.status==='pending'&&order.amount_cents===PRICE_CENTS&&order.currency===CURRENCY&&order.product_id==='rv30'&&payments.checkoutURL(order.checkout_url,order.preference_id)
+        if(!target)fail(409,'CHECKOUT_UNAVAILABLE','Este pedido não tem um pagamento disponível.')
+        res.writeHead(303,{'Location':target,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});res.end();return true
       }
       const orderId = url.pathname.match(/^\/api\/orders\/([a-f0-9-]+)$/i)?.[1]
       if (req.method === 'GET' && orderId && UUID.test(orderId)) {
@@ -393,15 +362,15 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
         if (!order) fail(404, 'ORDER_NOT_FOUND', 'Pedido não encontrado.')
         const [profileRows, entitlementRows, lessons] = await Promise.all([
           db('rv30_profiles', { user_id:`eq.${order.user_id}`, select:'user_id,status' }),
-          db('rv30_entitlements', { user_id:`eq.${order.user_id}`, product_id:'eq.rv30', environment:`eq.${order.environment}`, select:'order_id,status' }),
+          db('rv30_entitlements', { user_id:`eq.${order.user_id}`, product_id:'eq.rv30', environment:`eq.${order.environment}`, select:'order_id,status,expires_at' }),
           db('rv30_lessons', { product_id:'eq.rv30', select:'day,is_published,storage_path' })
         ])
         /** @type {ProviderDiagnostic} */
         let provider = { available:false, confirmed:false, status:null }
-        if (order.payment_id && env.MERCADO_PAGO_ACCESS_TOKEN && env.MERCADO_PAGO_COLLECTOR_ID) {
+        if (order.provider===PROVIDER&&order.payment_id&&payments.configured) {
           try {
-            const payment = await mp(order.payment_id)
-            const validation = validatePayment(payment, order, environment, env.MERCADO_PAGO_COLLECTOR_ID)
+            const payment = await payments.order(order.payment_id)
+            const validation = payments.validate(payment,order)
             provider = { available:true, confirmed:validation.status === 'approved', status:validation.status }
           } catch (error) { provider = { available:false, confirmed:false, status:null, mismatch:error.code === 'PAYMENT_MISMATCH' } }
         }
@@ -412,14 +381,15 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
             lesson.storage_verified = true
           } catch { lesson.storage_verified = false }
         }))
-        send(res, 200, deliveryResult({ order, profile:first(profileRows), entitlement:first(entitlementRows), lessons, provider })); return true
+        send(res, 200, deliveryResult({ order, profile:first(profileRows), entitlement:first(entitlementRows), lessons, provider },now())); return true
       }
       fail(404, 'API_NOT_FOUND', 'Operação não encontrada.')
     } catch (error) {
-      send(res, error instanceof ApiError ? error.status : 500, { ok:false, code:error instanceof ApiError ? error.code : 'INTERNAL_ERROR', message:error instanceof ApiError ? error.message : 'Não foi possível concluir a operação. Tente novamente.' })
+      const expected=error instanceof ApiError||error instanceof AsaasError
+      send(res, expected ? error.status : 500, { ok:false, code:expected ? error.code : 'INTERNAL_ERROR', message:expected ? error.message : 'Não foi possível concluir a operação. Tente novamente.' })
       return true
     }
   }
 }
 
-module.exports = { createApi, verifySignature, validatePayment, deliveryResult, ApiError }
+module.exports = { createApi, deliveryResult, ApiError }

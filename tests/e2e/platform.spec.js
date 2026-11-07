@@ -404,7 +404,7 @@ test('marca institucional RV Fisiologia e pacote RV 30 sem textos quebrados no c
   expect(catalog).not.toMatch(/vÃ|orientaÃ|diÃ|ForÃ|EspaÃ|comentÃ|�/)
 })
 
-test('valor total em destaque e equivalência diária identificada sem inventar prazo de acesso', async ({ page }) => {
+test('preço aprovado e acesso de 365 dias separados da sequência de 30 dias', async ({ page }) => {
   await page.goto('/')
   const price = page.locator('#investimento')
   await expect(price.locator('.price-main')).toContainText('R$ 399,00')
@@ -414,10 +414,21 @@ test('valor total em destaque e equivalência diária identificada sem inventar 
   const accessFaq = page.locator('details').filter({ hasText: 'Os 30 dias são o prazo de acesso?' })
   await accessFaq.locator('summary').click()
   await expect(accessFaq.locator('p')).toContainText('Os 30 dias descrevem a sequência do programa')
+  await expect(accessFaq.locator('p')).toContainText('365 dias de acesso')
+  await expect(accessFaq.locator('p')).toContainText('pagamento aprovado')
+  await expect(accessFaq.locator('p')).toContainText('encerrado automaticamente')
+  await expect(accessFaq.locator('p')).toContainText('Sua conta e seu histórico são mantidos')
+  await expect(price.locator('.rv30-access-term')).toContainText('365 dias de acesso')
   await expect(page.locator('.mobile-buybar')).toContainText('R$ 399,00')
   await page.goto('/checkout/rv30')
   await expect(page.locator('.order-total')).toContainText('R$ 399,00')
   await expect(page.locator('.order-product')).toContainText('30 dias')
+  await expect(page.locator('.rv30-access-term')).toContainText('365 dias de acesso')
+  await expect(page.locator('.secure-note')).toContainText('Asaas')
+  await page.goto('/termos')
+  await expect(page.locator('.legal-shell')).toContainText('R$ 399,00')
+  await expect(page.locator('.legal-shell')).toContainText('365 dias, contados a partir do pagamento aprovado')
+  await expect(page.locator('.legal-shell')).toContainText('o acesso ao programa é removido')
 })
 
 test('RV 30 conserva disposição mobile e bloqueia vendas públicas sem backend', async ({ page }) => {

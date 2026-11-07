@@ -8,7 +8,7 @@ const ORDER = '33333333-3333-4333-8333-333333333333'
 async function mockApi(page, options = {}) {
   const state = {
     authenticated: false, role: 'student', loginAs: 'student', purchased: false,
-    salesEnabled: false, orderStatus: 'pending', videoAvailable: false,
+    salesEnabled: false, priceCents: 39900, orderStatus: 'pending', videoAvailable: false,
     videoError: 'A aula está temporariamente indisponível. Tente novamente.',
     verifyUsed: false, ...options
   }
@@ -20,7 +20,7 @@ async function mockApi(page, options = {}) {
     try { body = request.postDataJSON() } catch {}
     calls.push({ path: url.pathname, search: url.search, method: request.method(), body, headers: await request.allHeaders() })
     const json = (value, status = 200, headers = {}) => route.fulfill({ status, contentType: 'application/json', headers: { 'Cache-Control': 'no-store', ...headers }, body: JSON.stringify(value) })
-    if (url.pathname === '/api/config') return json({ ok: true, configured: true, salesEnabled: state.salesEnabled, environment: 'test', product: { id: 'rv30', title: 'RV 30', totalDays: 30, ...(state.priceCents === undefined ? {} : { priceCents: state.priceCents, currency: 'BRL' }) } })
+    if (url.pathname === '/api/config') return json({ ok: true, configured: true, salesEnabled: state.salesEnabled, environment: 'test', product: { id: 'rv30', title: 'RV 30', totalDays: 30, accessDurationDays: 365, paymentProvider: 'asaas', ...(state.priceCents === undefined ? {} : { priceCents: state.priceCents, currency: 'BRL' }) } })
     if (url.pathname === '/api/account') {
       if (!state.authenticated) return json({ ok: false, code: 'AUTH_REQUIRED', message: 'Entre novamente para continuar.' }, 401)
       return json({ ok: true, account: { id: USER, name: 'Conta de teste', email: state.role === 'admin' ? 'responsavel@example.test' : 'novo@example.test', status: 'active', entitlements: state.purchased ? ['rv30'] : [] }, isAdmin: state.role === 'admin' })
@@ -56,7 +56,13 @@ async function mockApi(page, options = {}) {
     }
     if (url.pathname === '/api/orders' && request.method() === 'POST') {
       if (!state.authenticated || !state.salesEnabled) return json({ ok: false, message: 'As inscrições ainda não estão disponíveis.' }, 503)
-      return json({ ok: true, order: { id: ORDER, courseId: 'rv30', status: 'pending', amountCents: state.priceCents, currency: 'BRL', checkoutUrl: 'https://sandbox.mercadopago.com.br/checkout/rv30-mocked-only' } })
+      return json({ ok: true, order: { id: ORDER, courseId: 'rv30', status: 'pending', amountCents: state.priceCents, currency: 'BRL', checkoutUrl: state.checkoutUrl === undefined ? `/api/orders/${ORDER}/checkout` : state.checkoutUrl } })
+    }
+    if (url.pathname === `/api/orders/${ORDER}/checkout`) {
+      if (!state.authenticated) return json({ ok: false, code: 'AUTH_REQUIRED', message: 'Entre novamente para continuar.' }, 401)
+      // Browser test stays offline; the real handler's 303/host validation is
+      // exercised by backend_security_test.js rather than contacting Asaas.
+      return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html lang="pt-BR"><title>Checkout Asaas simulado</title><h1>Checkout simulado pelo teste</h1></html>'})
     }
     if (url.pathname === '/api/admin/delivery') {
       if (!state.authenticated || state.role !== 'admin') return json({ ok: false, message: 'Acesso administrativo não autorizado.' }, 403)
@@ -104,7 +110,7 @@ test('API simulada: cadastro e login não liberam RV 30 antes da confirmação d
 
   await login(page)
   await expect(page.getByRole('heading', { name: 'Meus cursos', exact: true })).toBeVisible()
-  await expect(page.getByText(/Nenhum curso está liberado para esta conta/)).toBeVisible()
+  await expect(page.getByText(/Nenhum programa está com acesso ativo nesta conta/)).toBeVisible()
   const cookie = (await context.cookies()).find((item) => item.name === 'rv30_session')
   expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'Strict' })
   expect(await demoKeys(page)).toEqual([])
@@ -116,7 +122,7 @@ test('API simulada: cadastro e login não liberam RV 30 antes da confirmação d
   expect(calls.some((call) => /grant|claim|simulate/.test(call.path))).toBe(false)
 
   await page.goto('/meus-cursos')
-  await expect(page.getByText(/Nenhum curso está liberado para esta conta/)).toBeVisible()
+  await expect(page.getByText(/Nenhum programa está com acesso ativo nesta conta/)).toBeVisible()
   state.purchased = true
   await page.reload()
   await expect(page.locator('.my-course-card')).toContainText('RV 30')
@@ -145,7 +151,7 @@ test('API simulada: conta de aluno sem compra recebe estado claro e não solicit
   const { calls } = await mockApi(page, { authenticated: true })
   await page.goto('/curso/rv30/dia/1')
   await expect(page).toHaveURL(/(?:\/meus-cursos|\/aluno\.html)(?:[?#]|$)/)
-  await expect(page.getByText(/Nenhum curso está liberado para esta conta/)).toBeVisible()
+  await expect(page.getByText(/Nenhum programa está com acesso ativo nesta conta/)).toBeVisible()
   expect(calls.some((call) => call.path.endsWith('/video'))).toBe(false)
   await page.goto('/admin')
   await expect(page).toHaveURL(/\/admin\/entrar(?:[?#]|$)/)
@@ -203,6 +209,26 @@ test('API simulada: avisos da inscrição acompanham a disponibilidade confirmad
   expect(calls.some((call) => call.path === '/api/orders')).toBe(false)
 })
 
+test('API indisponível: preço e prazo aprovados aparecem sem habilitar vendas ou simulação', async ({ page }) => {
+  await page.route('**/assets/js/config.js*', async route => {
+    const response = await route.fetch()
+    const body = (await response.text())
+      .replace('testMode: localHosts.includes(host)', 'testMode: false')
+      .replace('enablePaymentSimulation: localHosts.includes(host)', 'enablePaymentSimulation: false')
+    await route.fulfill({ response, body })
+  })
+  await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, code: 'BACKEND_NOT_CONFIGURED', message: 'As inscrições estão em preparação.' }) }))
+  await page.goto('/')
+  await expect(page.locator('#investimento .price-main')).toContainText('R$ 399,00')
+  await expect(page.locator('#investimento .rv30-access-term')).toContainText('365 dias de acesso')
+  await expect(page.locator('.hero-actions [data-buy]')).toBeDisabled()
+  await page.goto('/checkout/rv30')
+  await expect(page.locator('[data-order-total]').last()).toHaveText('R$ 399,00')
+  await expect(page.locator('[data-checkout-form]')).toBeHidden()
+  await expect(page.locator('[data-test-payment]')).toBeHidden()
+  await expect(page.locator('.secure-note')).toContainText('Asaas')
+})
+
 test('demonstração local: falha na simulação aparece em alerta e não confirma compra', async ({ page }) => {
   await page.route('**/api/config', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, configured: false, salesEnabled: false }) }))
   await page.goto('/checkout/rv30')
@@ -234,10 +260,11 @@ test('demonstração local: falha na simulação aparece em alerta e não confir
 test('API simulada: preço vem do servidor e checkout envia somente produto e idempotência', async ({ page }) => {
   // R$ 500,00 is an isolated fixture value, not an RV 30 commercial definition.
   const { state, calls } = await mockApi(page, { authenticated: true })
-  await page.route('https://sandbox.mercadopago.com.br/checkout/rv30-mocked-only', (route) => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="pt-BR"><title>Gateway simulado</title><h1>Checkout simulado pelo teste</h1></html>' }))
   await page.goto('/checkout/rv30')
   await expect(page.locator('[data-checkout-config-error]')).toContainText('Inscrições em preparação')
-  expect(await page.locator('body').innerText()).not.toMatch(/R\$\s*399,00|R\$\s*13,30/)
+  await expect(page.locator('[data-order-total]').last()).toHaveText(/R\$\s*399,00/)
+  await expect(page.locator('.rv30-access-term')).toContainText('365 dias de acesso')
+  await expect(page.locator('[data-checkout-form]')).toBeHidden()
   state.salesEnabled = true
   state.priceCents = 50000
   await page.reload()
@@ -251,7 +278,24 @@ test('API simulada: preço vem do servidor e checkout envia somente produto e id
   expect(orders[0]).toMatchObject({ method: 'POST', body: { productId: 'rv30' } })
   expect(Object.keys(orders[0].body)).toEqual(['productId'])
   expect(orders[0].headers['idempotency-key']).toMatch(/^[0-9a-f-]{36}$/i)
+  expect(calls.filter(call => call.path === `/api/orders/${ORDER}/checkout`)).toEqual([expect.objectContaining({ method: 'GET' })])
 })
+
+for (const checkoutUrl of [
+  'https://payment-link.pagar.me/rv30-mocked-only',
+  '/api/orders/44444444-4444-4444-8444-444444444444/checkout',
+  `/api/orders/${ORDER}/checkout?redirect=https://example.test`,
+  '//example.test/checkout'
+]) {
+  test(`API simulada: checkout rejeita destino que não é o caminho do próprio pedido (${checkoutUrl})`, async ({ page }) => {
+    const { calls } = await mockApi(page, { authenticated: true, salesEnabled: true, checkoutUrl })
+    await page.goto('/checkout/rv30')
+    await page.locator('[data-checkout-config-error]').getByRole('button', { name: 'Continuar para o pagamento', exact: true }).click()
+    await expect(page.locator('[data-checkout-config-error]')).toContainText('Checkout indisponível. Nenhum acesso foi liberado.')
+    expect(new URL(page.url()).pathname).toBe('/checkout/rv30')
+    expect(calls.some(call => call.path.endsWith('/checkout'))).toBe(false)
+  })
+}
 
 test('API simulada: administrador consulta entrega somente por GET e dados locais ficam ocultos', async ({ page }) => {
   const { calls } = await mockApi(page, { loginAs: 'admin' })
@@ -312,7 +356,7 @@ for (const type of ['email', 'recovery']) {
     expect(calls.some((call) => call.path === '/api/auth/verify')).toBe(false)
     if (type === 'recovery') await form.getByLabel('Nova senha').fill('UmaNovaSenhaDeTeste123')
     await form.getByRole('button', { name: 'Confirmar e continuar' }).click()
-    await expect(page.getByText(/Nenhum curso está liberado para esta conta/)).toBeVisible()
+    await expect(page.getByText(/Nenhum programa está com acesso ativo nesta conta/)).toBeVisible()
     const submitted = calls.filter((call) => call.path === '/api/auth/verify')
     expect(submitted).toHaveLength(1)
     expect(submitted[0]).toMatchObject({ method: 'POST', body: { tokenHash, type } })

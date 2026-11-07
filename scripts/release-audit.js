@@ -20,6 +20,8 @@ function check() {
   const api = optional('backend/server/api.js')
   const bridge = optional('assets/js/api-client.js')
   const migration = optional('backend/migrations/20261025_rv30_secure_foundation.sql')
+  const commercialMigration = optional('backend/migrations/20261107_rv30_access365.sql')
+  const gateway = optional('backend/server/asaas.js')
   const videoTemplate = JSON.parse(read('assets/data/rv30-videos-template.json'))
   const inventoryRecord = JSON.parse(optional('assets/data/rv30-video-status.json') || '{}')
   const dayList = videoTemplate.items.map(item => Number(String(item.name).match(/^(\d+)\.(?:mov|mp4|m4v|webm)$/i)?.[1]))
@@ -31,13 +33,13 @@ function check() {
   const pendingDays = Array.from({ length: 30 }, (_, index) => index + 1).filter(day => !linkedDays.includes(day))
   const serverPrepared = api.includes('createApi') && api.includes('/api/auth/login') && api.includes('/api/admin/delivery') && api.includes('email_confirmed_at')
   const bridgePrepared = bridge.includes('api.ready') && bridge.includes('api.configured || !config.testMode') && course.includes('api-client.js') && checkout.includes('api-client.js')
-  const paymentPrepared = api.includes('/api/orders') && api.includes('/api/webhooks/mercado-pago') && api.includes('verifySignature') && api.includes('rv30_apply_payment')
+  const paymentPrepared = api.includes('/api/orders') && api.includes('/api/webhooks/asaas') && api.includes('payments.validate') && api.includes('rv30_apply_payment') && api.includes('rv30_claim_checkout') && gateway.includes('/payments/') && commercialMigration.includes("interval '8760 hours'")
   const privatePlaybackPrepared = api.includes('/storage/v1/object/sign/rv30-videos/') && api.includes('await access(user.id)')
 
   add('server_api_prepared', serverPrepared && bridgePrepared,
     'API e adaptador de sessão preparados no código. auth-demo.js pode coexistir no bundle: o modo servidor substitui o store e não usa o banco de demonstração.', 'quality')
   add('payment_adapter_prepared', paymentPrepared,
-    'Checkout Mercado Pago, consulta autenticada ao provedor e transação idempotente preparados; ainda sem pagamento real de homologação verificado.', 'quality')
+    'Asaas preparada com consulta autenticada ao provedor, reserva única de checkout e acesso de 365 dias. Falta pagamento real de homologação verificado.', 'quality')
   add('private_playback_adapter_prepared', privatePlaybackPrepared,
     'Servidor preparado para conferir o direito de acesso e emitir URL temporária de bucket privado. Isso não comprova que exista um vídeo reproduzível.', 'quality')
   add('database_migration_prepared', migration.includes('enable row level security') && migration.includes('as restrictive') && migration.includes('for update;'),
@@ -48,7 +50,7 @@ function check() {
   // Códigos históricos preservados para os consumidores de check(). Os gates
   // exigem comprovação real, não a simples ausência de auth-demo.js no bundle.
   add('price_gateway_configured', false,
-    'Implementação de checkout preparada; credenciais, provedor escolhido, preço comercial aprovado e pagamento de teste no ambiente publicado ainda precisam de verificação.')
+    'R$ 399 e 365 dias aprovados pelo proprietário; Asaas preparado para a preferência por menor taxa. Faltam conta, credenciais e pagamento de sandbox verificado na implantação de homologação.')
   add('production_auth', false,
     'Autorização no servidor preparada. Cadastro, e-mail, recuperação, revogação e separação de contas ainda precisam ser verificados com o provedor real em homologação.')
   add('protected_video_delivery', false,
@@ -72,7 +74,7 @@ function check() {
   add('day_30_drive_verified', false,
     'Dia 30 não verificado nesta sessão. Não há acesso autenticado atual ao Drive; nenhum arquivo real está vinculado. Menções históricas a 29 arquivos não são inventário atual.', 'manual')
   add('legal_health_content_approved', false,
-    'Condições comerciais, termos, privacidade e conteúdo profissional precisam de aprovação da responsável.', 'manual')
+    'Preço, prazo e revogação definidos; Asaas preparado, com conta e proposta pendentes. Revisão final dos termos, privacidade e conteúdo profissional ainda pendente.', 'manual')
   return {
     verdict: findings.some(item => item.type === 'blocker' && item.status === 'FAIL') ? 'NO_GO' : 'REVIEW_REQUIRED',
     findings,

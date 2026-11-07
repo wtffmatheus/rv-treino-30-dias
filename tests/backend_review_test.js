@@ -7,7 +7,7 @@ const USER = '11111111-1111-4111-8111-111111111111'
 const ORDER = '33333333-3333-4333-8333-333333333333'
 const providerToken=`e30.${Buffer.from(JSON.stringify({sub:USER,session_id:'44444444-4444-4444-8444-444444444444'})).toString('base64url')}.test-provider-signature`
 const origin = 'http://127.0.0.1:8081'
-const env = { PUBLIC_SITE_URL: origin, SUPABASE_URL: 'https://review.supabase.co', SUPABASE_ANON_KEY: 'test-public', SUPABASE_SERVICE_ROLE_KEY: 'test-private', ADMIN_EMAIL: 'reserved@example.test', PAYMENT_PROVIDER: 'mercado_pago', PAYMENT_ENVIRONMENT: 'production', MERCADO_PAGO_ACCESS_TOKEN: 'test-private-provider', MERCADO_PAGO_WEBHOOK_SECRET: 'test-private-hook', MERCADO_PAGO_COLLECTOR_ID: '55', RV30_SALES_ENABLED: 'true' }
+const env={PUBLIC_SITE_URL:origin,SUPABASE_URL:'https://review.supabase.co',SUPABASE_ANON_KEY:'test-public',SUPABASE_SERVICE_ROLE_KEY:'test-private',ADMIN_EMAIL:'reserved@example.test',PAYMENT_PROVIDER:'asaas',PAYMENT_ENVIRONMENT:'production',RV30_SALES_ENABLED:'true',ASAAS_API_KEY:'fixture-api-key-not-real',ASAAS_WEBHOOK_TOKEN:'fixture-webhook-token-not-real-1234567890',ASAAS_ACCOUNT_ID:'77777777-7777-4777-8777-777777777777',ASAAS_WEBHOOK_UTC_OFFSET:'-03:00',ASAAS_INTEGRATION_VERIFIED:'true'}
 
 function app() {
   const calls = []
@@ -20,7 +20,7 @@ function app() {
     if (url.pathname === '/auth/v1/user') return response({ id: USER, email: 'student@example.test', email_confirmed_at: '2026-01-01' })
     if (url.pathname === '/rest/v1/rpc/rv30_session_active') return response(true)
     if (url.pathname === '/rest/v1/rv30_profiles') return response(options.method === 'POST' ? null : [{ user_id: USER, name: 'Teste', status: 'active' }])
-    if (url.pathname === '/rest/v1/rv30_products') return response([{ id: 'rv30', status: 'active', title: 'RV 30', price_cents: 39900, currency: 'BRL', commercial_approved: true }])
+    if (url.pathname === '/rest/v1/rv30_products') return response([{ id: 'rv30', status: 'active', title: 'RV 30', price_cents: 39900, currency: 'BRL', commercial_approved: true,provider:'asaas',access_days:365 }])
     if (url.pathname === '/rest/v1/rv30_orders') {
       if (options.method === 'POST') return response([])
       return response(url.searchParams.get('environment') === 'eq.production' ? [] : [testOrder])

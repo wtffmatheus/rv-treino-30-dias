@@ -1,6 +1,10 @@
 # Pagamentos — plano de provider para RV Cursos
 
-## Decisão atual
+> Plano histórico. A configuração atual é Asaas com vendas bloqueadas; consultar
+> [ASAAS_ACCESS365.md](ASAAS_ACCESS365.md). Fluxos manuais abaixo não autorizam
+> matrícula ou confirmação de pagamento na API atual.
+
+## Decisão histórica
 
 O checkout do portal RV deve ser próprio e contextualizado. O aluno informa nome, e-mail, WhatsApp e aceite dos termos antes de seguir para o gateway.
 

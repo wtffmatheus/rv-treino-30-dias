@@ -14,8 +14,8 @@
   const productionButton = document.querySelector('[data-production-checkout]')
   const setupError = document.querySelector('[data-checkout-config-error]')
   const paymentProviderLabels = {
+    asaas: 'Asaas',
     stone_link: 'Stone Link de Pagamento',
-    mercado_pago: 'Mercado Pago',
     manual: 'pagamento configurado pela RV'
   }
   let customer = null
@@ -49,10 +49,13 @@
       button.disabled = true
       const result = await window.RVApi.request('/api/orders', { method: 'POST', body: { productId: 'rv30' }, headers: { 'Idempotency-Key': idempotencyKey } })
       if (result.ok && result.order?.checkoutUrl) {
-        try {
-          const target = new URL(result.order.checkoutUrl)
-          if (target.protocol === 'https:' && ['www.mercadopago.com.br', 'sandbox.mercadopago.com.br'].includes(target.hostname)) { location.assign(target.href); return }
-        } catch {}
+        const orderId = String(result.order.id || '')
+        const checkoutPath = `/api/orders/${orderId}/checkout`
+        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)
+          && result.order.checkoutUrl === checkoutPath) {
+          location.assign(checkoutPath)
+          return
+        }
       }
       const note = document.createElement('p'); note.setAttribute('role', 'alert')
       note.textContent = result.message || 'Checkout indisponível. Nenhum acesso foi liberado.'
@@ -71,6 +74,7 @@
   }
 
 
+  if (form) form.hidden = false
   const money = (value) => new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(Number(value || 0) / 100)
   const providerLabel = course.paymentProviderLabel || paymentProviderLabels[course.paymentProvider] || 'checkout seguro'
   document.querySelectorAll('[data-order-title]').forEach((el) => { el.textContent = course.title })

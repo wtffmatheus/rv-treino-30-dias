@@ -1,10 +1,9 @@
 'use strict'
 const assert = require('node:assert/strict')
-const crypto = require('node:crypto')
 const { Readable } = require('node:stream')
 const fs = require('node:fs')
 const path = require('node:path')
-const { createApi, verifySignature, validatePayment, deliveryResult } = require('../backend/server/api')
+const { createApi, deliveryResult } = require('../backend/server/api')
 const USER = '11111111-1111-4111-8111-111111111111'
 const OTHER = '22222222-2222-4222-8222-222222222222'
 const ORDER = '33333333-3333-4333-8333-333333333333'
@@ -13,9 +12,12 @@ const PROVIDER_SESSION = '44444444-4444-4444-8444-444444444444'
 const providerToken = `${Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')}.${Buffer.from(JSON.stringify({sub:USER,session_id:PROVIDER_SESSION})).toString('base64url')}.test-provider-signature`
 const origin = 'http://127.0.0.1:8081'
 const timestamp = Date.now()
-const env = { PUBLIC_SITE_URL:origin, SUPABASE_URL:'https://unit.supabase.co', SUPABASE_ANON_KEY:'public-test', SUPABASE_SERVICE_ROLE_KEY:'service-secret-test', ADMIN_EMAIL:'owner@example.test', MERCADO_PAGO_ACCESS_TOKEN:'provider-secret-test', MERCADO_PAGO_WEBHOOK_SECRET:'webhook-secret-test', MERCADO_PAGO_COLLECTOR_ID:'555', PAYMENT_ENVIRONMENT:'test', PAYMENT_PROVIDER:'mercado_pago' }
-const order = { id:ORDER, user_id:USER, buyer_email:'student@example.test', product_id:'rv30', amount_cents:39900, currency:'BRL', environment:'test', status:'approved', payment_id:'123' }
-const payment = { id:123, external_reference:ORDER, metadata:{ order_id:ORDER, product_id:'rv30', user_id:USER }, transaction_amount:399, currency_id:'BRL', live_mode:false, collector_id:555, status:'approved', date_last_updated:new Date(timestamp).toISOString() }
+const CHECKOUT='88888888-8888-4888-8888-888888888888'
+const date=new Date(timestamp).toISOString()
+const env={PUBLIC_SITE_URL:origin,SUPABASE_URL:'https://unit.supabase.co',SUPABASE_ANON_KEY:'public-test',SUPABASE_SERVICE_ROLE_KEY:'service-secret-test',ADMIN_EMAIL:'owner@example.test',PAYMENT_ENVIRONMENT:'test',PAYMENT_PROVIDER:'asaas',ASAAS_API_KEY:'fixture-api-key-not-real',ASAAS_WEBHOOK_TOKEN:'fixture-webhook-token-not-real-1234567890',ASAAS_ACCOUNT_ID:'77777777-7777-4777-8777-777777777777',ASAAS_WEBHOOK_UTC_OFFSET:'-03:00',ASAAS_INTEGRATION_VERIFIED:'true'}
+const order={id:ORDER,user_id:USER,buyer_email:'student@example.test',product_id:'rv30',amount_cents:39900,currency:'BRL',environment:'test',status:'approved',provider:'asaas',payment_id:'pay_fixture123',preference_id:CHECKOUT,approved_at:date}
+const payment={id:'pay_fixture123',checkoutSession:CHECKOUT,externalReference:ORDER,value:399,billingType:'CREDIT_CARD',status:'CONFIRMED',confirmedDate:date.slice(0,10)}
+const notification={id:'evt_fixture123',account:{id:env.ASAAS_ACCOUNT_ID},event:'PAYMENT_CONFIRMED',dateCreated:date,payment:{id:payment.id}}
 let passed = 0
 async function test(name, run) { await run(); passed++; console.log(`OK ${name}`) }
 function response(data, status = 200) { return { ok:status >= 200 && status < 300, json:async () => data, status } }
@@ -32,11 +34,11 @@ function harness(options = {}) {
     if (url.pathname === '/auth/v1/user') return response(user)
     if (url.pathname === '/rest/v1/rpc/rv30_session_active') return response(true)
     if (url.pathname === '/rest/v1/rv30_profiles') return response(request.method === 'POST' ? null : [{ user_id:USER, name:'Aluno', status:'active' }])
-    if (url.pathname === '/rest/v1/rv30_entitlements') return response(options.access === false ? [] : [{ user_id:USER, product_id:'rv30', status:'active', order_id:ORDER }])
+    if (url.pathname === '/rest/v1/rv30_entitlements') return response(options.access === false ? [] : [{ user_id:USER, product_id:'rv30', status:'active', order_id:ORDER,expires_at:new Date(timestamp+86400000).toISOString() }])
     if (url.pathname === '/rest/v1/rv30_orders') return response([order])
     if (url.pathname === '/rest/v1/rv30_lessons') return response([])
     if (url.pathname === '/rest/v1/rv30_progress') return response([])
-    if (url.pathname === '/v1/payments/123') return response(payment)
+    if (url.pathname === '/v3/payments/pay_fixture123') return response(payment)
     if (url.pathname === '/rest/v1/rpc/rv30_apply_payment') return response({ result:'applied' })
     return response({})
   }
@@ -147,10 +149,10 @@ function harness(options = {}) {
     for(const product of [null,{price_cents:39900,currency:'BRL',commercial_approved:false},{price_cents:null,currency:'BRL',commercial_approved:true},{price_cents:39900,currency:'USD',commercial_approved:true}]){
       const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response(product?[product]:[]):undefined})
       const result=await app.invoke('/api/config')
-      assert.equal(result.body.salesEnabled,false);assert.equal(result.body.product.priceCents,undefined)
+      assert.equal(result.body.salesEnabled,false);assert.equal(result.body.product.priceCents,39900)
       assert.equal(app.calls.find(call=>call.url.pathname.endsWith('rv30_products')).url.searchParams.get('status'),'eq.active')
     }
-    const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([{price_cents:39900,currency:'BRL',commercial_approved:true}]):undefined})
+    const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([{price_cents:39900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}]):undefined})
     const result=await app.invoke('/api/config')
     assert.equal(result.body.salesEnabled,true);assert.equal(result.body.product.priceCents,39900)
   })
@@ -203,43 +205,34 @@ function harness(options = {}) {
     await app.invoke('/api/auth/verify?tokenHash=never-consume&type=recovery')
     assert.ok(!app.calls.some(call=>call.url.pathname==='/auth/v1/verify'))
   })
-  const ts=String(Math.floor(timestamp/1000))
-  const signature='ts='+ts+',v1='+crypto.createHmac('sha256',env.MERCADO_PAGO_WEBHOOK_SECRET).update(`id:123;request-id:request-1;ts:${ts};`).digest('hex')
-  await test('provider HMAC validates signature, timestamp and request id',async()=>{
-    const fields={signature,requestId:'request-1',dataId:'123',secret:env.MERCADO_PAGO_WEBHOOK_SECRET,now:timestamp}
-    assert.equal(verifySignature(fields),true)
-    assert.equal(verifySignature({...fields,requestId:'forged'}),false)
-    assert.equal(verifySignature({...fields,now:timestamp+600000}),false)
-    assert.equal(verifySignature({...fields,signature:'ts=1,v1=00'}),false)
-  })
-  await test('forged webhooks and query/body substitution never query provider',async()=>{
+  await test('old provider route cannot approve an order',async()=>{
     const app=harness()
-    const result=await app.invoke('/api/webhooks/mercado-pago?data.id=123',{method:'POST',body:{type:'payment',data:{id:'456'}},headers:{'x-signature':signature,'x-request-id':'request-1'}})
-    assert.equal(result.status,401);assert.equal(app.calls.length,0)
+    const result=await app.invoke('/api/webhooks/mercado-pago',{method:'POST',body:{status:'approved'},headers:{origin:'https://evil.example'}})
+    assert.equal(result.status,403);assert.equal(app.calls.length,0)
   })
-  await test('authentic webhook fetches provider and calls only transactional payment RPC',async()=>{
+  await test('Asaas webhook looks up current provider state and calls only payment transaction',async()=>{
     const app=harness()
-    const result=await app.invoke('/api/webhooks/mercado-pago?data.id=123',{method:'POST',body:{type:'payment',data:{id:'123'}},headers:{'x-signature':signature,'x-request-id':'request-1'}})
+    const result=await app.invoke('/api/webhooks/asaas',{method:'POST',body:notification,headers:{'asaas-access-token':env.ASAAS_WEBHOOK_TOKEN}})
     assert.equal(result.status,200)
     const writes=app.calls.filter(call=>call.method==='POST')
     assert.equal(writes.length,1);assert.equal(writes[0].url.pathname,'/rest/v1/rpc/rv30_apply_payment')
-    const body=JSON.parse(writes[0].body);assert.equal(body.p_order_id,ORDER);assert.equal(body.p_refund_policy,'review')
+    const body=JSON.parse(writes[0].body);assert.equal(body.p_order_id,ORDER);assert.equal(body.p_refund_policy,'revoke');assert.equal(body.p_approved_at,date)
+    assert.ok(app.calls.some(call=>call.url.pathname==='/v3/payments/'+payment.id))
   })
-  await test('payment validation rejects altered price product buyer environment merchant and currency',async()=>{
-    assert.equal(validatePayment(payment,order,'test','555').status,'approved')
-    for(const patch of [{transaction_amount:1},{currency_id:'USD'},{live_mode:true},{collector_id:999},{external_reference:OTHER},{metadata:{...payment.metadata,user_id:OTHER}},{metadata:{...payment.metadata,product_id:'other'}},{date_last_updated:'invalid'},{status:'unknown'},{status:'constructor'},{status:'__proto__'},{id:999}]) {
-      assert.throws(()=>validatePayment({...payment,...patch},order,'test','555'),/pagamento/)
-    }
+  await test('malformed Asaas notification never consults the provider or grants access',async()=>{
+    const app=harness()
+    assert.equal((await app.invoke('/api/webhooks/asaas',{method:'POST',body:{...notification,account:{id:OTHER}},headers:{'asaas-access-token':env.ASAAS_WEBHOOK_TOKEN}})).status,401)
+    assert.equal(app.calls.length,0)
   })
-  await test('provider states include declined canceled refunded and chargeback',async()=>{
-    for(const [source,result]of Object.entries({rejected:'declined',cancelled:'canceled',refunded:'refunded',charged_back:'chargeback',in_process:'pending'}))assert.equal(validatePayment({...payment,status:source},order,'test','555').status,result)
-  })
-  await test('new payment attempt allowed before approval, never replaces a paid or refunded binding',async()=>{
-    for(const status of ['pending','declined','canceled'])assert.equal(validatePayment({...payment,id:456},{...order,status},'test','555').paymentId,'456')
-    for(const status of ['approved','refunded','chargeback'])assert.throws(()=>validatePayment({...payment,id:456},{...order,status},'test','555'))
+  await test('client webhook approval cannot replace pending provider state',async()=>{
+    const app=harness({fetch:url=>url.pathname==='/v3/payments/'+payment.id?response({...payment,status:'PENDING'}):undefined})
+    const result=await app.invoke('/api/webhooks/asaas',{method:'POST',body:{...notification,payment:{id:payment.id,status:'CONFIRMED',value:1}},headers:{'asaas-access-token':env.ASAAS_WEBHOOK_TOKEN}})
+    assert.equal(result.status,200)
+    const rpc=app.calls.find(call=>call.url.pathname==='/rest/v1/rpc/rv30_apply_payment')
+    assert.equal(JSON.parse(rpc.body).p_status,'pending')
   })
   await test('delivery cannot report correct without confirmed payment matching entitlement and all videos',async()=>{
-    const args={order,profile:{user_id:USER},entitlement:{status:'active',order_id:ORDER},lessons:Array.from({length:30},(_,i)=>({day:i+1,is_published:true,storage_path:`${i+1}.mp4`})),provider:{available:true,confirmed:true,status:'approved'}}
+    const args={order,profile:{user_id:USER},entitlement:{status:'active',order_id:ORDER,expires_at:new Date(timestamp+86400000).toISOString()},lessons:Array.from({length:30},(_,i)=>({day:i+1,is_published:true,storage_path:`${i+1}.mp4`})),provider:{available:true,confirmed:true,status:'approved'}}
     assert.equal(deliveryResult(args).result,'correct')
     assert.equal(deliveryResult({...args,entitlement:{status:'active',order_id:OTHER}}).result,'error')
     assert.equal(deliveryResult({...args,profile:{user_id:USER,status:'blocked'}}).result,'error')
@@ -261,5 +254,76 @@ function harness(options = {}) {
     assert.ok(!/grant (insert|update|delete|all) [^;]+to authenticated/i.test(sql))
     for(const table of ['products','profiles','lessons','orders','entitlements','progress','payment_events'])assert.ok(sql.includes(`alter table public.rv30_${table} enable row level security`))
   })
-  console.log(`Backend: ${passed} verificações passaram. Supabase/Postgres e Mercado Pago reais não foram acessados.`)
+  await test('365-day boundary removes account entitlement and blocks course video and progress',async()=>{
+    const expiry=new Date(timestamp+1000).toISOString()
+    const app=harness({fetch:url=>url.pathname.endsWith('rv30_entitlements')?response([{product_id:'rv30',status:'active',order_id:ORDER,expires_at:expiry}]):undefined})
+    const {cookie}=await app.login();app.setClock(timestamp+1000)
+    assert.deepEqual((await app.invoke('/api/account',{cookie})).body.account.entitlements,[])
+    for(const route of ['/api/courses/rv30','/api/courses/rv30/days/12/video'])assert.equal((await app.invoke(route,{cookie})).status,403)
+    assert.equal((await app.invoke('/api/courses/rv30/progress/12',{method:'PUT',cookie,body:{complete:true}})).status,403)
+    assert.ok(!app.calls.some(call=>call.url.pathname.includes('/storage/')))
+  })
+  await test('missing expiry fails closed instead of granting indefinite legacy access',async()=>{
+    const app=harness({fetch:url=>url.pathname.endsWith('rv30_entitlements')?response([{product_id:'rv30',status:'active',order_id:ORDER}]):undefined})
+    const {cookie}=await app.login()
+    assert.equal((await app.invoke('/api/courses/rv30',{cookie})).status,403)
+  })
+  await test('requested playback URL TTL is capped by the remaining access period',async()=>{
+    const app=harness({fetch:url=>{
+      if(url.pathname.endsWith('rv30_entitlements'))return response([{product_id:'rv30',status:'active',order_id:ORDER,expires_at:new Date(timestamp+2000).toISOString()}])
+      if(url.pathname.endsWith('rv30_lessons'))return response([{day:12,is_published:true,storage_path:'12.mp4'}])
+      if(url.pathname.includes('/storage/v1/object/sign/'))return response({signedURL:'/object/sign/rv30-videos/12.mp4?token=fixture'})
+    }})
+    const {cookie}=await app.login()
+    const result=await app.invoke('/api/courses/rv30/days/12/video',{cookie})
+    assert.equal(result.status,200);assert.equal(result.body.expiresIn,2)
+    assert.equal(JSON.parse(app.calls.find(call=>call.url.pathname.includes('/storage/')).body).expiresIn,2)
+  })
+  const product={id:'rv30',price_cents:39900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}
+  await test('active access prevents a second checkout before any Asaas request',async()=>{
+    const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([product]):undefined})
+    const {cookie}=await app.login()
+    assert.equal((await app.invoke('/api/orders',{method:'POST',cookie,body:{productId:'rv30'},headers:{'idempotency-key':'fixture-idempotent-request'}})).status,409)
+    assert.ok(!app.calls.some(call=>call.url.hostname.endsWith('asaas.com')))
+  })
+  await test('Asaas checkout is created once for the authenticated buyer and redirects through an owned order',async()=>{
+    let saved={...order,status:'pending',payment_id:null,checkout_url:null,preference_id:null}
+    let claimed=false
+    const app=harness({access:false,env:{RV30_SALES_ENABLED:'true'},fetch:(url,request)=>{
+      if(url.pathname.endsWith('rv30_products'))return response([product])
+      if(url.pathname.endsWith('rv30_orders')){
+        if(request.method==='PATCH')saved={...saved,...JSON.parse(request.body)}
+        return response([saved])
+      }
+      if(url.pathname.endsWith('rpc/rv30_claim_checkout')){const value=!claimed;claimed=true;return response(value)}
+      if(url.pathname==='/v3/checkouts')return response({id:CHECKOUT,link:'https://sandbox.asaas.com/checkoutSession/show?id='+CHECKOUT})
+    }})
+    const {cookie}=await app.login()
+    const request={method:'POST',cookie,body:{productId:'rv30',amountCents:1,userId:OTHER},headers:{'idempotency-key':'fixture-idempotent-request'}}
+    const first=await app.invoke('/api/orders',request)
+    assert.equal(first.status,200);assert.equal(first.body.order.amountCents,39900)
+    assert.equal(first.body.order.checkoutUrl,`/api/orders/${ORDER}/checkout`)
+    assert.equal((await app.invoke('/api/orders',request)).status,200)
+    assert.equal(app.calls.filter(call=>call.url.pathname==='/v3/checkouts').length,1)
+    const checkout=await app.invoke(`/api/orders/${ORDER}/checkout`,{cookie})
+    assert.equal(checkout.status,303);assert.equal(checkout.headers.Location,'https://sandbox.asaas.com/checkoutSession/show?id='+CHECKOUT)
+    saved.checkout_url='https://evil.example/checkout'
+    assert.equal((await app.invoke(`/api/orders/${ORDER}/checkout`,{cookie})).status,409)
+  })
+  await test('uncertain provider creation cannot issue a second link on retry',async()=>{
+    let claimed=false
+    const app=harness({access:false,env:{RV30_SALES_ENABLED:'true'},fetch:(url)=>{
+      if(url.pathname.endsWith('rv30_products'))return response([product])
+      if(url.pathname.endsWith('rv30_orders'))return response([{...order,status:'pending',payment_id:null,checkout_url:null}])
+      if(url.pathname.endsWith('rpc/rv30_claim_checkout')){const value=!claimed;claimed=true;return response(value)}
+      if(url.pathname==='/v3/checkouts')throw new Error('private provider diagnostic')
+    }})
+    const {cookie}=await app.login()
+    const request={method:'POST',cookie,body:{productId:'rv30'},headers:{'idempotency-key':'fixture-idempotent-request'}}
+    const first=await app.invoke('/api/orders',request)
+    assert.equal(first.status,503);assert.ok(!JSON.stringify(first.body).includes('private provider diagnostic'))
+    assert.equal((await app.invoke('/api/orders',request)).status,409)
+    assert.equal(app.calls.filter(call=>call.url.pathname==='/v3/checkouts').length,1)
+  })
+  console.log(`Backend: ${passed} verificações passaram. Supabase e Asaas reais não foram acessados nesta suíte.`)
 })().catch(error=>{ console.error(error);process.exitCode=1 })

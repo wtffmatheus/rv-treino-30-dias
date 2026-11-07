@@ -9,13 +9,15 @@
   if (window.RVApi?.serverMode) {
     const result = requestedOrderId ? await window.RVApi.request(`/api/orders/${encodeURIComponent(requestedOrderId)}`) : null
     const confirmed = result?.ok && result.order?.status === 'approved'
-    document.querySelector('h1').textContent = confirmed ? 'Pagamento confirmado pelo servidor.' : 'Acompanhando sua inscrição.'
+    document.querySelector('h1').textContent = confirmed ? 'Pagamento aprovado.' : 'Acompanhando sua inscrição.'
     document.querySelector('.eyebrow').textContent = 'STATUS DO PEDIDO'
     document.querySelector('[data-create-access-form]').hidden = true
     document.querySelector('.success-icon').hidden = !confirmed
     document.querySelector('[data-confirm-copy]').textContent = confirmed
-      ? 'Consulte Meus cursos para verificar seu acesso ao RV 30.'
-      : result?.ok ? `Seu pedido está ${{pending:'pendente',declined:'recusado',canceled:'cancelado',refunded:'reembolsado',chargeback:'contestado'}[result.order.status] || 'em análise'}. Aguarde a confirmação do provedor e atualize esta página.` : 'Entre na conta da compra para consultar o pedido. A visita a esta página não confirma um pagamento.'
+      ? 'Seu acesso ao RV 30 dura 365 dias a partir do pagamento aprovado. Consulte Meus cursos para acompanhar seu acesso ao programa.'
+      : result?.ok && ['refunded', 'chargeback'].includes(result.order.status)
+        ? 'O reembolso ou a contestação da compra foram confirmados e o acesso ao programa foi removido. Sua conta e seu histórico são mantidos.'
+        : result?.ok ? `Seu pedido está ${{pending:'pendente',declined:'recusado',canceled:'cancelado'}[result.order.status] || 'em análise'}. Aguarde a confirmação do pagamento e atualize esta página.` : 'Entre na conta da compra para consultar o pedido. A visita a esta página não confirma um pagamento.'
     const link = document.createElement('a'); link.href = '/meus-cursos'; link.textContent = 'Ir para meus cursos'; link.className = 'button button--primary'
     document.querySelector('[data-confirm-copy]').after(link)
     return

@@ -1,5 +1,8 @@
 # Revisão dos requisitos do RV 30 — 27/10/2026
 
+> Situa??o atual em 07/11: [retomada, testes e pend?ncias](RETOMADA_RV30_20261107.md).
+> Os resultados e decis?es anteriores abaixo s?o hist?ricos.
+
 **A revisão técnica encontrou e corrigiu erros adicionais. O projeto ainda não
 está integralmente validado para operação real. A atualização visual permanece
 em revisão, e o domínio principal ainda serve a versão anterior.**

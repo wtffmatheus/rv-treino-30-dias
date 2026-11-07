@@ -39,6 +39,10 @@
 .rv30-landing .hero-proof span{font-size:.7rem;font-weight:500;color:#d9e5e8;padding:0}
 .rv30-landing .hero-proof span::before{content:"";display:inline-block;vertical-align:middle;margin-right:8px;width:4px;height:4px;border-radius:50%;background:#57e4d8}
 .rv30-enrollment-note{font-size:.65rem;line-height:1.6;margin-top:19px;color:#a9bdc5;max-width:50ch}
+.rv30-access-term{font-size:.78rem;line-height:1.75;color:#c7d7dc;margin:15px 0 20px;max-width:49ch}
+.rv30-access-term strong{color:#f5f9f9;font-weight:750}
+.rv-checkout .rv30-access-term{color:#405861;border-top:1px solid #d8e1e1;padding-top:16px;font-size:.8rem}
+.rv-checkout .rv30-access-term strong{color:#192c34}
 .rv30-landing .hero-visual{display:block;position:relative;inset:auto;width:auto;min-height:0;align-self:stretch;aspect-ratio:4/5;margin:0;overflow:hidden;border-radius:9px;background:#142732;border:0}
 .rv30-landing .hero-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;filter:none;transform:none}
 .rv30-landing .hero-visual::before{display:none}
