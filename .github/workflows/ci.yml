@@ -15,6 +15,7 @@ on:
       - feature/metodo-rv-evolua-identidade-20261022
       - rv30-evolucao-20261025
       - rv30-premium-preview-20261107
+      - rv30-plataforma-integral-20261107
   pull_request:
     branches: [main]
 jobs:
