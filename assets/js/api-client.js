@@ -19,7 +19,7 @@
     const result = await api.request('/api/account')
     account = result.ok ? result.account : null
     document.querySelector('[data-qa-account]')?.remove()
-    if (account?.testAccount) {
+    if (account?.testAccount && !document.querySelector('main.auth-layout')) {
       const notice = document.createElement('p')
       notice.dataset.qaAccount = 'true'
       notice.className = 'rv-qa-notice'

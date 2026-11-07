@@ -16,3 +16,7 @@ Os bloqueios comerciais continuam valendo: publicar uma melhoria validada não c
 - Identidade publicada: RV 30, paleta azul, superfícies de vidro com alternativa opaca, login compacto e checkout com contraste corrigido.
 
 Os resultados dos testes no domínio estão registrados em `output/rv30-production-verification.json`, sem senhas, cookies ou segredos. O histórico detalhado da validação anterior está em [revisão premium](REVISAO_PREMIUM_RV30_20261107.md).
+
+Na verificação após a publicação, os formulários de aluno e administrador aceitaram as contas solicitadas no domínio principal, os 29 vídeos responderam a requisições parciais e o progresso foi salvo e restaurado ao estado anterior ao teste. Foram verificadas 32 combinações de página/largura sem imagens quebradas ou rolagem horizontal.
+
+Um ajuste adicional impede que o aviso da conta de aluno desloque o formulário ao abrir a entrada administrativa com uma sessão existente. A mensagem dessa entrada identifica corretamente a conta de validação e oculta a recuperação ainda indisponível. Há um teste específico dessa transição; a suíte passou a 47 testes de navegador. Essa correção segue o mesmo ciclo de preview, CI e publicação validada.

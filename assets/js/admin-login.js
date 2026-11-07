@@ -9,6 +9,11 @@
   const params = new URLSearchParams(location.search)
   const note = document.querySelector('[data-admin-test-note]')
 
+  if (window.RVApi?.qaOnly) {
+    if (note) note.textContent = 'Use a conta administrativa de teste liberada para validar o RV 30. Vendas reais continuam desativadas.'
+    document.querySelector('a[href="/entrar#recuperar"]')?.closest('p')?.setAttribute('hidden', '')
+  }
+
   if (params.get('expired') === '1' && note) {
     note.textContent = 'Sua sessão administrativa expirou. Entre novamente para continuar.'
   }

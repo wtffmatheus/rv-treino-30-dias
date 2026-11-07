@@ -30,10 +30,10 @@ async function mockApi(page, options = {}) {
     try { body = request.postDataJSON() } catch {}
     calls.push({ path: url.pathname, search: url.search, method: request.method(), body, headers: await request.allHeaders() })
     const json = (value, status = 200, headers = {}) => route.fulfill({ status, contentType: 'application/json', headers: { 'Cache-Control': 'no-store', ...headers }, body: JSON.stringify(value) })
-    if (url.pathname === '/api/config') return json({ ok: true, configured: true, salesEnabled: state.salesEnabled, environment: 'test', product: { id: 'rv30', title: 'RV 30', totalDays: 30, accessDurationDays: 365, paymentProvider: 'asaas', ...(state.priceCents === undefined ? {} : { priceCents: state.priceCents, currency: 'BRL' }) } })
+    if (url.pathname === '/api/config') return json({ ok: true, configured: true, qaOnly: state.qaOnly === true, salesEnabled: state.salesEnabled, environment: 'test', product: { id: 'rv30', title: 'RV 30', totalDays: 30, accessDurationDays: 365, paymentProvider: 'asaas', ...(state.priceCents === undefined ? {} : { priceCents: state.priceCents, currency: 'BRL' }) } })
     if (url.pathname === '/api/account') {
       if (!state.authenticated) return json({ ok: false, code: 'AUTH_REQUIRED', message: 'Entre novamente para continuar.' }, 401)
-      return json({ ok: true, account: { id: USER, name: 'Conta de teste', email: state.role === 'admin' ? 'responsavel@example.test' : 'novo@example.test', status: 'active', entitlements: state.purchased ? ['rv30'] : [] }, isAdmin: state.role === 'admin' })
+      return json({ ok: true, account: { id: USER, name: 'Conta de teste', email: state.role === 'admin' ? 'responsavel@example.test' : 'novo@example.test', status: 'active', testAccount: state.qaOnly === true, entitlements: state.purchased ? ['rv30'] : [] }, isAdmin: state.role === 'admin' })
     }
     if (url.pathname === '/api/auth/login') {
       state.authenticated = true
@@ -90,6 +90,16 @@ async function login(page, admin = false) {
   await page.getByLabel('Senha', { exact: true }).fill('SenhaApenasDeTeste123')
   await page.getByRole('button', { name: admin ? 'Entrar no painel RV 30' : 'Entrar', exact: true }).click()
 }
+
+test('QA: sessão de aluno não desloca o formulário administrativo nem anuncia recuperação indisponível', async ({ page }) => {
+  await mockApi(page, { authenticated: true, purchased: true, qaOnly: true })
+  await page.goto('/admin/entrar')
+  await expect(page.locator('[data-admin-login-form]')).toBeVisible()
+  await expect(page.locator('main.auth-layout > section')).toHaveCount(2)
+  await expect(page.locator('main.auth-layout > [data-qa-account]')).toHaveCount(0)
+  await expect(page.locator('[data-admin-test-note]')).toContainText('conta administrativa de teste')
+  await expect(page.getByRole('link', { name: 'Recuperar minha senha' })).toBeHidden()
+})
 
 test('API simulada: falha no logout mantém a tela e permite tentar novamente', async ({ page }) => {
   const { state } = await mockApi(page, { authenticated: true, role: 'admin', logoutError: true })
