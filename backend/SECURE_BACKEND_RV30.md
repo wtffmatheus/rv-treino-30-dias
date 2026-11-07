@@ -1,5 +1,11 @@
 # Backend seguro do RV 30 — implementação revisável
 
+> Complemento de 07/11: a entrega aos compradores agora tem adaptador R2 com
+> assinatura temporária, conferência do arquivo e vínculo obrigatório ao pedido
+> aprovado. Seguir [o roteiro de próximas compras](../docs/COMPRAS_FUTURAS_RV30_20261107.md)
+> e aplicar também a migração R2 proposta após as outras duas em staging.
+> A área privada de revisão não concede matrículas a compradores.
+
 Atualizado em 07/11/2026 para o adaptador **Asaas e acesso de 365 dias**.
 O contrato preparado, a expiração e os testes SQL estão detalhados em
 [ASAAS_ACCESS365.md](ASAAS_ACCESS365.md). A prioridade do proprietário é menor

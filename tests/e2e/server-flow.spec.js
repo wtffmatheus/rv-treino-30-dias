@@ -5,6 +5,16 @@ const { test, expect } = require('@playwright/test')
 const USER = '11111111-1111-4111-8111-111111111111'
 const ORDER = '33333333-3333-4333-8333-333333333333'
 
+test('API simulada: comprador autorizado carrega URL R2 permitida pela política do player',async({page})=>{
+  const videoURL='https://d0636456db3515c826fdc78467f5c899.r2.cloudflarestorage.com/rv30-videos-private/fixture.mp4?X-Amz-Signature=fixture-only'
+  await mockApi(page,{authenticated:true,purchased:true,videoAvailable:true,videoURL})
+  let requested=false
+  await page.route('https://*.r2.cloudflarestorage.com/**',async route=>{requested=true;await route.fulfill({status:200,contentType:'video/mp4',body:''})})
+  await page.goto('/curso/rv30/dia/1')
+  await expect.poll(()=>requested).toBe(true)
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content',/https:\/\/d0636456db3515c826fdc78467f5c899\.r2\.cloudflarestorage\.com/)
+})
+
 async function mockApi(page, options = {}) {
   const state = {
     authenticated: false, role: 'student', loginAs: 'student', purchased: false,
@@ -48,6 +58,7 @@ async function mockApi(page, options = {}) {
       return json({ ok: true, courseId: 'rv30', progress: [], lessons: [{ day: 1, title: 'Aula de teste autorizada', description: 'Conteúdo retornado pela API simulada.', is_published: state.videoAvailable, available: state.videoAvailable }] })
     }
     if (/\/api\/courses\/rv30\/days\/\d+\/video$/.test(url.pathname)) {
+      if(state.videoURL)return json({ok:true,url:state.videoURL,expiresIn:120})
       return json({ ok: false, code: 'VIDEO_UNAVAILABLE', message: state.videoError }, 503)
     }
     if (url.pathname === `/api/orders/${ORDER}`) {

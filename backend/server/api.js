@@ -3,6 +3,7 @@
 // No secrets, provider tokens or session identifiers are returned to JavaScript.
 const crypto = require('node:crypto')
 const {createAsaasClient,AsaasError}=require('./asaas')
+const {createR2MediaClient,MediaError,validR2Lesson}=require('./r2')
 const {PRICE_CENTS,CURRENCY,ACCESS_DAYS,PROVIDER,isEntitlementActive,entitlementState}=require('../access-terms')
 /** @typedef {'pending'|'approved'|'declined'|'canceled'|'refunded'|'chargeback'} PaymentStatus */
 /** @typedef {'test'|'production'} PaymentEnvironment */
@@ -79,6 +80,7 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
   const cookieName = production ? '__Host-rv30_session' : 'rv30_session'
   const adminEmail = emailOf(env.ADMIN_EMAIL)
   const payments=createAsaasClient({env,fetchImpl,now})
+  const r2=createR2MediaClient({env,fetchImpl,now})
   const paymentReady = () => configured && payments.configured && env.RV30_SALES_ENABLED === 'true'
 
   /** @param {OutgoingResponse} res @param {number} status @param {unknown} body */
@@ -189,6 +191,12 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
     /** @type {Entitlement|null} */
     const entitlement = first(await db('rv30_entitlements', { user_id:`eq.${userId}`, product_id:'eq.rv30', environment:`eq.${environment}`, status:'eq.active',expires_at:`gt.${new Date(now()).toISOString()}`,select:'user_id,product_id,status,order_id,expires_at' }))
     if (!isEntitlementActive(entitlement,now())) fail(403, 'PURCHASE_REQUIRED', 'Seu acesso ao RV 30 não está vigente. O programa fica disponível por 365 dias após a confirmação do pagamento.')
+    const paidOrder=first(await db('rv30_orders',{id:`eq.${entitlement.order_id}`,user_id:`eq.${userId}`,product_id:'eq.rv30',environment:`eq.${environment}`,select:'id,user_id,product_id,environment,status,provider,amount_cents,currency,approved_at,manual_review'}))
+    const approved=Date.parse(paidOrder?.approved_at)
+    if(!paidOrder||paidOrder.id!==entitlement.order_id||paidOrder.user_id!==userId||paidOrder.product_id!=='rv30'||paidOrder.environment!==environment||
+      paidOrder.status!=='approved'||paidOrder.manual_review||paidOrder.amount_cents!==PRICE_CENTS||paidOrder.currency!==CURRENCY||paidOrder.provider!==PROVIDER||
+      !Number.isFinite(approved)||approved>now()||Date.parse(entitlement.expires_at)>approved+ACCESS_DAYS*86400000)
+      fail(403,'PURCHASE_REQUIRED','O pagamento confirmado correspondente ao seu acesso não foi localizado. Entre em contato com o suporte.')
     return entitlement
   }
   /** @param {Order} order */
@@ -275,24 +283,39 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
       const { user, profile, isAdmin } = context
       if (req.method === 'GET' && url.pathname === '/api/account') {
         const entitlements = await db('rv30_entitlements', { user_id:`eq.${user.id}`, environment:`eq.${environment}`, select:'product_id,status,expires_at' })
-        send(res, 200, { ok:true, account:{id:user.id,email:user.email,name:profile.name,status:profile.status,entitlements:entitlements.filter(item=>isEntitlementActive(item,now())).map(item=>item.product_id),access:entitlements.map(item=>({courseId:item.product_id,status:item.status==='active'&&!isEntitlementActive(item,now())?'expired':item.status,expiresAt:item.expires_at||null}))},isAdmin }); return true
+        let paidRV30=false
+        if(entitlements.some(item=>item.product_id==='rv30'&&isEntitlementActive(item,now()))){
+          try{await access(user.id);paidRV30=true}catch(error){if(!(error instanceof ApiError)||error.status!==403)throw error}
+        }
+        send(res, 200, { ok:true, account:{id:user.id,email:user.email,name:profile.name,status:profile.status,entitlements:paidRV30?['rv30']:[],access:entitlements.map(item=>({courseId:item.product_id,status:item.status==='active'?(!isEntitlementActive(item,now())?'expired':!paidRV30?'pending_review':'active'):item.status,expiresAt:item.expires_at||null}))},isAdmin }); return true
       }
       if (req.method === 'GET' && url.pathname === '/api/courses/rv30') {
         await access(user.id)
-        const lessons = await db('rv30_lessons', { product_id:'eq.rv30', order:'day.asc', select:'day,title,description,is_published,storage_path' })
+        const lessons = await db('rv30_lessons', { product_id:'eq.rv30', order:'day.asc', select:'day,title,description,is_published,storage_path,storage_provider,storage_bytes,storage_etag,duration_seconds' })
         const progress = await db('rv30_progress', { user_id:`eq.${user.id}`, product_id:'eq.rv30', environment:`eq.${environment}`, select:'day' })
-        send(res, 200, { ok:true, courseId:'rv30', lessons:lessons.map(({ storage_path,...row }) => ({ ...row, available:Boolean(row.is_published && storage_path) })), progress:progress.map(row => row.day) }); return true
+        send(res, 200, { ok:true, courseId:'rv30', lessons:lessons.map(row => ({day:row.day,title:row.title,description:row.description,is_published:row.is_published,durationSeconds:row.duration_seconds||null,available:Boolean(row.is_published&&row.storage_path&&(row.storage_provider!=='r2'||validR2Lesson(row)))})), progress:progress.map(row => row.day) }); return true
       }
       const videoDay = url.pathname.match(/^\/api\/courses\/rv30\/days\/(\d+)\/video$/)?.[1]
       if (req.method === 'GET' && videoDay !== undefined) {
         const entitlement=await access(user.id)
         const day = Number(videoDay)
         if (!Number.isInteger(day) || day < 1 || day > 30) fail(400, 'INVALID_DAY', 'Dia inválido.')
-        const lesson = first(await db('rv30_lessons', { product_id:'eq.rv30', day:`eq.${day}`, select:'day,is_published,storage_path' }))
+        const lesson = first(await db('rv30_lessons', { product_id:'eq.rv30', day:`eq.${day}`, select:'day,is_published,storage_path,storage_provider,storage_bytes,storage_etag' }))
         if (!lesson?.is_published || !lesson.storage_path) fail(404, 'VIDEO_PENDING', 'A aula deste dia ainda não está disponível.')
         const storagePath = lesson.storage_path.split('/').map(encodeURIComponent).join('/')
         const expiresIn=Math.min(120,Math.floor((Date.parse(entitlement.expires_at)-now())/1000))
         if(expiresIn<1)fail(403,'ACCESS_EXPIRED','Seu período de acesso ao RV 30 terminou.')
+        if(lesson.storage_provider==='r2'){
+          if(!r2.configured)fail(503,'MEDIA_NOT_CONFIGURED','A reprodução privada ainda está em configuração.')
+          if(!await r2.verify(lesson))fail(503,'VIDEO_UNAVAILABLE','Vídeo temporariamente indisponível.')
+          // Recheck after I/O: a refund/expiry during storage verification must
+          // stop issuance, and the link cannot extend the entitlement deadline.
+          const latest=await access(user.id)
+          const remaining=Math.min(120,Math.floor((Math.min(Date.parse(entitlement.expires_at),Date.parse(latest.expires_at))-now())/1000))
+          if(remaining<1)fail(403,'ACCESS_EXPIRED','Seu período de acesso ao RV 30 terminou.')
+          send(res,200,{ok:true,url:await r2.sign(lesson,remaining),expiresIn:remaining});return true
+        }
+        if(lesson.storage_provider&&lesson.storage_provider!=='supabase')fail(503,'MEDIA_PROVIDER_INVALID','A reprodução privada precisa de conferência.')
         const signed = await request(`${env.SUPABASE_URL}/storage/v1/object/sign/rv30-videos/${storagePath}`, { method:'POST', headers:{ apikey:env.SUPABASE_SERVICE_ROLE_KEY, Authorization:`Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn }) })
         if (typeof signed?.signedURL !== 'string') fail(503, 'VIDEO_UNAVAILABLE', 'Vídeo temporariamente indisponível.')
         const signedUrl = new URL(signed.signedURL.startsWith('/object/') ? `${env.SUPABASE_URL}/storage/v1${signed.signedURL}` : signed.signedURL, `${env.SUPABASE_URL}/storage/v1/`)
@@ -363,7 +386,7 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
         const [profileRows, entitlementRows, lessons] = await Promise.all([
           db('rv30_profiles', { user_id:`eq.${order.user_id}`, select:'user_id,status' }),
           db('rv30_entitlements', { user_id:`eq.${order.user_id}`, product_id:'eq.rv30', environment:`eq.${order.environment}`, select:'order_id,status,expires_at' }),
-          db('rv30_lessons', { product_id:'eq.rv30', select:'day,is_published,storage_path' })
+          db('rv30_lessons', { product_id:'eq.rv30', select:'day,is_published,storage_path,storage_provider,storage_bytes,storage_etag' })
         ])
         /** @type {ProviderDiagnostic} */
         let provider = { available:false, confirmed:false, status:null }
@@ -375,6 +398,7 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
           } catch (error) { provider = { available:false, confirmed:false, status:null, mismatch:error.code === 'PAYMENT_MISMATCH' } }
         }
         await Promise.all(lessons.filter(lesson => lesson.is_published && lesson.storage_path).slice(0,30).map(async lesson => {
+          if(lesson.storage_provider==='r2'){lesson.storage_verified=await r2.verify(lesson);return}
           const storagePath = lesson.storage_path.split('/').map(encodeURIComponent).join('/')
           try {
             await request(`${env.SUPABASE_URL}/storage/v1/object/info/rv30-videos/${storagePath}`, { headers:{ apikey:env.SUPABASE_SERVICE_ROLE_KEY, Authorization:`Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` } })
@@ -385,7 +409,7 @@ function createApi({ env = process.env, fetchImpl = globalThis.fetch, now = Date
       }
       fail(404, 'API_NOT_FOUND', 'Operação não encontrada.')
     } catch (error) {
-      const expected=error instanceof ApiError||error instanceof AsaasError
+      const expected=error instanceof ApiError||error instanceof AsaasError||error instanceof MediaError
       send(res, expected ? error.status : 500, { ok:false, code:expected ? error.code : 'INTERNAL_ERROR', message:expected ? error.message : 'Não foi possível concluir a operação. Tente novamente.' })
       return true
     }

@@ -325,5 +325,42 @@ function harness(options = {}) {
     assert.equal((await app.invoke('/api/orders',request)).status,409)
     assert.equal(app.calls.filter(call=>call.url.pathname==='/v3/checkouts').length,1)
   })
-  console.log(`Backend: ${passed} verificações passaram. Supabase e Asaas reais não foram acessados nesta suíte.`)
+  await test('a stale active entitlement cannot override an unpaid refunded or mismatched purchase',async()=>{
+    for(const patch of [{status:'pending'},{status:'refunded'},{status:'chargeback'},{user_id:OTHER},{environment:'production'},{amount_cents:1},{manual_review:true},{approved_at:null}]){
+      const app=harness({fetch:url=>url.pathname.endsWith('rv30_orders')?response([{...order,...patch}]):undefined})
+      const {cookie}=await app.login()
+      const account=await app.invoke('/api/account',{cookie})
+      assert.deepEqual(account.body.account.entitlements,[])
+      assert.equal(account.body.account.access[0].status,'pending_review')
+      for(const path of ['/api/courses/rv30','/api/courses/rv30/days/1/video'])assert.equal((await app.invoke(path,{cookie})).status,403)
+      assert(!app.calls.some(call=>call.url.pathname.includes('/storage/v1/')))
+    }
+  })
+  await test('a paid buyer receives only a short-lived verified R2 object URL and no catalog storage keys',async()=>{
+    const lesson={day:1,title:'Test',description:'Test',is_published:true,storage_provider:'r2',storage_path:'rv30/dia-01/'+'b'.repeat(64)+'.mp4',storage_bytes:100,storage_etag:'c'.repeat(32)}
+    const r2Env={R2_ACCOUNT_ID:'a'.repeat(32),R2_BUCKET_NAME:'rv30-videos-private',R2_ACCESS_KEY_ID:'fixtureAccessKey123456',R2_SECRET_ACCESS_KEY:'fixtureSecretKeyNotReal12345678901234567890'}
+    const app=harness({env:r2Env,fetch:(url,req)=>{
+      if(url.pathname.endsWith('rv30_lessons'))return response([lesson])
+      if(url.hostname.endsWith('.r2.cloudflarestorage.com')){assert.equal(req.method,'HEAD');return{ok:true,headers:new Headers({'Content-Type':'video/mp4','Content-Length':'100',ETag:'"'+lesson.storage_etag+'"'})}}
+    }})
+    assert.equal((await app.invoke('/api/courses/rv30/days/1/video')).status,401)
+    const {cookie}=await app.login()
+    const catalog=await app.invoke('/api/courses/rv30',{cookie})
+    assert.equal(catalog.body.lessons[0].available,true);assert(!JSON.stringify(catalog.body).includes(lesson.storage_path));assert(!JSON.stringify(catalog.body).includes(lesson.storage_etag))
+    const video=await app.invoke('/api/courses/rv30/days/1/video',{cookie})
+    assert.equal(video.status,200);assert.equal(video.body.expiresIn,120)
+    const url=new URL(video.body.url);assert.equal(url.searchParams.get('X-Amz-Expires'),'120');assert.equal(url.hostname,r2Env.R2_ACCOUNT_ID+'.r2.cloudflarestorage.com')
+    assert(!JSON.stringify(video.body).includes(r2Env.R2_SECRET_ACCESS_KEY))
+    assert.equal(app.calls.filter(call=>call.url.hostname.endsWith('.r2.cloudflarestorage.com')).length,1)
+    const unavailable=harness({env:r2Env,fetch:url=>url.pathname.endsWith('rv30_lessons')?response([{...lesson,storage_path:lesson.storage_path.replace('dia-01','dia-02')}]):undefined})
+    const auth=await unavailable.login();assert.equal((await unavailable.invoke('/api/courses/rv30/days/1/video',{cookie:auth.cookie})).status,503)
+    let refunded=false
+    const revoked=harness({env:r2Env,fetch:(url)=>{
+      if(url.pathname.endsWith('rv30_lessons'))return response([lesson])
+      if(url.pathname.endsWith('rv30_orders'))return response([{...order,status:refunded?'refunded':'approved'}])
+      if(url.hostname.endsWith('.r2.cloudflarestorage.com')){refunded=true;return{ok:true,headers:new Headers({'Content-Type':'video/mp4','Content-Length':'100',ETag:'"'+lesson.storage_etag+'"'})}}
+    }})
+    const session=await revoked.login();const refused=await revoked.invoke('/api/courses/rv30/days/1/video',{cookie:session.cookie});assert.equal(refused.status,403);assert(!refused.body.url)
+  })
+  console.log(`Backend: ${passed} verificações passaram. Supabase, R2 e Asaas reais não foram acessados nesta suíte.`)
 })().catch(error=>{ console.error(error);process.exitCode=1 })

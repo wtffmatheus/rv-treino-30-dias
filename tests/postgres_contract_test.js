@@ -18,6 +18,7 @@ async function run(){
   const check=async(name,fn)=>{await fn();passed++;console.log('OK SQL '+name)}
   const foundation=fs.readFileSync(path.join(__dirname,'../backend/migrations/20261025_rv30_secure_foundation.sql'),'utf8')
   const commercial=fs.readFileSync(path.join(__dirname,'../backend/migrations/20261107_rv30_access365.sql'),'utf8')
+  const media=fs.readFileSync(path.join(__dirname,'../backend/migrations/20261107_rv30_r2_delivery.sql'),'utf8')
   const apply=(id,status,event,updated,approved,policy='revoke')=>q('select public.rv30_apply_payment($1,$2,$3,$4,$5,$6,$7) as result',[id,'or_'+id.replaceAll('-',''),status,updated,event,policy,approved])
   const denied=async(sql,args=[])=>assert.rejects(()=>q(sql,args),error=>error.code==='42501')
   try{
@@ -37,8 +38,8 @@ async function run(){
       grant all on storage.buckets,storage.objects to anon,authenticated,service_role;
     `)
     await check('both complete migrations execute and can be reapplied',async()=>{
-      await pg.exec(foundation);await pg.exec(commercial)
-      await pg.exec(foundation);await pg.exec(commercial)
+      await pg.exec(foundation);await pg.exec(commercial);await pg.exec(media)
+      await pg.exec(foundation);await pg.exec(commercial);await pg.exec(media)
       assert.equal((await one('select count(*)::int as n from rv30_products')).n,1)
       assert.equal((await one("select to_regprocedure('public.rv30_apply_payment(uuid,text,text,timestamptz,text,text)') as old")).old,null)
       const p=await one('select price_cents,provider,access_days,status,commercial_approved from rv30_products')
@@ -131,6 +132,21 @@ async function run(){
       await q('update auth.sessions set not_after=null where id=$1',[id])
       assert.equal((await one('select rv30_session_active($1,$2) as active',[id,USER])).active,true)
       await pg.exec('set role anon');await denied('select rv30_session_active($1,$2)',[id,USER]);await pg.exec('reset role')
+    })
+    await check('R2 lesson import is atomic, repeatable and keeps titles and media history',async()=>{
+      const {buildSQL}=require('../scripts/prepare-r2-lesson-import')
+      const item={day:1,sourceName:'1.MOV',objectKey:'rv30/dia-01/'+'b'.repeat(64)+'.mp4',bytes:100,md5:'c'.repeat(32),sha256:'b'.repeat(64),duration:12.5}
+      const m={schemaVersion:1,courseId:'rv30',items:[item]}
+      const receipt={bucket:'rv30-videos-private',allRemoteChecksPassed:true,uploaded:[{day:1,key:item.objectKey,bytes:100,md5:item.md5,sha256:item.sha256,remoteVerified:true}]}
+      await q("insert into rv30_lessons(product_id,day,title,storage_path,is_published) values('rv30',1,'Professional title','old/1.mp4',true) on conflict(product_id,day) do update set title='Professional title',storage_path='old/1.mp4'")
+      const sql=buildSQL(m,receipt,{publish:true}).sql
+      await pg.exec(sql);await pg.exec(sql)
+      const row=await one("select title,storage_provider,storage_path,storage_bytes,is_published from rv30_lessons where day=1")
+      assert.equal(row.title,'Professional title');assert.equal(row.storage_provider,'r2');assert.equal(Number(row.storage_bytes),100);assert.equal(row.is_published,true)
+      assert.equal((await one("select count(*)::int as n from rv30_lesson_media_history where day=1")).n,1)
+      assert.equal((await one("select previous_row->>'storage_path' as path from rv30_lesson_media_history where day=1")).path,'old/1.mp4')
+      await assert.rejects(()=>q("update rv30_lessons set storage_path='rv30/dia-02/"+'b'.repeat(64)+".mp4' where day=1"),e=>e.code==='23514')
+      await pg.exec('set role authenticated');await denied('select * from rv30_lesson_media_history');await pg.exec('reset role')
     })
     console.log(`PostgreSQL local: ${passed} contratos passaram. Auth/Storage são fixtures; sem Supabase remoto e sem teste de concorrência entre conexões.`)
   }finally{await pg.close()}
