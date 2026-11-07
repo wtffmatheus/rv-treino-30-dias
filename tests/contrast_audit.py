@@ -2,7 +2,7 @@ from pathlib import Path
 import re, sys
 
 ROOT=Path(__file__).resolve().parents[1]
-css=(ROOT/'assets/css/projeto.css').read_text(encoding='utf-8')
+css=(ROOT/'assets/css/tokens.css').read_text(encoding='utf-8')
 vars=dict(re.findall(r'--([\w-]+)\s*:\s*(#[0-9a-fA-F]{6})', css.split('}')[0]))
 
 def luminance(value):

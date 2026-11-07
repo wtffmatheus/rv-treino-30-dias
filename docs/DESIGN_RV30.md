@@ -1,5 +1,7 @@
 # RV 30 — identidade e referências
 
+> Diretriz definitiva de 07/11/2026: petróleo esverdeado e turquesa, derivados da logo, substituem a orientação anterior de azul-marinho puro. A fonte dos tokens é `assets/css/tokens.css`. A extração do PNG original 1254 × 1254 encontrou mediana turquesa `#01E0D5`; o destaque da interface foi moderado para `#27C6BD`, mantendo a família cromática e a legibilidade. Fundos `#0B1D26` / `#102B35`, superfícies `#173945` / `#204650`, textos `#F4F8FA` / `#BCD0D5`. Confira os gates e a execução atual em [plataforma integral](PLATAFORMA_INTEGRAL_RV30.md). O histórico abaixo registra decisões superadas quando divergir desta diretriz.
+
 > Rodada de 07/11/2026: o novo prompt substitui a orientação anterior de turquesa por uma paleta integralmente azul, com acabamento de vidro sutil. Consulte [revisão premium e validação](REVISAO_PREMIUM_RV30_20261107.md). As decisões abaixo registram a versão anterior quando houver divergência de cores.
 
 Revisão de 27/10/2026. O pacote volta a se chamar **RV 30**. A marca institucional **RV Fisiologia** permanece nos cabeçalhos, rodapé e acesso à conta; o emblema enviado pelo proprietário identifica somente o programa.

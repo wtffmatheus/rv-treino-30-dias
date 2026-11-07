@@ -203,7 +203,7 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
   await expect(page.locator('.rv30-program-signature .rv30-package-logo')).toHaveAttribute('src', '/assets/brand/rv30-logo.png')
   await expect(page.locator('.site-header .brand img')).toHaveAttribute('src', '/public/logo-rv.png')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
-  expect(accent).toBe('#82bfe8')
+  expect(accent).toBe('#27c6bd')
   const navyPalette = await page.evaluate(() => {
     const background = selector => getComputedStyle(document.querySelector(selector)).backgroundColor
     return {
@@ -216,13 +216,13 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
     }
   })
   const {panel, ...surfaces} = navyPalette
-  expect(['rgb(19, 43, 69)', 'rgba(23, 47, 73, 0.76)']).toContain(panel)
+  expect(['rgb(21, 52, 63)', 'rgba(23, 57, 69, 0.82)']).toContain(panel)
   expect(surfaces).toEqual({
-    page: 'rgb(8, 21, 37)',
-    hero: 'rgb(8, 21, 37)',
-    program: 'rgb(16, 36, 59)',
-    professional: 'rgb(16, 36, 59)',
-    faq: 'rgb(16, 36, 59)'
+    page: 'rgb(11, 29, 38)',
+    hero: 'rgb(11, 29, 38)',
+    program: 'rgb(16, 43, 53)',
+    professional: 'rgb(16, 43, 53)',
+    faq: 'rgb(16, 43, 53)'
   })
   const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
   expect(heroLayout).toBe('grid')
@@ -231,7 +231,7 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
   await expect(page.locator('.rv-checkout .order-total [data-order-total]')).toHaveText('R$ 399,00')
   await expect(page.locator('.rv-checkout .check-row a')).toHaveCount(2)
   const bodyColor = await page.locator('.rv-checkout').evaluate(el => getComputedStyle(el).backgroundColor)
-  expect(bodyColor).toBe('rgb(8, 21, 37)')
+  expect(bodyColor).toBe('rgb(11, 29, 38)')
 })
 
 test('design RV em telas pequenas: sem rolagem horizontal na landing e no checkout', async ({ page }) => {

@@ -3,7 +3,7 @@
  * Fotografias originais fornecidas pelo proprietário, convertidas para WebP.
  * Esta camada altera somente a apresentação, não regras de negócio.
  */
-.hero .hero-visual{background:#0b1e34}
+.hero .hero-visual{background:#0b2a34}
 .hero .hero-portrait{
   object-fit:cover;
   object-position:52% 30%;
@@ -11,12 +11,12 @@
 }
 .hero-grid::before{
   background:
-    linear-gradient(90deg,#07121d 0%,rgba(7,18,29,.97) 29%,rgba(7,18,29,.80) 50%,rgba(7,18,29,.30) 73%,rgba(7,18,29,.12) 100%),
+    linear-gradient(90deg,#07171d 0%,rgba(7,18,29,.97) 29%,rgba(7,18,29,.80) 50%,rgba(7,18,29,.30) 73%,rgba(7,18,29,.12) 100%),
     linear-gradient(0deg,rgba(7,18,29,.72),transparent 42%);
 }
 .professional-photo{
   overflow:hidden;
-  background:#17273a;
+  background:#17313a;
   border:1px solid rgba(19,70,75,.17);
   box-shadow:none;
   border-radius:12px;
@@ -35,7 +35,7 @@
   align-items:center;
   gap:14px;
   padding:15px 0 19px;
-  border-bottom:1px solid #dbe0e5;
+  border-bottom:1px solid #dbe3e5;
 }
 .rv-checkout .rv-checkout-expert img{
   display:block;
@@ -53,7 +53,7 @@
 }
 .rv-checkout .rv-checkout-expert span{
   display:block;
-  margin-top:4px;color:var(--muted);
+  margin-top:var(--space-1);color:var(--muted);
   font-size:.76rem;
 }
 @media (max-width:900px) {
@@ -65,17 +65,17 @@
     filter:saturate(.92) contrast(1.04);
   }
   .hero-grid::before{
-    background:linear-gradient(0deg,#07121d 0%,rgba(7,18,29,.98) 18%,rgba(7,18,29,.87) 42%,rgba(7,18,29,.30) 76%,rgba(7,18,29,.14) 100%);
+    background:linear-gradient(0deg,#07171d 0%,rgba(7,18,29,.98) 18%,rgba(7,18,29,.87) 42%,rgba(7,18,29,.30) 76%,rgba(7,18,29,.14) 100%);
   }
   .rv-checkout .rv-checkout-expert{
     grid-template-columns:60px minmax(0,1fr);
-    gap:12px;
+    gap:var(--space-3);
     padding:11px 0 14px;
   }
   .rv-checkout .rv-checkout-expert img{width:60px;height:68px}
 }
 @media(prefers-reduced-motion:reduce){
-  .hero .hero-portrait,.professional-photo img{transition:none!important}
+  .hero .hero-portrait,.professional-photo img{transition:none}
 }
 
 /* Mobile: posiciona o rosto acima do título, mantendo o hero fotográfico. */

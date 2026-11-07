@@ -1,0 +1,17 @@
+/* RV30 design tokens. Logo original: mediana turquesa #01e0d5.
+   A interface reduz a intensidade para #27c6bd, preservando a família cromática. */
+:root {
+  --bg:#0b1d26;--bg2:#102b35;--panel:#173945;--panel2:#204650;--panel3:#28535d;
+  --text:#f4f8fa;--soft:#d9e8eb;--muted:#bcd0d5;--muted2:#aec5cc;
+  --accent:#27c6bd;--accent2:#70d4d0;--accentSoft:rgba(39,198,189,.1);--accentLine:rgba(112,212,208,.38);
+  --line:rgba(188,208,213,.15);--line2:rgba(188,208,213,.28);
+  --surface-neutral:#16343f;--border-control:#6e929d;--warning:#f3ce79;--danger:#ffb4b4;
+  --glass:#15343f;--glass-translucent:rgba(23,57,69,.82);--glass-border:rgba(188,208,213,.22);--glass-blur:10px;
+  --font:"Segoe UI",Arial,sans-serif;--font-display:"Segoe UI",Arial,sans-serif;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+  --radius:8px;--radiusLg:12px;--radius-panel:12px;--control-height:48px;
+  --shadow:0 16px 40px rgba(1,12,17,.2);--shadow-raised:0 20px 50px rgba(1,12,17,.24);
+  --container:1180px;--header:72px;
+  --rv30-ink:var(--bg);--rv30-panel:var(--panel);--rv30-surface:var(--bg2);--rv30-highlight:var(--accent);--rv30-light:var(--text);
+  --rv-ink:var(--bg);--rv-mid:var(--bg2);--rv-ink2:var(--panel);--rv-turquoise:var(--accent);--rv-turquoise-bright:var(--accent2);--rv-text:var(--text);--rv-cream:var(--text);
+}

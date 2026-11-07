@@ -7,7 +7,7 @@ except ModuleNotFoundError:
     tinycss2 = None
 
 ROOT = Path(__file__).resolve().parents[1]
-css = (ROOT / 'assets/css/projeto.css').read_text(encoding='utf-8')
+css = '\n'.join(file.read_text(encoding='utf-8') for file in sorted((ROOT / 'assets/css').glob('*.css')))
 errors=[]
 notes=[]
 

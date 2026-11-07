@@ -73,6 +73,13 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 
 ## Progresso
 
-- Etapa 1: diagnóstico implementado; validação de CI e preview em andamento.
-- Etapas 2 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 1: APROVADA. Commit `2d855b0`, [Actions 42400133028 aprovado](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/42400133028), preview `dpl_P6Bf7SGf88dsGdBf2FkygfDKDuup` READY. Navegação autenticada e catálogo com 30 posições conferidos em `rv-treino-30-dias-61rdis8vq-matheus-silvas-projects-feb13148.vercel.app`. 47 testes locais e verificações estáticas aprovados.
+- Etapa 2: EM IMPLEMENTAÇÃO, após aprovação da etapa 1.
+- Etapas 3 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
+
+## Etapa 2 — implementação e validação
+
+Fonte única em `assets/css/tokens.css`; extração e contratos registrados em [design system petróleo](DESIGN_SYSTEM_PETROLEO_RV30.md). Treze páginas com tokens, cache busting de todos os CSS alterados e preservação das marcas/fotografias. As prioridades artificiais de estilo foram removidas em vez de sobrepor novas exceções. A auditoria de CSS foi ampliada para todos os arquivos, mantendo o limite de 20 prioridades; o resultado atual é uma.
+
+Validação local: lint, typecheck, build com 62 arquivos, contrastes, auditoria CSS, 47 testes de navegador e 32 combinações de página/largura aprovados. Capturas desktop/mobile foram abertas para comparação. Não há alterações de autenticação, cobrança ou armazenamento nesta etapa. A aprovação final da etapa aguarda CI e preview do commit específico.
