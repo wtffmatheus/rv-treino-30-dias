@@ -9,6 +9,7 @@
     if (!serverMode) return item
     const lesson = liveLessons.find(value => value.day === item.day)
     return { ...item, title: lesson?.title || item.title, description: lesson?.description || item.description,
+      duration: Number.isFinite(lesson?.durationSeconds) && lesson.durationSeconds > 0 ? `${Math.ceil(lesson.durationSeconds)} segundos` : item.duration,
       videoUrl: '', available: lesson?.available === true }
   })
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
@@ -178,6 +179,13 @@
   }
 
   function renderComments(item) {
+    if (window.RVApi?.qaOnly) {
+      $('[data-comment-count]').textContent = 'Em preparação'
+      $('[data-comment-list]').replaceChildren()
+      $('[data-comment-form]').hidden = true
+      $('.comment-note').textContent = 'Comentários e atendimento pela plataforma ainda estão em preparação. Neste acesso de teste, você pode assistir aos vídeos e salvar o progresso no servidor.'
+      return
+    }
     const comments = [professionalComment(item), ...userComments(item.day)]
     $('[data-comment-count]').textContent = `${comments.length} ${comments.length === 1 ? 'comentário' : 'comentários'}`
     $('[data-comment-list]').innerHTML = comments.map((comment) => `
