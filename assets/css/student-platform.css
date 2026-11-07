@@ -35,6 +35,9 @@
 .student-privacy p{margin:var(--space-4) 0 0;line-height:1.8;color:var(--muted)}
 .lesson-activity-status{font-size:12px;line-height:1.7;color:var(--muted);margin-bottom:var(--space-4)}
 .lesson-activity-status:empty{display:none}
+.lesson-player-status{position:absolute;top:var(--space-3);left:var(--space-3);right:var(--space-3);margin:0;padding:var(--space-2) var(--space-3);background:var(--bg2);border:1px solid var(--line2);border-radius:var(--radius);color:var(--text);font-size:13px;pointer-events:none}
+.lesson-player-error{padding:var(--space-5)}
+.lesson-player-error .button{margin-top:var(--space-4)}
 .course-sidebar-toggle{min-height:44px;margin-bottom:var(--space-5);width:100%;justify-content:flex-start;font-size:13px}
 .course-sidebar-toggle span{margin-left:var(--space-2)}
 .course-shell>.rv-qa-notice{grid-column:1/-1;margin:var(--space-4) var(--space-5) 0}

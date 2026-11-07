@@ -5,9 +5,9 @@
   let admin = false
   let course = { lessons: [], progress: [] }
   const api = window.RVApi = { serverMode: !config.testMode, configured: false, salesEnabled: false }
-  api.request = async (path, { method = 'GET', body, headers = {} } = {}) => {
+  api.request = async (path, { method = 'GET', body, headers = {}, keepalive = false } = {}) => {
     try {
-      const response = await fetch(path, { method, credentials: 'same-origin', cache: 'no-store',
+      const response = await fetch(path, { method, credentials: 'same-origin', cache: 'no-store', keepalive,
         headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...headers },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(15000) })
       const result = await response.json()

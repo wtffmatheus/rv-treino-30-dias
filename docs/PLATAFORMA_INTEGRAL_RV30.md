@@ -75,8 +75,9 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 
 - Etapa 1: APROVADA. Commit `2d855b0`, [Actions 42400133028 aprovado](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/42400133028), preview `dpl_P6Bf7SGf88dsGdBf2FkygfDKDuup` READY. Navegação autenticada e catálogo com 30 posições conferidos em `rv-treino-30-dias-61rdis8vq-matheus-silvas-projects-feb13148.vercel.app`. 47 testes locais e verificações estáticas aprovados.
 - Etapa 2: APROVADA. Commit `46f0564241008d0574b4e749877d43f9cdb76e71`, Actions `42400888494` aprovado, preview `dpl_AFUHKzirjydMgAVgH12jwHDoQG5C` READY. As 32 combinações públicas de página/largura foram conferidas no preview exato.
-- Etapa 3: EM VALIDAÇÃO. Dashboard com dados persistidos e navegação em homologação isolada; aprovação depende do preview do commit desta etapa.
-- Etapas 4 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 3: APROVADA EM STAGING. Commit `1714b46a1e00850640a4a2b3ec94a83352e98ab2`, Actions `42403803838` aprovado, preview `dpl_3e5yc1jmDHq8VXnTCgGm4EhZwyQv` READY. Capturas e persistência conferidas no preview exato.
+- Etapa 4: EM IMPLEMENTAÇÃO, após aprovação da etapa 3.
+- Etapas 5 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
@@ -162,3 +163,79 @@ resetar a demonstração excedia o cabeçalho compacto. Foi corrigido o encolhim
 e a quebra de linha das ações, preservando os controles. A reprodução local com
 fonte Arial confirmou a causa; um teste de regressão cobre 320/375/390/430 px.
 O preview anterior não é aprovado como release desta etapa.
+
+### Aprovação em staging
+
+Após a correção, Actions `42403803838` passou no SHA `1714b46` (51 testes de
+navegador e os demais checks). Preview READY:
+`rv-treino-30-dias-fb17n7qf1-matheus-silvas-projects-feb13148.vercel.app`, deployment
+`dpl_3e5yc1jmDHq8VXnTCgGm4EhZwyQv`. Logs de build conferidos e suíte `test:preview`
+aprovada com duas verificações conectadas, sem mocks.
+
+Dez capturas `output/qa-previews/integral-stage3-preview-*` foram abertas e
+examinadas nas cinco resoluções; sem overflow e com sidebar/player alinhados.
+Fundo computado `rgb(11, 29, 38)` e destaque `#27c6bd` confirmados.
+
+Às 16:01 BRT de 07/11/2026, a jornada real no preview reproduziu o dia 1,
+aumentou o tempo validado de 17 para 34 segundos, marcou uma conclusão que
+persistiu no dashboard e restaurou a posição de `35,488745` segundos ao reabrir.
+Recolhimento por teclado, nome acessível da aula concluída e navegação ao dia 15
+funcionaram. Solicitações de vídeo/matrícula/progresso responderam 200/206 e não
+houve exceções JavaScript nessa jornada. A homologação usou somente a matrícula
+de validação no banco isolado, sem compra ou cobrança.
+
+Gate da etapa 3 aprovado. Isso não homologa suporte completo, autenticação geral,
+administração, pagamentos ou todos os vídeos. A próxima etapa é a revisão real
+do player e dos 29 objetos privados.
+
+## Etapa 4 — vídeos privados e player
+
+Inventário individual em [videoaulas](VIDEOAULAS_RV30_INTEGRAL.md). Os 29 objetos
+originais e as 29 cópias de entrega foram conferidos remotamente por HEAD,
+ETag/MD5, tamanho e bytes dos intervalos inicial/final. Fontes, numeração e duração
+foram preservadas. As cópias foram decodificadas integralmente por FFmpeg. O perfil
+H.264/AAC 720×1280 com faststart reduz o lote de 672.319.279 para 208.096.938 bytes
+(69%), sem substituir os originais. O Worker isolado aponta para as novas cópias;
+o backend do domínio principal mantém o catálogo anterior. Há backup privado do
+manifesto anterior para reversão.
+
+O bucket foi consultado após os uploads: r2.dev desativado, nenhum domínio
+público. A cada GET/HEAD/Range a API verifica sessão e matrícula. Anônimo recebeu
+401; ausência do dia 30 recebeu 404. Objetivos não aprovados deixaram de aparecer
+como instruções definitivas; são identificados como em revisão pela responsável.
+
+O novo player mantém controles nativos, mostra carregamento e oferece nova
+tentativa sem loop. Diferencia sessão encerrada, matrícula revogada/expirada e
+falha de mídia/rede. Durante a reprodução verifica acesso a cada 30 segundos.
+No teste real de revogação da matrícula de validação, uma nova Range recebeu 403
+imediatamente e o player parou com a mensagem correta em aproximadamente 27,9 s.
+A matrícula foi restaurada em `finally`. Dados já entregues ao dispositivo não
+podem ser recolhidos; a proteção não é apresentada como DRM.
+
+Retomada usa posição persistida e fechamento com keepalive. A liberação do
+elemento de mídia aguarda o encerramento do registro para não sobrescrever a
+posição com zero durante a troca de aulas.
+
+Validação local com API/R2 reais:
+
+| Dia | Áudio decodificado (bytes) | RMS máximo | Busca/retomada (s) |
+| --- | ---: | ---: | ---: |
+| 1 | 49.733 | 0,1148 | 54,22955 |
+| 15 | 41.191 | 0,2530 | 6,269999 |
+| 25 | 41.123 | 0,3422 | 6,12 |
+| 29 | 41.148 | 0,2142 | 5,52 |
+
+Os quatro conteúdos reproduziram no Chromium com frames decodificados, contexto
+de áudio ativo e sinal não silencioso; a posição foi restaurada após reload e
+houve respostas 206 reais. O dia 30 não criou player nem permitiu conclusão.
+Comparações de oito frames originais/otimizados foram abertas e examinadas.
+Capturas reais dos quatro dias e da aula nas cinco resoluções ficam em
+`output/qa-previews/integral-stage4-local-*`. Não equivalem a revisão editorial
+integral das orientações profissionais ou a teste em celulares físicos.
+
+`npm test`, 54 testes de navegador, lint, typecheck, build e dry-run aprovados.
+Três testes novos de UI com fixtures verificam sessão encerrada, revogação e
+nova tentativa; são separados da reprodução conectada acima.
+
+Estado da etapa: TESTADA LOCALMENTE com serviços conectados. Actions, SHA e
+validação do player no próximo preview ainda são necessários antes de aprovar.

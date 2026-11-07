@@ -47,22 +47,26 @@ async function probe(executable,file){
   if(!video||!Number.isFinite(Number(data.format?.duration))||Number(data.format.duration)<=0)throw new Error('Vídeo sem duração válida.')
   return{codec:video.codec_name,pixelFormat:video.pix_fmt,width:video.width,height:video.height,audio:audio?.codec_name||null,duration:Number(data.format.duration)}
 }
-async function prepare({source,out,ffmpeg,ffprobe}){
+async function prepare({source,out,ffmpeg,ffprobe,profile='source'}){
+  if(!['source','streaming-720p'].includes(profile))throw new Error('Perfil de preparação inválido.')
   const directory=fs.realpathSync(source),destination=privateOutput(out)
   const found=inventory(fs.readdirSync(directory,{withFileTypes:true}).filter(e=>e.isFile()).map(e=>e.name))
   if(found.conflicts.length)throw new Error('Dias com mais de um arquivo: '+found.conflicts.join(', '))
   if(!found.items.length)throw new Error('Nenhum vídeo numerado de 1 a 30 encontrado.')
-  const manifest={schemaVersion:1,courseId:'rv30',preparedAt:new Date().toISOString(),sourceVerified:'local_only',editoriallyApproved:false,uploaded:false,items:[],missingDays:found.missingDays,rejectedCount:found.rejected.length}
+  const manifest={schemaVersion:1,courseId:'rv30',profile,preparedAt:new Date().toISOString(),sourceVerified:'local_only',editoriallyApproved:false,uploaded:false,items:[],missingDays:found.missingDays,rejectedCount:found.rejected.length}
   const report=path.join(destination,'manifest.private.json')
   for(const entry of found.items){
     const original=path.join(directory,entry.name),before=fs.statSync(original)
     const sourceSha256=await digest(original,'sha256'),sourceInfo=await probe(ffprobe,original)
-    const file=path.join(destination,`dia-${String(entry.day).padStart(2,'0')}-${sourceSha256.slice(0,16)}.mp4`)
+    const file=path.join(destination,`dia-${String(entry.day).padStart(2,'0')}-${sourceSha256.slice(0,16)}${profile==='streaming-720p'?'-720p':''}.mp4`)
     if(!fs.existsSync(file)){
       const temporary=file+'.partial.mp4'
       // A partial file is never reused as a valid completed video.
       if(fs.existsSync(temporary))throw new Error('Preparação interrompida: mova o arquivo .partial.mp4 antes de retomar.')
-      await command(ffmpeg,['-nostdin','-hide_banner','-v','error','-n','-i',original,'-map','0:v:0','-map','0:a:0?','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-threads','4','-c:a','aac','-b:a','128k','-movflags','+faststart','-map_metadata','-1',temporary])
+      const videoOptions=profile==='streaming-720p'
+        ? ['-vf',"scale=w='if(gte(iw,ih),min(1280,iw),min(720,iw))':h=-2",'-preset','fast','-crf','23','-maxrate','2400k','-bufsize','4800k']
+        : ['-preset','veryfast','-crf','20']
+      await command(ffmpeg,['-nostdin','-hide_banner','-v','error','-n','-i',original,'-map','0:v:0','-map','0:a:0?','-c:v','libx264',...videoOptions,'-pix_fmt','yuv420p','-threads','4','-c:a','aac','-b:a','128k','-movflags','+faststart','-map_metadata','-1',temporary])
       fs.renameSync(temporary,file)
     }
     const info=await probe(ffprobe,file)
@@ -81,6 +85,6 @@ async function prepare({source,out,ffmpeg,ffprobe}){
 if(require.main===module){
   const args=Object.fromEntries(process.argv.slice(2).reduce((pairs,value,i,all)=>i%2?pairs:[...pairs,[value.replace(/^--/,''),all[i+1]]],[]))
   if(!args.source||!args.ffmpeg||!args.ffprobe){console.error('Uso: node scripts/prepare-private-videos.js --source PASTA --ffmpeg EXECUTAVEL --ffprobe EXECUTAVEL [--out output/rv30-media/prepared]');process.exitCode=2}
-  else prepare({source:args.source,ffmpeg:args.ffmpeg,ffprobe:args.ffprobe,out:args.out||'output/rv30-media/prepared'}).catch(error=>{console.error(error.message);process.exitCode=1})
+  else prepare({source:args.source,ffmpeg:args.ffmpeg,ffprobe:args.ffprobe,out:args.out||'output/rv30-media/prepared',profile:args.profile||'source'}).catch(error=>{console.error(error.message);process.exitCode=1})
 }
 module.exports={inventory,privateOutput,prepare}

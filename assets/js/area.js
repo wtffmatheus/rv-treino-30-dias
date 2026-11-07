@@ -4,12 +4,15 @@
   if (window.RVApi) await window.RVApi.ready
 
   const serverMode = window.RVApi?.serverMode === true
+  const durationLabel = seconds => { const total=Math.ceil(seconds); return total>=60?`${Math.floor(total/60)} min ${total%60} s`:`${total} s` }
   const liveLessons = serverMode ? window.RVApi.course().lessons : null
   const CONTENT = (Array.isArray(window.RV30_CONTENT) ? window.RV30_CONTENT : []).map(item => {
     if (!serverMode) return item
     const lesson = liveLessons.find(value => value.day === item.day)
     return { ...item, title: lesson?.title || item.title, description: lesson?.description || item.description,
-      duration: Number.isFinite(lesson?.durationSeconds) && lesson.durationSeconds > 0 ? `${Math.ceil(lesson.durationSeconds)} segundos` : item.duration,
+      duration: Number.isFinite(lesson?.durationSeconds) && lesson.durationSeconds > 0 ? durationLabel(lesson.durationSeconds) : 'Duração em preparação',
+      time: lesson?.materials?.length ? lesson.materials.join(', ') : 'Confira os materiais nas orientações do vídeo.',
+      objective: lesson?.objective || 'Objetivo em revisão pela responsável.',
       videoUrl: '', available: lesson?.available === true }
   })
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
@@ -126,10 +129,15 @@
   function embedVideo(url, title) {
     window.RVLessonActivity?.detach()
     const shell = $('[data-course-video]')
+    window.RVLessonPlayer?.unmount(shell)
     shell.replaceChildren()
 
     if (!url) {
       shell.innerHTML = `<div class="course-video-placeholder"><strong>${escapeHtml(title)}</strong><small>Vídeo em preparação pela equipe RV.</small></div>`
+      return
+    }
+    if(serverMode&&window.RVLessonPlayer){
+      window.RVLessonPlayer.mount(shell,{url,title,day:selectedDay,onRetry:()=>renderContent()})
       return
     }
 
