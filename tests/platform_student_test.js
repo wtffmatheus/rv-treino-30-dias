@@ -8,15 +8,16 @@ const {Miniflare,convertV4MiniflareOptions}=require('miniflare')
  const mf=new Miniflare(convertV4MiniflareOptions({name:'student-fixture',modules:true,script:'export default {fetch(){return new Response("fixture")}}',compatibilityDate:'2026-10-26',d1Databases:['QA_DB'],r2Buckets:['VIDEOS']}))
  try{
   const db=await mf.getD1Database('QA_DB'),bucket=await mf.getR2Bucket('VIDEOS'),email='student@example.test',pepper='fixture-pepper-'.repeat(4),password='fixture-student-password'
-  for(const file of ['backend/qa/schema.sql','backend/platform/student-schema.sql'])for(const sql of fs.readFileSync(file,'utf8').split(';').filter(x=>x.trim()))await db.prepare(sql).run()
+  for(const file of ['backend/qa/schema.sql','backend/platform/student-schema.sql','backend/platform/identity-schema.sql'])for(const sql of fs.readFileSync(file,'utf8').split(';').filter(x=>x.trim()))await db.prepare(sql).run()
   let now=Date.now();const initial=now,hash=await hashPassword(password,pepper)
   for(const [id,address]of[['student',email],['other','other@example.test']]){
    await db.prepare('insert into qa_users(id,email,name,password_salt,password_hash,created_at) values(?,?,?,?,?,?)').bind(id,address,'Aluno',hash.salt,hash.hash,now).run()
-   await db.prepare("insert into qa_grants(user_id,source,expires_at) values(?,'owner_validation',?)").bind(id,now+365*86400000).run()
-   await db.prepare("insert into enrollment_details(user_id,starts_at,source) values(?,?,'owner_validation')").bind(id,now).run()
+   await db.prepare("insert into identity_metadata(user_id,kind,verified_at,verification_method) values(?,'validation',?,'owner_provisioned')").bind(id,now).run()
+   await db.prepare("insert into user_roles(user_id,role,assigned_at) values(?,'student',?)").bind(id,now).run()
+   await db.prepare("insert into enrollments(user_id,course_id,source,starts_at,expires_at,updated_at) values(?,'rv30','owner_validation',?,?,?)").bind(id,now,now+365*86400000,now).run()
   }
   const item={day:1,key:'rv30/dia-01/'+'a'.repeat(64)+'.mp4',bytes:10,duration:120};await bucket.put(item.key,'0123456789')
-  const env={QA_DB:db,VIDEOS:bucket,QA_EMAIL:email,QA_PASSWORD_PEPPER:pepper,QA_PREVIEW:'true',PUBLIC_SITE_URL:'https://site.example.test',PREVIEW_ORIGINS:'https://site.example.test',QA_MEDIA_MANIFEST:JSON.stringify([item])}
+  const env={QA_DB:db,VIDEOS:bucket,AUTH_PASSWORD_PEPPER:pepper,PLATFORM_ENV:'staging',PUBLIC_SITE_URL:'https://site.example.test',PREVIEW_ORIGINS:'https://site.example.test',QA_MEDIA_MANIFEST:JSON.stringify([item])}
   const app=createPlatformHandler({now:()=>now});let cookie=''
   const call=(path,method='GET',data,headers={})=>app.fetch(new Request('https://worker.example.test/api'+path,{method,headers:{Origin:env.PUBLIC_SITE_URL,'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{}),...headers},...(data===undefined?{}:{body:JSON.stringify(data)})}),env)
   assert.equal((await call('/student/dashboard')).status,401)
@@ -49,7 +50,7 @@ const {Miniflare,convertV4MiniflareOptions}=require('miniflare')
   assert.equal((await call('/courses/rv30/activity/event','POST',{...next,sequence:sequence+1})).status,429)
   now+=60000
   await assert.rejects(()=>recordActivity(env,{hasAccess:true,user:{id:'other'}},[item],{sessionId:opened.sessionId,sequence:sequence+1,event:'heartbeat',positionSeconds:101,visible:true,playing:true},now),/sessão de aula terminou/)
-  await db.prepare('update qa_grants set revoked=1 where user_id=?').bind('student').run()
+  await db.prepare('update enrollments set revoked=1 where user_id=?').bind('student').run()
   assert.equal((await call('/courses/rv30/activity/event','POST',{sessionId:opened.sessionId,sequence:sequence+1,event:'heartbeat',positionSeconds:101,visible:true,playing:true})).status,403)
   assert.equal((await(await call('/student/dashboard')).json()).enrollment.status,'revoked')
   console.log('Aluno: D1 real local, datas, histórico, retomada, crédito limitado, duplicação, background, pausas, seek, intervalos longos, origem, IDOR e revogação aprovados.')

@@ -76,8 +76,9 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 - Etapa 1: APROVADA. Commit `2d855b0`, [Actions 42400133028 aprovado](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/42400133028), preview `dpl_P6Bf7SGf88dsGdBf2FkygfDKDuup` READY. Navegação autenticada e catálogo com 30 posições conferidos em `rv-treino-30-dias-61rdis8vq-matheus-silvas-projects-feb13148.vercel.app`. 47 testes locais e verificações estáticas aprovados.
 - Etapa 2: APROVADA. Commit `46f0564241008d0574b4e749877d43f9cdb76e71`, Actions `42400888494` aprovado, preview `dpl_AFUHKzirjydMgAVgH12jwHDoQG5C` READY. As 32 combinações públicas de página/largura foram conferidas no preview exato.
 - Etapa 3: APROVADA EM STAGING. Commit `1714b46a1e00850640a4a2b3ec94a83352e98ab2`, Actions `42403803838` aprovado, preview `dpl_3e5yc1jmDHq8VXnTCgGm4EhZwyQv` READY. Capturas e persistência conferidas no preview exato.
-- Etapa 4: EM IMPLEMENTAÇÃO, após aprovação da etapa 3.
-- Etapas 5 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 4: APROVADA EM STAGING. Commit `c85e0f8a750bd30865d30835f25d8bfb314ffd10`, Actions `42405439742`, preview `dpl_5M9CdLJy1nbT35xDLEZjkZvgZMZ7` READY; áudio, reprodução, busca, retomada e revogação comprovados.
+- Etapa 5: EM IMPLEMENTAÇÃO, após aprovação da etapa 4.
+- Etapas 6 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
@@ -239,3 +240,91 @@ nova tentativa; são separados da reprodução conectada acima.
 
 Estado da etapa: TESTADA LOCALMENTE com serviços conectados. Actions, SHA e
 validação do player no próximo preview ainda são necessários antes de aprovar.
+
+### Aprovação da etapa 4 em staging
+
+SHA `c85e0f8a750bd30865d30835f25d8bfb314ffd10`, Actions `42405439742` aprovado,
+deployment `dpl_5M9CdLJy1nbT35xDLEZjkZvgZMZ7` READY no endereço
+`rv-treino-30-dias-b70zvs9lx-matheus-silvas-projects-feb13148.vercel.app`.
+Logs de build conferidos: commit correto, conclusão e nenhum erro de build;
+há avisos não bloqueantes do npm sobre configuração e scripts de instalação.
+
+Reprodução real repetida nesse preview em 07/11/2026 às 16:20 BRT. Dias
+1/15/25/29 decodificaram respectivamente 237/267/261/243 frames e
+130.638/148.825/142.908/133.278 bytes de áudio. RMS não silencioso em todos,
+busca a 45% e retomada após reload, com 90 respostas Range 206 observadas na
+jornada. Sem exceções JavaScript na jornada positiva. O dia 30 continuou sem
+player e sem botão de conclusão habilitado.
+
+Revogação real no preview: nova Range 403 e player interrompido em 21.184 ms;
+matrícula de validação restaurada ao final. Os erros HTTP esperados de acesso
+negado nesse cenário não foram tratados como falhas inesperadas de aplicação.
+A suíte conectada de preview passou nas duas verificações, sem mocks.
+
+Quatro capturas dos vídeos e cinco capturas responsivas foram abertas e
+examinadas em `output/qa-previews/integral-stage4-preview-*`. Sem overflow ou
+desalinhamento grave. Os JSON sanitizados de reprodução e revogação ficam em
+`output/platform-stage4-preview-{browser,revoke}.json`, fora do Git.
+
+Gate técnico da etapa 4 aprovado para os 29 vídeos disponíveis, com dia 30
+explicitamente pendente. Isso não aprova conteúdo clínico/editorial, gateway ou
+o lançamento comercial. O domínio principal não foi promovido.
+
+## Etapa 5 — identidade, papéis e matrículas
+
+Migração aditiva aplicada somente no D1 isolado, com exportação privada anterior.
+`qa_users` permanece como tabela física para preservar as referências de progresso
+e atividade; a autorização nova não depende da lista de dois e-mails. As novas
+tabelas separam identidade, papéis múltiplos, matrícula, sessões, convites, limites
+e eventos. O progresso e o histórico existentes foram preservados.
+
+Sessão opaca de 256 bits, hash no banco, cookie `__Host-` HttpOnly/Secure/Strict,
+prazo absoluto de uma hora e inatividade de 30 minutos. Papéis, situação da conta,
+versão da credencial e matrícula são conferidos no servidor por solicitação.
+Administração e matrícula são independentes. O ambiente de homologação aceita
+somente identidades de validação; o modo de produção aceita somente comerciais.
+Não há migração automática de uma conta de teste para um comprador.
+
+Convites/recuperação têm finalidade, validade de 30 minutos, hash, versão da
+credencial e consumo atômico de uso único. Abrir o link não o consome. Nova senha
+exige pelo menos 12 caracteres; a troca encerra sessões anteriores e exige login.
+Entrega é manual por canal privado, após conferência pelo responsável. Não há
+envio automático de e-mail homologado nem comprovação de posse de caixa postal.
+Esse limite aparece no formulário e na resposta administrativa. Credenciais e
+tokens de validação permanecem em arquivos ignorados e fora dos screenshots.
+
+As escritas administrativas exigem sessão recente de até 15 minutos e registram
+evento junto à alteração. Bloqueio invalida sessões; desbloqueio não as restaura.
+Revogação e vencimento retiram o curso e a mídia, preservando a identidade e o
+histórico. Limites de tentativas são aplicados por IP, e-mail e token; eventos de
+identidade são retidos por até 90 dias. Cadastro e pagamentos públicos continuam
+desabilitados.
+
+Validação local com API/D1/R2 reais: formulários de quatro perfis (admin sem
+matrícula, dois alunos independentes, conta com ambos os papéis), login inválido,
+cookie inacessível ao JavaScript, aluno em administração 403, alternância de
+contexto e logout com conta subsequente 401. Recuperação real: GET sem consumo,
+senha curta impedida, troca única, senha antiga recusada, nova senha aceita,
+sessão anterior 401 e replay 400. Corrigido logout que aguardava a carga do
+histórico antes de vincular o botão; teste de regressão mantém a resposta do
+dashboard pendente e confirma a saída.
+
+Vencimento real de matrícula de fixture: conta 200, mídia 403 e nenhuma ação de
+continuar. Vencimento da sessão: formulário de login e conta 401. Matrícula
+restaurada em `finally` e novo login confirmou acesso ativo. O teste usa o horário
+do servidor: o computador estava aproximadamente 90 segundos adiantado em
+relação ao cabeçalho Date do Cloudflare. Isso não foi classificado como defeito
+de expiração da aplicação. O relógio da aplicação é resolvido a cada requisição.
+
+Testes automatizados: contratos D1/R2 locais de concorrência, IDOR, separação de
+ambiente, expiração, revogação, bloqueio, tentativas e recuperação; 58 testes de
+navegador aprovados, incluindo quatro casos novos de UI. Lint, typecheck, build e
+dry-run aprovados. As dez capturas locais de login/dashboard em cinco resoluções
+foram abertas e examinadas em `output/qa-previews/integral-stage5-local-*`; sem
+overflow, inclusive nas larguras adicionais 320/375/430/1024. Console sem exceções
+nessa captura. Evidências privadas sanitizadas: `output/platform-ui-*-sanitized.log`,
+`output/platform-recovery-evidence.json`, `output/platform-live-expiry-evidence.json`.
+
+Estado: TESTADA LOCALMENTE com serviços conectados. Commit/Actions e repetição no
+preview exato ainda são necessários para aprovar a etapa. A gestão completa,
+editor de cursos/mídias, suporte e métricas pertencem à etapa 6.

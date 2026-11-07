@@ -20,6 +20,20 @@
   document.querySelector('[data-student-name]').textContent = account.name
   document.querySelector('[data-first-name]').textContent = account.name.split(/\s+/)[0] || 'aluno'
 
+  const logoutButton=document.querySelector('[data-logout]')
+  logoutButton?.addEventListener('click',async()=>{
+    logoutButton.disabled=true
+    try{
+      const result=await auth.logout()
+      if(result?.ok===false)throw new Error(result.message||'Não foi possível encerrar a sessão. Tente novamente.')
+      location.href=window.RVRoute?.resolve('/entrar')||'/entrar'
+    }catch(error){
+      const notice=document.createElement('p');notice.setAttribute('role','alert');notice.textContent=error.message||'Não foi possível encerrar a sessão. Tente novamente.'
+      document.querySelector('main').prepend(notice);logoutButton.disabled=false
+    }
+  })
+  if(logoutButton)logoutButton.disabled=false
+
   const grid = document.querySelector('[data-course-list]')
   const items = Array.isArray(account.entitlements) ? account.entitlements : []
 
@@ -44,15 +58,4 @@
       </article>` : '').join('')
   }
 
-  document.querySelector('[data-logout]')?.addEventListener('click', async () => {
-    const result = await auth.logout()
-    if (result?.ok === false) {
-      const notice = document.createElement('p')
-      notice.setAttribute('role', 'alert')
-      notice.textContent = result.message || 'Não foi possível encerrar a sessão. Tente novamente.'
-      document.querySelector('main').prepend(notice)
-      return
-    }
-    location.href = window.RVRoute?.resolve('/entrar') || '/entrar'
-  })
 })()

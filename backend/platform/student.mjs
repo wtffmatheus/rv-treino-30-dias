@@ -7,7 +7,7 @@ async function limitActivity(db,userId,scope,maximum,now){
 export async function studentDashboard(env,session,items,now=Date.now()) {
  const db=env.QA_DB,user=session.user
  const [details,visits,completed,totals]=await Promise.all([
-  db.prepare('select starts_at,source from enrollment_details where user_id=?').bind(user.id).first(),
+  session.enrollment===undefined?db.prepare('select starts_at,source from enrollment_details where user_id=?').bind(user.id).first():Promise.resolve(session.enrollment),
   db.prepare('select day,first_opened_at,last_opened_at,position_seconds from lesson_visits where user_id=? order by last_opened_at desc').bind(user.id).all(),
   db.prepare('select day,completed_at from qa_progress where user_id=? order by day').bind(user.id).all(),
   db.prepare('select coalesce(sum(seconds),0) as seconds from activity_daily where user_id=?').bind(user.id).first()
@@ -18,12 +18,12 @@ export async function studentDashboard(env,session,items,now=Date.now()) {
  const position=visits.results.find(x=>x.day===nextDay)?.position_seconds||0
  return {
   ok:true,course:{id:'rv30',title:'RV 30 — Treinos com Rosangela',totalDays:30,availableDays:available},
-  enrollment:{status:session.hasAccess?'active':user.grant_expires?user.revoked?'revoked':'expired':'none',startsAt:details?new Date(details.starts_at).toISOString():null,expiresAt:user.grant_expires?new Date(user.grant_expires).toISOString():null,source:details?.source||'owner_validation'},
+  enrollment:{status:session.hasAccess?'active':!user.grant_expires?'none':user.revoked?'revoked':user.grant_expires<=now?'expired':details?.starts_at>now?'scheduled':'restricted',startsAt:details?new Date(details.starts_at).toISOString():null,expiresAt:user.grant_expires?new Date(user.grant_expires).toISOString():null,source:details?.source||null},
   progress:{completedDays:done.size,percent:Math.round(done.size/30*100)},
   activity:{validatedSeconds:totals.seconds,lastLessonDay:latest?.day||null,lastActivityAt:latest?new Date(latest.last_opened_at).toISOString():null},
   resume:session.hasAccess&&nextDay?{day:nextDay,positionSeconds:position}:null,
   history:visits.results.map(row=>({day:row.day,firstOpenedAt:new Date(row.first_opened_at).toISOString(),lastOpenedAt:new Date(row.last_opened_at).toISOString(),positionSeconds:row.position_seconds,completed:done.has(row.day)})),
-  upcoming:available.filter(day=>!done.has(day)&&day!==nextDay).slice(0,3),
+  upcoming:session.hasAccess?available.filter(day=>!done.has(day)&&day!==nextDay).slice(0,3):[],
   messages:[...(items.length<30?[{kind:'pending',text:`${items.length} vídeos disponíveis. O dia 30 aguarda o arquivo e a aprovação do conteúdo.`}]:[]),{kind:'privacy',text:'O tempo de atividade considera intervalos de reprodução em uma página visível, limitados pelo servidor. Não comprova atenção ou execução do exercício. Eventos detalhados: até 90 dias; totais diários: até 400 dias.'}],
   generatedAt:new Date(now).toISOString()
  }

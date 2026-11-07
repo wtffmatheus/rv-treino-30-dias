@@ -29,6 +29,12 @@
       document.querySelector('main')?.prepend(notice)
     }
     admin = result.ok && result.isAdmin === true
+    document.querySelector('[data-role-context]')?.remove()
+    if(api.platformIdentity&&admin){
+      const link=document.createElement('a'),professional=location.pathname.startsWith('/admin')
+      link.dataset.roleContext='true';link.className='button button--ghost';link.href=professional?'/meus-cursos':'/admin';link.textContent=professional?'Área do aluno':'Administração';link.title=professional?'Abrir a área do aluno com a mesma identidade':'Abrir o painel administrativo'
+      document.querySelector('.course-header-actions, .admin-header-actions')?.prepend(link)
+    }
     course = { lessons: [], progress: [] }
     if (account?.entitlements?.includes('rv30')) {
       const catalog = await api.request('/api/courses/rv30')
@@ -56,6 +62,7 @@
     api.configured = status.ok === true && status.configured === true
     api.qaOnly = api.configured && status.qaOnly === true
     api.platformMode = api.configured && status.platformMode === true
+    api.platformIdentity = api.configured && status.platformIdentity === true
     api.serverMode = api.configured || !config.testMode
     api.salesEnabled = api.configured && status.salesEnabled === true
     const approvedProduct = config.courses?.find(product => product.id === 'rv30' && product.commercialApproved === true)

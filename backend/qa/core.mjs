@@ -1,5 +1,5 @@
 import {catalog,streamVideo} from '../review/handler.mjs'
-export {authenticate as authenticateQa,body as readQaBody}
+export {authenticate as authenticateQa,body as readQaBody,verifyPassword}
 const enc=new TextEncoder()
 const COOKIE='__Host-rv30_qa_session'
 const json=(value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','X-Robots-Tag':'noindex, nofollow',...extra}})

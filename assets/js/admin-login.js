@@ -13,6 +13,11 @@
     if (note) note.textContent = 'Use a conta administrativa de teste liberada para validar o RV 30. Vendas reais continuam desativadas.'
     document.querySelector('a[href="/entrar#recuperar"]')?.closest('p')?.setAttribute('hidden', '')
   }
+  if(window.RVApi?.platformIdentity){
+    const lead=document.querySelector('.auth-card .portal-lead')
+    if(lead)lead.textContent='Entre com sua identidade profissional. O papel administrativo é autorizado no servidor e a matrícula no curso é gerenciada separadamente.'
+    if(note)note.textContent='Para definir ou recuperar a senha, solicite um convite privado após confirmar sua identidade com a equipe.'
+  }
 
   if (params.get('expired') === '1' && note) {
     note.textContent = 'Sua sessão administrativa expirou. Entre novamente para continuar.'

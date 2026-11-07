@@ -12,7 +12,7 @@
     return
   }
   panel.hidden = false
-  if (window.RVApi.qaOnly) {
+  if (window.RVApi.qaOnly && !window.RVApi.platformIdentity) {
     panel.hidden = true
     if (message) message.textContent = 'Acesso de validação RV 30. Use a conta de teste liberada pelo responsável. Cadastros e vendas serão abertos após a homologação.'
     return
@@ -30,6 +30,20 @@
       status.textContent = result.message || (result.ok ? 'Confira seu e-mail para continuar.' : 'Não foi possível concluir. Tente novamente.')
       if (result.ok && onSuccess) onSuccess(result)
     })
+  }
+  if(window.RVApi.platformIdentity){
+    panel.querySelectorAll('[data-signup-form], [data-recover-form]').forEach(form=>form.closest('details').hidden=true)
+    if(message&&new URLSearchParams(location.search).get('senha')!=='definida')message.textContent='Entre com sua conta. Para definir ou recuperar a senha, use um convite privado fornecido pela equipe após confirmar sua identidade. O cadastro público e o envio automático de e-mails ainda estão em preparação.'
+    const fragment=new URLSearchParams(location.hash.slice(1)),token=fragment.get('token'),type=fragment.get('type')
+    if(token&&['invitation','recovery'].includes(type)){
+      history.replaceState({},'',location.pathname+location.search)
+      loginForm.hidden=true
+      const verification=panel.querySelector('[data-verify-form]'),password=verification.querySelector('[name=password]')
+      verification.hidden=false;verification.querySelector('[data-verify-title]').textContent=type==='recovery'?'Definir nova senha':'Ativar meu acesso'
+      password.closest('label').hidden=false;password.required=true
+      bind('[data-verify-form]','/api/auth/accept',data=>({token,password:data.get('password')}),()=>{location.href='/entrar?senha=definida'})
+    }
+    return
   }
   bind('[data-signup-form]', '/api/auth/signup', data => ({ name: data.get('name'), email: data.get('email'), password: data.get('password') }))
   bind('[data-recover-form]', '/api/auth/recover', data => ({ email: data.get('email') }))

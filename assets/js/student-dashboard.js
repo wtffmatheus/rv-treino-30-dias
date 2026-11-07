@@ -32,7 +32,7 @@
     const copy = node('div')
     copy.append(node('p', result.enrollment.source === 'owner_validation' ? 'ACESSO DE HOMOLOGAÇÃO' : 'SEU PROGRAMA', 'eyebrow'), node('h3', result.course.title))
     heading.append(logo, copy); card.append(heading)
-    const statuses = { active: 'Matrícula ativa', revoked: 'Acesso revogado', expired: 'Acesso expirado', none: 'Sem matrícula' }
+    const statuses = { active: 'Matrícula ativa', revoked: 'Acesso revogado', expired: 'Acesso expirado', none: 'Sem matrícula', scheduled: 'Acesso com início agendado', restricted: 'Acesso em análise' }
     card.append(node('p', statuses[result.enrollment.status] || 'Acesso em análise', 'status-label'))
     const facts = node('dl', undefined, 'student-enrollment-facts')
     for (const [label, value] of [['Início do acesso', date(result.enrollment.startsAt)], ['Acesso até', date(result.enrollment.expiresAt)]]) {

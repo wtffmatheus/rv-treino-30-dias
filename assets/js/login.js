@@ -131,12 +131,14 @@
   }
 
   const next = safeNext(params.get('next'))
+  if(params.get('senha')==='definida'&&message)message.textContent='Senha definida. Entre com seu e-mail e a nova senha.'
 
   if (params.get('novo') === '1' && message) {
     message.textContent = 'Acesso criado. Entre agora com o e-mail da compra e a senha que você acabou de definir.'
   }
 
-  if (auth?.isLoggedIn?.() && !location.hash.includes('token_hash=')) {
+  const hasIdentityToken=window.RVApi?.platformIdentity&&new URLSearchParams(location.hash.slice(1)).has('token')
+  if (auth?.isLoggedIn?.() && !location.hash.includes('token_hash=') && !hasIdentityToken) {
     location.replace(window.RVRoute?.resolve(next) || next)
     return
   }
