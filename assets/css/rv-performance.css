@@ -11,13 +11,13 @@ h1{font-size:clamp(3.3rem,6vw,6rem)}h2{font-size:clamp(2.25rem,4.25vw,4rem)}h3{f
 .eyebrow,.section-mini-head small,.course-panel-head small{letter-spacing:.13em}
 .button{min-height:48px;padding:var(--space-3) 22px;border-radius:8px;font-size:.92rem;font-weight:800;transition:background-color .2s ease,border-color .2s ease,transform .2s cubic-bezier(.22,1,.36,1),color .2s ease}
 .button--primary{background:var(--accent);border-color:var(--accent);color:var(--bg2);box-shadow:none}
-.button--primary:hover:not(:disabled){background:#29a9d4;border-color:#29a9d4;transform:translateY(-2px);filter:none}
+.button--primary:hover:not(:disabled){background:var(--accent2);border-color:var(--accent2);transform:translateY(-2px);filter:none}
 .button--secondary{background:#1a323a;border-color:#6f94a0;color:#f6f8f9}
 .button--ghost{border-color:var(--line2);background:transparent;color:var(--soft)}
 .button:hover:not(:disabled){transform:translateY(-2px)}
 .button:active:not(:disabled){transform:translateY(0)}
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{
- outline:3px solid #28b5e4;outline-offset:3px
+ outline:3px solid var(--accent2);outline-offset:3px
 }
 img{height:auto}
 [hidden]{display:none}
@@ -160,7 +160,7 @@ img{height:auto}
 .course-shell{grid-template-columns:270px minmax(0,1fr);width:min(100%,1600px)}
 .course-sidebar{top:80px;height:calc(100vh - 80px);padding:var(--space-6) var(--space-4) 36px;background:#0d232a;border-right:1px solid #2a4650}
 .course-progress-card{background:#17323b;border:1px solid #3f606b;border-radius:9px;padding:var(--space-5) var(--space-4)}
-.course-progress-card>small{font-size:.75rem;color:#6cc7e6}
+.course-progress-card>small{font-size:.75rem;color:var(--accent2)}
 .course-progress-card h2{font-family:var(--font-display);font-size:2.6rem;margin:var(--space-2) 0}
 .course-progress-card p{font-size:.75rem;color:#d1e0e5}
 .native-progress{accent-color:var(--accent)}
@@ -200,7 +200,7 @@ img{height:auto}
 .rv-cardio-panel .rv-cardio-intro,.rv-cardio-panel .rv-cardio-note{font-size:.84rem;color:#c9dae0}
 .rv-cardio-panel .rv-cardio-fields label{font-size:.85rem}
 .rv-cardio-panel .rv-cardio-results{border-color:#457180;background:#0c2128}
-.rv-cardio-panel [data-cardio-limits]{color:#68caeb;font-family:var(--font-display);font-size:2.4rem}
+.rv-cardio-panel [data-cardio-limits]{color:var(--accent2);font-family:var(--font-display);font-size:2.4rem}
 .rv-cardio-panel .button{min-height:46px}
 .course-nav{gap:var(--space-3)}
 .course-nav .button{min-height:48px}
@@ -295,8 +295,8 @@ img{height:auto}
 
 /* ETAPA 2 — PRIMEIRO ACESSO: orientacao educacional nao obrigatoria */
 .rv-welcome-card{display:grid;grid-template-columns:58px minmax(0,1fr);gap:22px;align-items:start;margin:0 0 30px;padding:clamp(var(--space-5),3vw,30px);border:1px solid #4c8192;background:#132d36;border-radius:12px}
-.rv-welcome-emblem{display:grid;place-items:center;width:56px;height:56px;border:1px solid #3e6d7c;border-radius:10px;color:#66cdef;background:#123541;font-size:2rem}
-.rv-welcome-label{font-size:.75rem;letter-spacing:.1em;font-weight:800;color:#80d1ec;margin:0 0 7px}
+.rv-welcome-emblem{display:grid;place-items:center;width:56px;height:56px;border:1px solid #3e6d7c;border-radius:10px;color:var(--accent2);background:#123541;font-size:2rem}
+.rv-welcome-label{font-size:.75rem;letter-spacing:.1em;font-weight:800;color:var(--accent2);margin:0 0 7px}
 .rv-welcome-card h2{font-size:clamp(1.9rem,3vw,3rem);margin:0 0 10px;color:#f4fafc}
 .rv-welcome-card p:not(.rv-welcome-label){font-size:.92rem;line-height:1.65;max-width:70ch;color:#d6e6eb}
 .rv-welcome-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin:var(--space-5) 0 0}

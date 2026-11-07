@@ -25,7 +25,7 @@
       notice.className = 'rv-qa-notice'
       notice.textContent = result.isAdmin === true
         ? 'Administração de teste · gerencie a conta de aluno e consulte o progresso de validação. Nenhuma compra ou cobrança é registrada.'
-        : 'Conta de teste · acesso de validação por 365 dias, sem cobrança. Seu progresso é salvo no servidor. Vídeos 1 a 29 disponíveis; dia 30 pendente.'
+        : api.platformMode ? 'Homologação privada · conta de validação, sem cobrança.' : 'Conta de teste · acesso de validação por 365 dias, sem cobrança. Seu progresso é salvo no servidor. Vídeos 1 a 29 disponíveis; dia 30 pendente.'
       document.querySelector('main')?.prepend(notice)
     }
     admin = result.ok && result.isAdmin === true
@@ -55,6 +55,7 @@
     const status = await api.request('/api/config')
     api.configured = status.ok === true && status.configured === true
     api.qaOnly = api.configured && status.qaOnly === true
+    api.platformMode = api.configured && status.platformMode === true
     api.serverMode = api.configured || !config.testMode
     api.salesEnabled = api.configured && status.salesEnabled === true
     const approvedProduct = config.courses?.find(product => product.id === 'rv30' && product.commercialApproved === true)

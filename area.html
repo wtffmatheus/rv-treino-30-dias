@@ -13,19 +13,21 @@
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="/assets/css/tokens.css?v=20261107-petroleum">
   <link rel="stylesheet" href="assets/css/projeto.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261107-petroleum">
+  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261107-student">
   <link rel="stylesheet" href="/assets/css/cardio.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="/assets/css/rv-moodboard.css?v=20261107-petroleum">
+  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261107-student">
+  <link rel="stylesheet" href="/assets/css/rv-moodboard.css?v=20261107-student">
   <link rel="stylesheet" href="/assets/css/rv-evolua.css?v=20261107-petroleum">
   <script src="assets/js/config.js?v=20261025" defer></script>
   <script src="assets/js/runtime.js?v=20261025" defer></script>
-  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261025" defer></script>
+  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261107-student" defer></script>
   <script src="assets/js/content.js?v=20261025" defer></script>
   <script src="assets/js/cardio.js?v=20261025" defer></script>
-  <script src="assets/js/area.js?v=20261025" defer></script>
+  <script src="/assets/js/lesson-activity.js?v=20261107" defer></script>
+  <script src="assets/js/area.js?v=20261107-student" defer></script>
 
   <link rel="stylesheet" href="/assets/css/rv30.css?v=20261107-petroleum">
+  <link rel="stylesheet" href="/assets/css/student-platform.css?v=20261107">
 </head>
 <body class="course-body">
   <header class="course-header">
@@ -42,7 +44,8 @@
   </header>
 
   <main class="course-shell">
-    <aside class="course-sidebar" aria-label="Navegação pelos dias">
+    <aside class="course-sidebar" id="course-sidebar" aria-label="Navegação pelos dias">
+      <button class="course-sidebar-toggle button button--ghost" type="button" data-sidebar-toggle aria-expanded="true" aria-controls="course-sidebar" aria-label="Recolher navegação das aulas">☰ <span>Recolher navegação</span></button>
       <div class="course-progress-card" id="progresso">
         <small>SEU PROGRESSO</small>
         <h2 data-progress-title>0 de 30</h2>
@@ -86,6 +89,7 @@
 
         <h1 class="course-title" data-title>Introdução ao RV 30</h1>
         <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
+        <p class="lesson-activity-status" role="status" data-activity-status></p>
 
         <div class="rv-lesson-grid">
           <div class="course-video" data-course-video>

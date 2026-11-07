@@ -52,7 +52,7 @@
 .rv-student-nav{display:grid;gap:3px;margin:14px 0;border-bottom:1px solid #3c5760;padding:0 0 14px}
 .rv-student-nav a{display:flex;gap:14px;align-items:center;padding:var(--space-3) 14px;border:1px solid transparent;border-radius:7px;text-decoration:none;font-size:.86rem;font-weight:750;color:#e1eaed;min-height:48px}
 .rv-student-nav a:hover,.rv-student-nav a[aria-current=page]{background:#0f3b49;border-color:#17617a;color:#fff}
-.rv-student-nav a[aria-current=page]{box-shadow:inset 3px 0 0 #0093c4}
+.rv-student-nav a[aria-current=page]{box-shadow:inset 3px 0 0 var(--accent2)}
 .course-day-list{padding-top:var(--space-1)}
 .rv-lesson-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(240px,.76fr);align-items:stretch;gap:17px;margin-top:var(--space-6)}
 .rv-lesson-grid .course-video{margin:0;border-radius:8px;align-self:start}
@@ -106,7 +106,7 @@
  .rv-mobile-course-nav{position:fixed;z-index:950;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:7px 6px calc(7px + env(safe-area-inset-bottom,0px));border-top:1px solid #3d6370;background:#0b232b;box-shadow:0 -7px 25px rgba(0,0,0,.2)}
  .rv-mobile-course-nav a{display:flex;flex-direction:column;gap:var(--space-1);align-items:center;justify-content:center;text-decoration:none;min-height:51px;padding:3px 0;font-size:.75rem;font-weight:700;color:#d1e2e8;line-height:1.15}
  .rv-mobile-course-nav a span{font-size:1.5rem;color:#ade2f3}
- .rv-mobile-course-nav a[aria-current=page]{color:#43c7f3}
+ .rv-mobile-course-nav a[aria-current=page]{color:var(--accent2)}
  .course-body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
  .rv-student-nav{display:none}
  .course-sidebar .course-day-list{display:none}

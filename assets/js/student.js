@@ -23,7 +23,9 @@
   const grid = document.querySelector('[data-course-list]')
   const items = Array.isArray(account.entitlements) ? account.entitlements : []
 
-  if (!items.length) {
+  if (window.RVApi?.platformMode && window.RVStudentDashboard) {
+    await window.RVStudentDashboard.mount(grid)
+  } else if (!items.length) {
     grid.innerHTML = '<div class="course-empty">Nenhum programa está com acesso ativo nesta conta. Se você acabou de comprar, aguarde a confirmação do pagamento. O fim do prazo de acesso não exclui sua conta ou histórico. Em caso de dúvida, fale com a RV Fisiologia.</div>'
   } else {
     const summary = auth.courseProgressSummary('rv30')

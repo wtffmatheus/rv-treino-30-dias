@@ -74,12 +74,84 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 ## Progresso
 
 - Etapa 1: APROVADA. Commit `2d855b0`, [Actions 42400133028 aprovado](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/42400133028), preview `dpl_P6Bf7SGf88dsGdBf2FkygfDKDuup` READY. Navegação autenticada e catálogo com 30 posições conferidos em `rv-treino-30-dias-61rdis8vq-matheus-silvas-projects-feb13148.vercel.app`. 47 testes locais e verificações estáticas aprovados.
-- Etapa 2: EM IMPLEMENTAÇÃO, após aprovação da etapa 1.
-- Etapas 3 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 2: APROVADA. Commit `46f0564241008d0574b4e749877d43f9cdb76e71`, Actions `42400888494` aprovado, preview `dpl_AFUHKzirjydMgAVgH12jwHDoQG5C` READY. As 32 combinações públicas de página/largura foram conferidas no preview exato.
+- Etapa 3: EM VALIDAÇÃO. Dashboard com dados persistidos e navegação em homologação isolada; aprovação depende do preview do commit desta etapa.
+- Etapas 4 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
 
 Fonte única em `assets/css/tokens.css`; extração e contratos registrados em [design system petróleo](DESIGN_SYSTEM_PETROLEO_RV30.md). Treze páginas com tokens, cache busting de todos os CSS alterados e preservação das marcas/fotografias. As prioridades artificiais de estilo foram removidas em vez de sobrepor novas exceções. A auditoria de CSS foi ampliada para todos os arquivos, mantendo o limite de 20 prioridades; o resultado atual é uma.
 
-Validação local: lint, typecheck, build com 62 arquivos, contrastes, auditoria CSS, 47 testes de navegador e 32 combinações de página/largura aprovados. Capturas desktop/mobile foram abertas para comparação. Não há alterações de autenticação, cobrança ou armazenamento nesta etapa. A aprovação final da etapa aguarda CI e preview do commit específico.
+Validação local: lint, typecheck, build com 62 arquivos, contrastes, auditoria CSS, 47 testes de navegador e 32 combinações de página/largura aprovados. Capturas desktop/mobile foram abertas para comparação. Não há alterações de autenticação, cobrança ou armazenamento nesta etapa. CI e preview do commit específico aprovados conforme o registro de progresso.
+
+## Etapa 3 — área do aluno e processo permanente
+
+### Implementação
+
+Worker `rv30-platform-staging` e D1 `rv30-platform-staging`, isolados dos recursos
+que atendem o domínio. A API continua explicitamente em homologação com duas
+identidades de validação e vendas desligadas. O backend geral é a etapa 5; não
+apresentar o contrato temporário de QA como autenticação comercial concluída.
+
+O dashboard consulta datas reais da matrícula, estado, conclusões, última aula,
+posição de retomada, histórico, próximas aulas e avisos. O tempo deriva de eventos
+persistidos, com limite de 20 segundos por intervalo, reprodução e visibilidade
+informadas pelo player, sequência idempotente e uma sessão de atividade por
+usuário. Pausas, busca e intervalos longos não geram tempo indevido. Isso é uma
+estimativa conservadora de reprodução, não comprovação de atenção ou exercício.
+Os limites por minuto são 30 aberturas e 120 eventos por usuário. Eventos são
+retidos até 90 dias e totais diários até 400, com limpeza nas aberturas de aula.
+
+A sidebar desktop mede 244 px e pode ser recolhida por teclado; não possui scroll
+interno. O aviso de QA ocupa a linha inteira, evitando deslocar a sidebar e o
+player para colunas erradas. A navegação mobile mantém seletor de dias e menu
+inferior. O dashboard foi compactado após inspeção das capturas, e os realces
+azuis remanescentes de foco/navegação passaram a usar o turquesa compartilhado.
+
+### Validação local e conectada
+
+- `npm test`: contratos anteriores e novo teste com D1/R2 locais reais aprovados.
+  Inclui concorrência, duplicação, background, pausas, busca, intervalos longos,
+  origem, isolamento de usuário, revogação e rate limiting.
+- `npm run test:e2e`: 50 testes aprovados. Os três novos contratos do dashboard
+  usam respostas fixture e são identificados explicitamente como testes de UI.
+- Lint, typecheck, build, auditorias de contraste/CSS e dry-run do Worker aprovados.
+- API remota: administrador sem matrícula, aluno de validação com matrícula,
+  estudante recebe 403 em administração, configuração com 29 dias reais e vendas
+  desligadas. Nenhuma escrita foi feita nos bancos que atendem o domínio atual.
+- Navegador com frontend local e API D1/R2 de homologação: reprodução real do dia
+  1 por aproximadamente 18 segundos registrou 17 segundos, posição 17,514391 s
+  persistiu e foi restaurada. Recolhimento por teclado e navegação entre dias
+  funcionaram; 16 combinações de dashboard/aula com oito larguras sem overflow.
+  O proxy loopback é ferramenta privada de integração, não código de produção;
+  a origem exata do preview ainda deve ser validada sem esse proxy.
+- Capturas reais locais em `output/qa-previews/integral-stage3-local-*`, nas cinco
+  resoluções solicitadas. As imagens foram abertas e os defeitos encontrados
+  corrigidos antes de gerar a versão revisada. Nomes são mascarados nas evidências.
+
+### Regras persistentes e proteção
+
+`AGENTS.md` e `docs/VALIDACAO_NAVEGADOR_RV30.md` registram o ciclo local/preview.
+Playwright aceita `BASE_URL` e `QA_STORAGE_STATE`; a suíte `test:preview` consulta
+serviços reais sem interceptação e não produz screenshots automáticas com dados
+autenticados. A inspeção visual com capturas é uma etapa separada obrigatória.
+
+A Vercel aceitou a desativação de associação automática de domínios e o Ignored
+Build Step para produção da branch `main`. `vercel.json` também desabilita deploy
+Git de `main`. O domínio foi consultado depois: continua no deployment
+`dpl_4iei9qAakJwvSk83Hy9orDcTCPYR`, SHA `a9a8b54`, sem promover esta reestruturação.
+Não foi realizado push em `main` para testar esse bloqueio.
+
+### Arquivos desta etapa
+
+Backend: `backend/platform/{student-schema.sql,student.mjs,worker.mjs}`,
+`backend/qa/core.mjs` (exports de contratos existentes) e `wrangler.platform.jsonc`.
+Frontend: `aluno.html`, `area.html`, `student-dashboard.js`, `lesson-activity.js`,
+`api-client.js`, `student.js`, `area.js`, `student-platform.css`, realces nos estilos
+compartilhados e referências de cache dos HTML. Processo: AGENTS, documentação,
+configurações Playwright, testes, scripts npm, workflow CI e rewrite de preview.
+
+Estado: TESTADA LOCALMENTE, com API D1/R2 conectada; aprovação de staging aguarda
+Actions e inspeção do preview exato. Suporte completo, editor, identidade geral,
+pagamentos e vídeo 30 não são declarados concluídos por esta etapa.

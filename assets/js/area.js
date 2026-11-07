@@ -104,7 +104,7 @@
     list.innerHTML = CONTENT.map((item) => {
       const complete = done.has(item.day)
       const active = selectedDay === item.day
-      return `<button type="button" class="course-day-btn ${active ? 'is-active' : ''} ${complete ? 'is-complete' : ''}" data-select-day="${item.day}" ${active ? 'aria-current="page"' : ''}>
+      return `<button type="button" aria-label="${item.day === 0 ? 'Introdução' : `Dia ${item.day}`}${complete ? ', concluído' : ''}" class="course-day-btn ${active ? 'is-active' : ''} ${complete ? 'is-complete' : ''}" data-select-day="${item.day}" ${active ? 'aria-current="page"' : ''}>
         <span class="course-day-number">${item.day === 0 ? '00' : String(item.day).padStart(2, '0')}</span>
         <span><strong>${item.day === 0 ? 'Introdução' : `Dia ${item.day}`}</strong><small>${escapeHtml(item.phase)}</small></span>
         <span class="course-day-state" aria-label="${complete ? 'Concluído' : 'Pendente'}">${complete ? '✓' : ''}</span>
@@ -124,6 +124,7 @@
   }
 
   function embedVideo(url, title) {
+    window.RVLessonActivity?.detach()
     const shell = $('[data-course-video]')
     shell.replaceChildren()
 
@@ -158,6 +159,7 @@
     })
     video.src = url
     shell.append(video)
+    window.RVLessonActivity?.mount(video, selectedDay)
   }
 
   function professionalComment(item) {
@@ -303,6 +305,13 @@
   })
 
   if (demoMode) $('[data-reset-demo]')?.removeAttribute('hidden')
+  $('[data-sidebar-toggle]')?.addEventListener('click', event => {
+    const collapsed = document.querySelector('.course-shell').classList.toggle('is-sidebar-collapsed')
+    const button = event.currentTarget
+    button.setAttribute('aria-expanded', String(!collapsed))
+    button.setAttribute('aria-label', collapsed ? 'Expandir navegação das aulas' : 'Recolher navegação das aulas')
+    button.title = collapsed ? 'Expandir navegação das aulas' : 'Recolher navegação das aulas'
+  })
   $('[data-day-picker]')?.addEventListener('change', (event) => selectDay(event.target.value))
   renderContent()
   window.RVCardio?.mount({ account, demoMode })
