@@ -36,3 +36,15 @@ test('Contrato do dashboard: falha de API mostra erro acessível, sem indicadore
  await expect(page.locator('.student-activity-summary')).toHaveCount(0)
  await expect(page.locator('[data-course-list]')).toHaveAttribute('aria-busy','false')
 })
+test('Cabeçalho mobile comporta ações extras de teste e fonte alternativa sem cortar controles',async({page})=>{
+ await page.goto('/curso/rv30?demo=1')
+ await expect(page.locator('[data-reset-demo]')).toBeVisible()
+ await page.locator('body').evaluate(el=>el.style.fontFamily='Arial, sans-serif')
+ for(const width of [320,375,390,430]){
+  await page.setViewportSize({width,height:844})
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1)
+  for(const control of await page.locator('.course-header-actions .button').all()){
+   const rect=await control.boundingBox();expect(rect.x+rect.width).toBeLessThanOrEqual(width+1)
+  }
+ }
+})

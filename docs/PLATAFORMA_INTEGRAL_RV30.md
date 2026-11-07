@@ -155,3 +155,10 @@ configurações Playwright, testes, scripts npm, workflow CI e rewrite de previe
 Estado: TESTADA LOCALMENTE, com API D1/R2 conectada; aprovação de staging aguarda
 Actions e inspeção do preview exato. Suporte completo, editor, identidade geral,
 pagamentos e vídeo 30 não são declarados concluídos por esta etapa.
+
+O primeiro CI desta etapa (`42403454053`, commit `8b9993e`) reprovou corretamente:
+6 px de overflow na aula demonstrativa mobile em Linux. A ação adicional de
+resetar a demonstração excedia o cabeçalho compacto. Foi corrigido o encolhimento
+e a quebra de linha das ações, preservando os controles. A reprodução local com
+fonte Arial confirmou a causa; um teste de regressão cobre 320/375/390/430 px.
+O preview anterior não é aprovado como release desta etapa.

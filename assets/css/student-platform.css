@@ -64,12 +64,12 @@
 }
 @media(max-width:600px){
  .course-header .course-header-inner{flex-wrap:nowrap;min-height:72px;gap:var(--space-2)}
- .course-header .course-brand{gap:var(--space-2)}
+ .course-header .course-brand{gap:var(--space-2);flex-shrink:0}
  .course-header .course-brand span{min-width:0}
  .course-header .course-brand small{display:none}
  .course-header .course-brand img{width:48px;height:32px}
  .course-header .course-brand strong{font-size:18px;white-space:nowrap}
- .course-header .course-header-actions{gap:var(--space-2);width:auto;flex:0 0 auto;justify-content:flex-end}
+ .course-header .course-header-actions{gap:var(--space-2);width:auto;min-width:0;max-width:calc(100% - 110px);flex:0 1 auto;justify-content:flex-end}
  .course-header .course-header-actions .button{font-size:12px;padding:var(--space-2);min-height:44px}
 }
 @media(max-width:900px){.student-overview{grid-template-columns:minmax(0,1fr)}.student-activity-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.student-activity-summary strong{font-size:20px}.student-activity-summary article{padding:var(--space-4)}}
