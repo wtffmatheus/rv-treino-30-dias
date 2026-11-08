@@ -5,4 +5,6 @@ import js from './viewer.js.txt'
 import logo from '../../assets/brand/rv30-logo.png'
 import qaHtml from './qa-account.html'
 import qaJs from './qa-account.js.txt'
-export default createReviewHandler({html,css,js,logo,qaHtml,qaJs})
+import platformHtml from './platform-account.html'
+import platformJs from './platform-account.js.txt'
+export default createReviewHandler({html,css,js,logo,qaHtml,qaJs,platformHtml,platformJs})

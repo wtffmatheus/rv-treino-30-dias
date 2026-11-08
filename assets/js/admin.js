@@ -2,6 +2,7 @@
   'use strict'
 
   await window.RVApi?.ready
+  if(window.RVApi?.platformAdmin){await window.RVPlatformAdmin.mount();return}
   const serverMode = window.RVApi?.serverMode === true || !window.RV_COURSE_CONFIG?.testMode
   if (serverMode) {
     document.querySelectorAll('[data-demo-admin]').forEach((element) => { element.hidden = true })

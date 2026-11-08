@@ -13,8 +13,11 @@
       duration: Number.isFinite(lesson?.durationSeconds) && lesson.durationSeconds > 0 ? durationLabel(lesson.durationSeconds) : 'Duração em preparação',
       time: lesson?.materials?.length ? lesson.materials.join(', ') : 'Confira os materiais nas orientações do vídeo.',
       objective: lesson?.objective || 'Objetivo em revisão pela responsável.',
+      instructions: lesson?.instructions ? [['Orientações da aula',lesson.instructions],...(lesson.warnings||[]).map(text=>['Aviso',text])] : [['Conteúdo em revisão','Confira as orientações apresentadas no vídeo. As instruções editoriais desta aula aguardam revisão da responsável.']],
+      order: lesson?.order || item.day, coverUrl: lesson?.coverUrl || '', durationInformed:lesson?.durationLabel||'',
       videoUrl: '', available: lesson?.available === true }
   })
+  if(serverMode)CONTENT.sort((a,b)=>a.order-b.order)
   const auth = (window.RVCourseStore || window.RVCourseAuthDemo)
   const params = new URLSearchParams(location.search)
   const demoMode = window.RV_COURSE_CONFIG?.testMode === true && params.get('demo') === '1'
@@ -138,6 +141,8 @@
     }
     if(serverMode&&window.RVLessonPlayer){
       window.RVLessonPlayer.mount(shell,{url,title,day:selectedDay,onRetry:()=>renderContent()})
+      const cover=CONTENT.find(value=>value.day===selectedDay)?.coverUrl
+      if(cover&&shell.querySelector('video'))shell.querySelector('video').poster=cover
       return
     }
 
@@ -189,6 +194,14 @@
   }
 
   function renderComments(item) {
+    if(window.RVApi?.platformAdmin){
+      $('[data-comment-count]').textContent='Atendimento privado'
+      $('[data-comment-form]').hidden=true
+      const link=document.createElement('a');link.className='button button--secondary';link.href='/suporte'+(item.day?'?day='+item.day:'');link.textContent=item.day?'Enviar dúvida sobre o dia '+item.day:'Abrir atendimento'
+      $('[data-comment-list]').replaceChildren(link)
+      $('.comment-note').textContent='Sua conversa com a equipe é privada e fica registrada na central de atendimento.'
+      return
+    }
     if (window.RVApi?.qaOnly) {
       $('[data-comment-count]').textContent = 'Em preparação'
       $('[data-comment-list]').replaceChildren()
@@ -211,16 +224,19 @@
   }
 
   function renderContent() {
-    const item = CONTENT[selectedDay]
+    const item = CONTENT.find(value=>value.day===selectedDay)
     const done = new Set(progressDays())
     if (!item) return
 
     $('[data-day-pill]').textContent = item.day === 0 ? 'INTRODUÇÃO' : `DIA ${String(item.day).padStart(2, '0')}`
-    $('[data-phase-label]').textContent = item.phase.toUpperCase()
+    $('[data-phase-label]').textContent = serverMode?'PROGRAMA RV 30':item.phase.toUpperCase()
     $('[data-title]').textContent = item.title
     $('[data-description]').textContent = item.description
     $('[data-time]').textContent = item.time
     $('[data-duration]').textContent = item.duration
+    let informed=document.querySelector('[data-duration-informed]')
+    if(!informed){informed=document.createElement('small');informed.dataset.durationInformed='true';$('[data-duration]').after(informed)}
+    informed.textContent=item.durationInformed?'Duração informada: '+item.durationInformed:''
     $('[data-type]').textContent = item.type
     $('[data-objective]').textContent = item.objective
     $('[data-content-status]').textContent = done.has(item.day) ? 'Conteúdo concluído' : 'Conteúdo disponível'
@@ -233,8 +249,9 @@
     button.classList.toggle('button--secondary', complete)
     button.classList.toggle('button--primary', !complete)
 
-    $('[data-prev]').disabled = item.day === 0
-    $('[data-next]').disabled = item.day === 30
+    const index=CONTENT.findIndex(value=>value.day===item.day)
+    $('[data-prev]').disabled = index<=0
+    $('[data-next]').disabled = index>=CONTENT.length-1
 
     embedVideo(item.videoUrl, item.videoTitle)
     if (serverMode && item.available) {
@@ -292,8 +309,9 @@
     const dayButton = event.target.closest('[data-select-day]')
     if (dayButton) selectDay(dayButton.dataset.selectDay)
     if (event.target.closest('[data-complete]')) toggleComplete()
-    if (event.target.closest('[data-prev]') && selectedDay > 0) selectDay(selectedDay - 1)
-    if (event.target.closest('[data-next]') && selectedDay < 30) selectDay(selectedDay + 1)
+    const index=CONTENT.findIndex(value=>value.day===selectedDay)
+    if (event.target.closest('[data-prev]') && index>0) selectDay(CONTENT[index-1].day)
+    if (event.target.closest('[data-next]') && index<CONTENT.length-1) selectDay(CONTENT[index+1].day)
     if (event.target.closest('[data-reset-demo]') && demoMode) {
       localStorage.removeItem(DEMO_PROGRESS_KEY)
       localStorage.removeItem(DEMO_COMMENTS_KEY)
@@ -308,7 +326,7 @@
     const result = addUserComment(selectedDay, field.value)
     if (!result?.ok) return
     field.value = ''
-    renderComments(CONTENT[selectedDay])
+    renderComments(CONTENT.find(value=>value.day===selectedDay))
     field.focus()
   })
 
@@ -327,6 +345,7 @@
   // Primeiro acesso e opcional; nunca impede a leitura das aulas.
   // A sessao registra apenas um sinalizador, nao dados cardiacos.
   const welcome = $('[data-first-start]')
+  if(welcome&&window.RVApi?.platformAdmin)document.querySelector('.rv-lesson-grid')?.after(welcome)
   if (welcome && account?.id && !demoMode) {
     const marker = 'rv30-welcome-shown-v1:' + account.id
     const profileKey = 'rv30-cardio-demo-v1:' + account.id

@@ -18,7 +18,7 @@ function catalog(env){
   }
   return items
 }
-export function createReviewHandler({html,css,js,logo,qaHtml,qaJs}){
+export function createReviewHandler({html,css,js,logo,qaHtml,qaJs,platformHtml,platformJs}){
   return {async fetch(request,env,ctx){
     try{
       // The platform supplies ctx.access after authenticating this invocation.
@@ -27,6 +27,17 @@ export function createReviewHandler({html,css,js,logo,qaHtml,qaJs}){
       const identity=await ctx.access.getIdentity()
       if(!identity?.email||identity.email.trim().toLowerCase()!==env.ADMIN_EMAIL.trim().toLowerCase())return reply('Acesso restrito à revisão do RV 30.',403)
       const pathname=new URL(request.url).pathname
+      if(pathname==='/api/platform/set-password'&&request.method==='POST'){
+        if(request.headers.get('origin')!==new URL(request.url).origin)return reply('Origem não autorizada.',403)
+        if(!request.headers.get('content-type')?.startsWith('application/json'))return reply('Formulário inválido.',415)
+        const reader=request.body?.getReader(),decoder=new TextDecoder();let size=0,source=''
+        if(reader)for(;;){const part=await reader.read();if(part.done)break;size+=part.value.byteLength;if(size>4096){await reader.cancel();return reply('Formulário muito grande.',413)}source+=decoder.decode(part.value,{stream:true})}
+        source+=decoder.decode();let input;try{input=JSON.parse(source)}catch{return reply('Formulário inválido.',400)}
+        if(!input||!['admin','student'].includes(input.role)||typeof input.password!=='string'||input.password.length<12||input.password.length>128)return reply(JSON.stringify({ok:false,message:'Escolha a conta e use uma senha de 12 a 128 caracteres.'}),400,'application/json; charset=utf-8')
+        if(!env.PLATFORM_CONTROL)return reply(JSON.stringify({ok:false,message:'O controle de homologação ainda não está configurado.'}),503,'application/json; charset=utf-8')
+        try{return reply(JSON.stringify(await env.PLATFORM_CONTROL.setValidationPassword(identity.email,input.role,input.password)),200,'application/json; charset=utf-8')}
+        catch{return reply(JSON.stringify({ok:false,message:'Não foi possível definir a senha. Confira sua sessão privada e as contas de homologação.'}),503,'application/json; charset=utf-8')}
+      }
       if(pathname==='/api/qa/set-password'&&request.method==='POST'){
         if(request.headers.get('origin')!==new URL(request.url).origin)return reply('Origem não autorizada.',403)
         if(!request.headers.get('content-type')?.startsWith('application/json'))return reply('Formulário inválido.',415)
@@ -43,6 +54,8 @@ export function createReviewHandler({html,css,js,logo,qaHtml,qaJs}){
       if(!['GET','HEAD'].includes(request.method))return reply('Método não permitido.',405,undefined,{Allow:'GET, HEAD'})
       if(pathname==='/conta-teste'&&qaHtml)return reply(request.method==='HEAD'?null:qaHtml,200,'text/html; charset=utf-8')
       if(pathname==='/qa-account.js'&&qaJs)return reply(request.method==='HEAD'?null:qaJs,200,'text/javascript; charset=utf-8')
+      if(pathname==='/plataforma'&&platformHtml)return reply(request.method==='HEAD'?null:platformHtml,200,'text/html; charset=utf-8')
+      if(pathname==='/platform-account.js'&&platformJs)return reply(request.method==='HEAD'?null:platformJs,200,'text/javascript; charset=utf-8')
       const url=new URL(request.url),items=catalog(env)
       if(!items||!env.VIDEOS)return reply('Os vídeos estão sendo preparados.',503)
       if(url.pathname==='/'||url.pathname==='/revisao')return reply(request.method==='HEAD'?null:html,200,'text/html; charset=utf-8')

@@ -1,0 +1,12 @@
+const form=document.querySelector('#platform-password')
+form.addEventListener('submit',async event=>{
+ event.preventDefault();if(!form.reportValidity())return
+ const data=new FormData(form),status=form.querySelector('[role=status]'),button=form.querySelector('button')
+ if(data.get('password')!==data.get('confirm')){status.textContent='As senhas precisam ser iguais.';return}
+ button.disabled=true;status.textContent='Definindo senha…'
+ try{
+  const response=await fetch('/api/platform/set-password',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:data.get('role'),password:data.get('password')})})
+  const result=await response.json();if(!response.ok)throw Error(result.message||'Não foi possível definir a senha. Confira sua sessão privada.')
+  form.reset();status.textContent=result.message
+ }catch(error){status.textContent=error.message}finally{button.disabled=false}
+})

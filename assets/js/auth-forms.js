@@ -30,6 +30,7 @@
       status.textContent = result.message || (result.ok ? 'Confira seu e-mail para continuar.' : 'Não foi possível concluir. Tente novamente.')
       if (result.ok && onSuccess) onSuccess(result)
     })
+    form.querySelector('button[type=submit]').disabled=false
   }
   if(window.RVApi.platformIdentity){
     panel.querySelectorAll('[data-signup-form], [data-recover-form]').forEach(form=>form.closest('details').hidden=true)

@@ -7,12 +7,12 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br https://*.supabase.co; font-src 'self'; form-action 'self'; upgrade-insecure-requests"><meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#0b1d26"><title>Entrar no RV 30 · RV Fisiologia</title>
   <link rel="stylesheet" href="/assets/css/tokens.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="assets/css/projeto.css?v=20261107-petroleum">
+  <link rel="stylesheet" href="assets/css/projeto.css?v=20261108-admin">
   <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261107-student">
   <script src="assets/js/config.js?v=20261025" defer></script>
   <script src="assets/js/runtime.js?v=20261025" defer></script>
-  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261107-identity" defer></script>
-  <script src="assets/js/login.js?v=20261107-identity" defer></script><script src="/assets/js/auth-forms.js?v=20261107-identity" defer></script>
+  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261108-admin" defer></script>
+  <script src="assets/js/login.js?v=20261108-admin" defer></script><script src="/assets/js/auth-forms.js?v=20261108-admin" defer></script>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261107-student">
 
@@ -34,31 +34,31 @@
           <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
           <label>Senha<input name="password" type="password" autocomplete="current-password" required placeholder="Sua senha"></label>
           <p class="form-error" role="alert" aria-live="polite" data-form-error></p>
-          <button class="button button--primary button--wide" type="submit">Entrar</button>
+          <button class="button button--primary button--wide" type="submit" disabled>Entrar</button>
         </form>
         <div data-account-actions hidden>
-          <form class="portal-form" data-verify-form hidden>
+          <form class="portal-form" method="post" data-verify-form hidden>
             <h3 data-verify-title>Confirmar meu e-mail</h3>
             <p>Confirme abaixo para continuar. O link só será utilizado ao enviar este formulário.</p>
             <label hidden>Nova senha<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password"></label>
             <p role="status" aria-live="polite"></p>
-            <button class="button button--primary" type="submit">Confirmar e continuar</button>
+            <button class="button button--primary" type="submit" disabled>Confirmar e continuar</button>
           </form>
           <details id="recuperar"><summary>Esqueci minha senha</summary>
-            <form class="portal-form" data-recover-form>
+            <form class="portal-form" method="post" data-recover-form>
               <label>E-mail de recuperação<input name="email" type="email" autocomplete="email" required></label>
               <p role="status" aria-live="polite"></p>
-              <button class="button button--secondary" type="submit">Enviar instruções</button>
+              <button class="button button--secondary" type="submit" disabled>Enviar instruções</button>
             </form>
           </details>
           <details><summary>Criar minha conta</summary>
-            <form class="portal-form" data-signup-form>
+            <form class="portal-form" method="post" data-signup-form>
               <label>Nome completo<input name="name" autocomplete="name" minlength="3" maxlength="100" required></label>
               <label>E-mail da nova conta<input name="email" type="email" autocomplete="email" required></label>
               <label>Crie uma senha de pelo menos 12 caracteres<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
               <p>Criar a conta não libera o programa. O acesso depende da confirmação da compra.</p>
               <p role="status" aria-live="polite"></p>
-              <button class="button button--secondary" type="submit">Criar conta</button>
+              <button class="button button--secondary" type="submit" disabled>Criar conta</button>
             </form>
           </details>
         </div>

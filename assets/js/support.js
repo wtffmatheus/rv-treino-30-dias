@@ -1,6 +1,7 @@
 (async () => {
   'use strict'
   if (window.RVApi) await window.RVApi.ready
+  if(window.RVApi?.platformAdmin){await window.RVPlatformSupport.page();return}
   if (window.RVApi?.serverMode) {
     const main = document.querySelector('main')
     if (main) main.innerHTML = '<section class="auth-card"><h1>Suporte RV 30</h1><p>O atendimento pela plataforma está em preparação. Utilize o canal de contato informado pela equipe RV.</p><a class="button button--primary" href="/meus-cursos">Meus cursos</a></section>'

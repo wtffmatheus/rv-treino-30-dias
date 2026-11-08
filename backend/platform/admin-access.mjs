@@ -1,4 +1,5 @@
 import {fail,requireAdmin,identityEvent} from './auth.mjs'
+import {audit} from './admin-common.mjs'
 export async function listStudents(env,now=Date.now()){
  const db=env.QA_DB,kind=env.PLATFORM_ENV==='production'?'commercial':'validation'
  const rows=await db.prepare(`select u.id,u.email,u.name,u.status,e.expires_at,e.revoked,e.starts_at from qa_users u join identity_metadata m on m.user_id=u.id join user_roles r on r.user_id=u.id and r.role='student' left join enrollments e on e.user_id=u.id and e.course_id='rv30' where m.kind=? order by u.created_at desc limit 100`).bind(kind).all()
@@ -19,10 +20,13 @@ export async function changeAccess(env,session,userId,input,now=Date.now()){
  }else if(input.access==='revoke'){
   action='access_revoked';statements.push(db.prepare("update enrollments set revoked=1,updated_at=? where user_id=? and course_id='rv30'").bind(now,userId))
  }else if(input.access==='grant'){
+  const existing=await db.prepare("select source from enrollments where user_id=? and course_id='rv30'").bind(userId).first()
+  if(existing?.source==='payment')fail(403,'PAYMENT_ENROLLMENT_IMMUTABLE','A matrícula de compra não pode ser renovada ou reativada manualmente. Confira o pagamento com o provedor.')
   action='access_granted'
   statements.push(db.prepare("insert into enrollments(user_id,course_id,source,starts_at,expires_at,revoked,updated_at) values(?,'rv30',?,?,?,0,?) on conflict(user_id,course_id) do update set revoked=0,updated_at=excluded.updated_at,starts_at=case when expires_at>? then starts_at else excluded.starts_at end,expires_at=case when expires_at>? then expires_at else excluded.expires_at end").bind(userId,row.kind==='validation'?'owner_validation':'administrative',now,now+365*86400000,now,now,now),db.prepare("insert into user_roles(user_id,role,assigned_at,assigned_by) values(?,'student',?,?) on conflict(user_id,role) do nothing").bind(userId,now,session.user.id))
  }else fail(400,'INVALID_ACTION','Escolha uma ação válida.')
  statements.push(identityEvent(db,userId,session.user.id,action,now))
+ if(env.PLATFORM_ADMIN_ENABLED==='true')statements.push(audit(db,session,'student',userId,action,{},now))
  await db.batch(statements)
  return{ok:true}
 }

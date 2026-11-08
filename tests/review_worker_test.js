@@ -38,6 +38,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.equal(passwordCalls,0)
  assert.equal((await setPassword()).status,200);assert.equal(passwordCalls,1)
  assert.equal((await qa.fetch(new Request('https://review.example.test/conta-teste'),qaEnv,ctx)).status,200)
+ const owner=createReviewHandler({platformHtml:'<h1>Homologação</h1>',platformJs:'void 0'}),ownerCalls=[]
+ const ownerEnv={...env,PLATFORM_CONTROL:{setValidationPassword:async(email,role,password)=>{ownerCalls.push({email,role,strong:password.length>=12});return{ok:true,message:'Senha de homologação definida.'}}}}
+ const ownerRequest=(context=ctx,origin='https://review.example.test',input={role:'admin',password:'StrongFixturePassword123'})=>owner.fetch(new Request('https://review.example.test/api/platform/set-password',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(input)}),ownerEnv,context)
+ assert.equal((await ownerRequest({})).status,403);assert.equal((await ownerRequest(ctx,'https://evil.example.test')).status,403)
+ assert.equal((await ownerRequest(ctx,undefined,{role:'admin',password:'123456'})).status,400);assert.equal(ownerCalls.length,0)
+ assert.equal((await ownerRequest()).status,200);assert.deepEqual(ownerCalls,[{email:'admin@example.test',role:'admin',strong:true}])
+ assert.equal((await owner.fetch(new Request('https://review.example.test/plataforma'),ownerEnv,ctx)).status,200)
+ assert.equal((await owner.fetch(new Request('https://review.example.test/plataforma',{headers:{'Cf-Access-Authenticated-User-Email':'admin@example.test'}}),ownerEnv,{})).status,403)
+ new vm.Script(fs.readFileSync(path.join(__dirname,'../backend/review/platform-account.js.txt'),'utf8'))
  new vm.Script(fs.readFileSync(path.join(__dirname,'../backend/review/viewer.js.txt'),'utf8'))
  console.log('Revisão privada: contexto Access, administrador, catálogo sem chaves, streaming, HEAD, ranges, dia ausente e falhas fechadas passaram com fixtures.')
 })().catch(e=>{console.error(e);process.exitCode=1})

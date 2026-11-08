@@ -1,5 +1,6 @@
 (async () => {
   'use strict'
+  document.querySelector('[data-login-form]')?.addEventListener('submit',event=>event.preventDefault())
 
   if (window.RVApi) await window.RVApi.ready
 
@@ -166,4 +167,5 @@
 
     location.href = window.RVRoute?.resolve(next) || next
   })
+  const submit=form?.querySelector('button[type=submit]');if(submit)submit.disabled=false
 })()

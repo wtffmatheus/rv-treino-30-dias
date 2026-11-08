@@ -1,6 +1,7 @@
 (async () => {
   'use strict'
   await window.RVApi?.ready
+  if(window.RVApi?.platformAdmin){location.replace('/admin?view=media');return}
   const serverMode = window.RVApi?.serverMode === true || !window.RV_COURSE_CONFIG?.testMode
   if (serverMode) {
     document.querySelectorAll('[data-local-video-editor]').forEach((element) => { element.hidden = true })

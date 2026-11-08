@@ -1,10 +1,10 @@
 {
  "$schema":"./node_modules/wrangler/config-schema.json",
  "name":"rv30-platform-staging","account_id":"d0636456db3515c826fdc78467f5c899",
- "main":"backend/platform/worker.mjs","compatibility_date":"2026-11-07",
+ "main":"backend/platform/entry.mjs","compatibility_date":"2026-11-07",
  "workers_dev":true,"preview_urls":false,
  "d1_databases":[{"binding":"QA_DB","database_name":"rv30-platform-staging","database_id":"83d1c103-36b9-47c7-b5e5-fe9d1b08b2ea"}],
  "r2_buckets":[{"binding":"VIDEOS","bucket_name":"rv30-videos-private"}],
- "vars":{"PLATFORM_ENV":"staging","PUBLIC_SITE_URL":"https://rv30-platform-staging.user-matheus169.workers.dev"},
+ "vars":{"PLATFORM_ENV":"staging","PLATFORM_ADMIN_ENABLED":"true","PUBLIC_SITE_URL":"https://rv30-platform-staging.user-matheus169.workers.dev"},
  "observability":{"enabled":true,"traces":{"enabled":true}}
 }

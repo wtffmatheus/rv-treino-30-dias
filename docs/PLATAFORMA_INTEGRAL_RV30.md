@@ -77,8 +77,9 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 - Etapa 2: APROVADA. Commit `46f0564241008d0574b4e749877d43f9cdb76e71`, Actions `42400888494` aprovado, preview `dpl_AFUHKzirjydMgAVgH12jwHDoQG5C` READY. As 32 combinações públicas de página/largura foram conferidas no preview exato.
 - Etapa 3: APROVADA EM STAGING. Commit `1714b46a1e00850640a4a2b3ec94a83352e98ab2`, Actions `42403803838` aprovado, preview `dpl_3e5yc1jmDHq8VXnTCgGm4EhZwyQv` READY. Capturas e persistência conferidas no preview exato.
 - Etapa 4: APROVADA EM STAGING. Commit `c85e0f8a750bd30865d30835f25d8bfb314ffd10`, Actions `42405439742`, preview `dpl_5M9CdLJy1nbT35xDLEZjkZvgZMZ7` READY; áudio, reprodução, busca, retomada e revogação comprovados.
-- Etapa 5: EM IMPLEMENTAÇÃO, após aprovação da etapa 4.
-- Etapas 6 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 5: APROVADA EM STAGING. Commit `badeaf0d3541c9a59329089912eb51168145ddd9`, Actions `42408546531`, preview `dpl_FfMd8oCSmQuBvmen75B18WN39tNw` READY; quatro perfis, recuperação, isolamento e expiração reais conferidos.
+- Etapa 6: EM IMPLEMENTAÇÃO, após aprovação da etapa 5.
+- Etapas 7 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
@@ -328,3 +329,149 @@ nessa captura. Evidências privadas sanitizadas: `output/platform-ui-*-sanitized
 Estado: TESTADA LOCALMENTE com serviços conectados. Commit/Actions e repetição no
 preview exato ainda são necessários para aprovar a etapa. A gestão completa,
 editor de cursos/mídias, suporte e métricas pertencem à etapa 6.
+
+### Aprovação da etapa 5 em staging
+
+Commit `badeaf0d3541c9a59329089912eb51168145ddd9` confirmado no remoto,
+[Actions 42408546531 aprovado](https://github.com/wtffmatheus/rv-treino-30-dias/actions/runs/42408546531),
+deployment `dpl_FfMd8oCSmQuBvmen75B18WN39tNw` READY:
+`rv-treino-30-dias-hdogj6b4s-matheus-silvas-projects-feb13148.vercel.app`.
+Logs confirmam esse commit, build concluído e nenhum erro de build. Worker
+isolado com o novo módulo de identidade; versão de código
+`bb5faa3c-7a88-4530-97c1-e8703b41de87`, com origem exata do preview configurada
+posteriormente como secret. Proteção de acesso da Vercel preservada.
+
+No preview, os quatro perfis passaram pelo formulário real; admin sem matrícula,
+aluno com admin 403 e alternância de contextos confirmados. Recuperação passou
+sem consumo no GET, com senha forte, senha antiga recusada, nova senha aceita,
+replay 400 e sessão anterior 401. As repetições inicialmente atingiram o limite
+real de tentativas (429); a proteção foi mantida e a jornada foi repetida após
+a janela. O harness passou a iniciar por outro documento antes do link com
+fragmento, evitando navegação de âncora sem reinicializar os scripts.
+
+Dois alunos reais de validação foram abertos em contextos separados. Um PUT com
+`userId` do outro aluno e papel administrativo forjado alterou somente o
+progresso da identidade autenticada; o progresso da outra conta permaneceu
+idêntico. O estado inicial da fixture foi restaurado. Administração continuou
+403. Matrícula vencida: conta 200, vídeo 403 e sem continuar; sessão vencida:
+login e conta 401; matrícula restaurada e novo login ativo.
+
+Player novamente conferido com a nova identidade: dias 1/15/25/29 reproduziram
+237/266/260/244 frames e áudio não silencioso, buscaram e retomaram a posição.
+84 respostas Range válidas; nenhuma exceção JavaScript na jornada positiva.
+Dia 30 permaneceu bloqueado. Duas verificações conectadas de preview passaram,
+sem interceptação de requisições. Dez screenshots de login/dashboard e quatro
+dos vídeos foram abertos e examinados em `output/qa-previews/integral-stage5-preview-*`.
+
+Gate técnico da etapa 5 aprovado. Isso não homologa envio automático de e-mail,
+cadastro comercial, gestão completa ou pagamentos. O domínio principal foi
+consultado novamente: continua em `dpl_4iei9qAakJwvSk83Hy9orDcTCPYR`, commit
+`a9a8b5482b97c4ddec7c375fba43f4dda52f62c7`, READY, sem promoção desta rodada.
+
+## Etapa 6 — administração persistente
+
+Migração aditiva em `backend/platform/admin-schema.sql`, aplicada apenas no D1
+isolado após exportação privada de 104.213 bytes. O Wrangler recusou a exportação
+por autorização (10000); a conexão Cloudflare disponível concluiu o backup e a
+migração. A API retornou 81 instruções e 92 alterações de preparação. Nenhum
+comando foi direcionado ao banco ou ao Worker do domínio principal.
+
+Catálogo persistente com 30 posições, 29 vídeos importados e dia 30 pendente.
+Não foram sobrescritos os objetos originais. Preço inicial aprovado: R$ 399;
+matrícula comercial permanece em 365 dias e não é editada pelo painel. Períodos
+administrativos podem ser alterados, com origem identificada e auditoria.
+
+Módulos implementados:
+
+- Perfis: criação sem matrícula e sem senha conhecida pelo administrador,
+  convite privado de ativação, busca, filtros, paginação de 25 itens, detalhes,
+  contato, validade administrativa, notas, conclusões, histórico e atividade.
+  Liberação, revogação, bloqueio e papéis consultam permissões no servidor.
+  Exportação CSV limitada a 5.000 registros, com proteção contra fórmulas.
+- Curso/aulas: rascunhos e publicação separados, objetivo, orientações, materiais,
+  avisos, duração informada, ordem, vídeo, capa e confirmação de revisão. Versões
+  persistidas e restauração como rascunho. Revisão otimista impede sobrescrita
+  concorrente; índice único protege a ordem publicada. Alterações não removem
+  progresso. Nova publicação exige mídia pronta, tamanho no R2 e revisão editorial.
+- Biblioteca: upload multipart autenticado em blocos de 5 MiB, retomada, cancelamento,
+  limite de 2 GiB por vídeo/5 MiB por capa e quota diária por administrador. Chaves
+  e identificadores multipart não são expostos. Servidor confere tamanho e
+  metadados MP4 faststart/H.264/AAC, duração e dimensões; capas PNG incluem CRC e
+  imagens aceitas são PNG/JPEG. Upload termina em revisão; somente aprovação
+  explícita permite associação. Não há transcodificação automática nem alegação
+  de decodificação integral no Worker. Arquivos incompatíveis são recusados.
+- Suporte: solicitação privada por aluno, associação opcional ao dia, mensagens,
+  resposta da equipe, leitura, não lidas e situação do atendimento. Outro aluno
+  recebe 404. Conteúdo de mensagem e notas não aparece no log de auditoria.
+- Métricas: matrículas, contas, período, logins, inícios, conclusões, progresso,
+  atividade, aulas e pendências calculados do banco. Aula sem conclusão marcada
+  não é apresentada como prova de abandono. Gráfico usa totais diários reais.
+- Comercial: tabela e consulta de pedidos/estados preparados; não existe botão
+  para inventar confirmação de pagamento ou executar reembolso. Gateway/webhook
+  continuam não homologados, receita indisponível e vendas bloqueadas.
+- Auditoria: operações administrativas registradas com ator, entidade, referência,
+  operação e data. Versão/publicação e evento são persistidos na mesma transação.
+  Senhas, cookies e tokens não são incluídos no histórico.
+
+Interface com navegação compacta, menu mobile por teclado, formulários com rótulos
+explícitos e tabelas reorganizadas em blocos no celular. Corrigido espaço vazio
+em páginas curtas causado pela distribuição automática das linhas do grid.
+Seletores e botões usam os tokens compartilhados; a biblioteca expõe o formulário
+de novo envio em um painel expansível antes da listagem. Na aula, o primeiro
+convite à calculadora fica depois do player, sem impedir a reprodução.
+
+Corrigida uma falha real da inicialização: o login podia receber envio antes do
+handler estar pronto. Botões começam desabilitados e há prevenção síncrona do
+POST nativo; somente a vinculação do formulário habilita a ação. Convite,
+recuperação e cadastro também usam POST e ativação controlada. Testes mantêm a
+configuração pendente e verificam que nenhum envio nativo ocorre.
+
+Jornada local com frontend no Chromium e API/D1/R2 reais: criação e convite de
+um perfil exclusivo de validação, login, edição de contato, validade e nota;
+solicitação e resposta privada; upload do arquivo correto do dia 29 e da logo
+como capa de teste; reprodução privada do upload (35 frames, 720×1280, 12,266667 s);
+aprovação de mídia; associação e publicação; reprodução pelo aluno e capa 200;
+conclusão; despublicação com mídia 404 sem perder progresso; restauração de versão;
+revogação 403, bloqueio 401, desbloqueio sem restaurar sessão e exportação CSV.
+Foram observadas 97 respostas e nenhuma exceção JavaScript na jornada aprovada.
+O perfil criado terminou bloqueado e revogado, sem cobrança.
+
+O conteúdo técnico temporário foi restaurado ao snapshot anterior da aula 29,
+com nova revisão e evento `technical_validation_restored`, sem apagar o histórico.
+As tentativas interrompidas do harness também ficaram identificadas como contas
+de validação bloqueadas/revogadas. Não houve criação de compradores comerciais.
+Evidência sanitizada: `output/platform-stage6-local-journey.json`; CSV e estados
+autenticados permanecem privados e ignorados pelo Git.
+
+Player revalidado após o catálogo persistente: dias 1/15/25/29 com áudio não
+silencioso, busca/retomada e respectivamente 180/262/256/239 frames. Houve 21
+respostas Range válidas e dia 30 bloqueado. Fonte:
+`output/platform-stage6-local-videos.json`. Isso não equivale a aprovação editorial
+das orientações de treino, que continua pendente da responsável.
+
+Recuperação do responsável preparada em `/plataforma` no serviço de revisão
+privado. O contexto Cloudflare Access é obrigatório; cabeçalhos forjados não o
+substituem. RPC restrito às duas contas de homologação já configuradas, senha
+forte e invalidação das sessões; indisponível para identidades comerciais.
+Testes D1 locais e de contexto Access passaram. Requisição anônima real foi
+encaminhada ao login Access (302); a troca real de senha pelo proprietário ainda
+não foi executada e não é apresentada como homologada. A versão antiga do
+domínio principal usa outro banco e suas senhas não são alteradas por essa página.
+
+Estado desta etapa: TESTADA LOCALMENTE com serviços conectados; revisão visual,
+CI e repetição na URL exata de preview ainda necessárias para aprovação.
+
+Fechamento local: `npm test`, 65 testes E2E, lint, typecheck, build e dry-runs
+aprovados. Sete casos novos de UI cobrem navegação/teclado, filtros, conflito de
+cadastro, revisão concorrente, texto inerte no suporte, inicialização dos dois
+logins e distribuição de página curta no mobile. As 35 capturas administrativas
+nas cinco resoluções foram abertas e examinadas; correções de tabela mobile,
+seletores, página curta e acesso ao upload foram recapturadas. Larguras adicionais
+320/375/430/1024 sem overflow. Os registros da auditoria foram traduzidos para
+português na interface, preservando os códigos no backend.
+
+Na revisão final, a reativação administrativa passou a distinguir matrícula
+existente de nova liberação por 365 dias. Matrículas de origem pagamento não
+podem ser renovadas, reativadas ou ter validade alterada manualmente. Bloqueio,
+liberação e revogação também entram na auditoria central na mesma transação.
+Esses limites têm contratos D1 locais, sem simular confirmação de pagamento.

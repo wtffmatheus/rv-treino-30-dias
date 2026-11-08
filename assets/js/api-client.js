@@ -63,6 +63,7 @@
     api.qaOnly = api.configured && status.qaOnly === true
     api.platformMode = api.configured && status.platformMode === true
     api.platformIdentity = api.configured && status.platformIdentity === true
+    api.platformAdmin = api.configured && status.platformAdmin === true
     api.serverMode = api.configured || !config.testMode
     api.salesEnabled = api.configured && status.salesEnabled === true
     const approvedProduct = config.courses?.find(product => product.id === 'rv30' && product.commercialApproved === true)
