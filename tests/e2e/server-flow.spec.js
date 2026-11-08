@@ -247,7 +247,8 @@ test('API indisponível: preço e prazo aprovados aparecem sem habilitar vendas 
   await expect(page.locator('[data-order-total]').last()).toHaveText('R$ 399,00')
   await expect(page.locator('[data-checkout-form]')).toBeHidden()
   await expect(page.locator('[data-test-payment]')).toBeHidden()
-  await expect(page.locator('.secure-note')).toContainText('Asaas')
+  await expect(page.locator('.secure-note')).toContainText('Mercado Pago')
+  await expect(page.locator('.secure-note')).toContainText('integração em preparação')
 })
 
 test('demonstração local: falha na simulação aparece em alerta e não confirma compra', async ({ page }) => {

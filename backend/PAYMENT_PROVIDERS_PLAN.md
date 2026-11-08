@@ -1,7 +1,7 @@
 # Pagamentos — plano de provider para RV Cursos
 
-> Plano histórico. A configuração atual é Asaas com vendas bloqueadas; consultar
-> [ASAAS_ACCESS365.md](ASAAS_ACCESS365.md). Fluxos manuais abaixo não autorizam
+> Plano histórico. O proprietário escolheu Mercado Pago em 08/11/2026; consultar
+> [decisão e pendências atuais](../docs/MERCADO_PAGO_RV30.md). Vendas bloqueadas. Fluxos manuais abaixo não autorizam
 > matrícula ou confirmação de pagamento na API atual.
 
 ## Decisão histórica

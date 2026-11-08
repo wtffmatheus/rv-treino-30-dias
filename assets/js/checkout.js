@@ -14,6 +14,7 @@
   const productionButton = document.querySelector('[data-production-checkout]')
   const setupError = document.querySelector('[data-checkout-config-error]')
   const paymentProviderLabels = {
+    mercado_pago: 'Mercado Pago',
     asaas: 'Asaas',
     stone_link: 'Stone Link de Pagamento',
     manual: 'pagamento configurado pela RV'

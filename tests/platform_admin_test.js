@@ -94,6 +94,28 @@ function mp4(){
   assert.deepEqual((await a('/orders')).body.orders,[]);assert.equal((await a('/metrics?days=9999')).status,400)
   assert((await a('/audit')).body.events.length>10);assert(!JSON.stringify((await a('/audit')).body).includes(invitation.body.token))
   assert.equal(PART_BYTES,5*1024*1024)
+  // Independent race scenarios: reset only the fixture rate windows so these
+  // concurrency assertions do not depend on the preceding CRUD call count.
+  await db.prepare('delete from auth_limits').run()
+  const racing=await a('/uploads',{method:'POST',body:{label:'Conclusão concorrente de fixture',kind:'video',bytes:bytes.length}});assert.equal(racing.status,201)
+  assert.equal((await a('/uploads/'+racing.body.id+'/parts/1',{method:'PUT',binary:bytes})).status,200)
+  const {uploadFinish}=await import('../backend/platform/media.mjs'),{authenticate}=await import('../backend/platform/auth.mjs')
+  const adminSession=await authenticate(new Request(origin,{headers:{Cookie:admin}}),env,now)
+  let releaseCompletion,notifyCompletion
+  const paused=new Promise(resolve=>{releaseCompletion=resolve}),completing=new Promise(resolve=>{notifyCompletion=resolve})
+  const delayedBucket={head:bucket.head.bind(bucket),get:bucket.get.bind(bucket),resumeMultipartUpload(key,uploadId){const handle=bucket.resumeMultipartUpload(key,uploadId);return{async complete(parts){notifyCompletion();await paused;return handle.complete(parts)}}}}
+  const finishing=uploadFinish({...env,VIDEOS:delayedBucket},adminSession,racing.body.id,now)
+  await completing
+  try{
+   await assert.rejects(()=>uploadFinish(env,adminSession,racing.body.id,now),error=>error.status===409&&error.code==='UPLOAD_FINALIZING')
+   assert.equal((await db.prepare('select state from media_uploads where id=?').bind(racing.body.id).first()).state,'finalizing')
+  }finally{releaseCompletion()}
+  assert.equal((await finishing).ok,true)
+  assert.equal((await uploadFinish(env,adminSession,racing.body.id,now)).ok,true)
+  assert.equal((await db.prepare("select count(*) as n from audit_events where subject_id=? and action='upload_completed'").bind(racing.body.id).first()).n,1)
+  const simultaneous=await Promise.all([1,2,3,4].map(n=>a('/uploads',{method:'POST',body:{label:'Quota concorrente '+n,kind:'video',bytes:bytes.length}})))
+  assert.deepEqual(simultaneous.map(x=>x.status).sort(),[201,201,201,409])
+  assert.equal((await db.prepare("select count(*) as n from media_uploads where owner_id='admin' and state='open'").first()).n,3)
   const{setOwnerValidationPassword}=await import('../backend/platform/owner-control.mjs'),ownerEnv={...env,QA_ADMIN_EMAIL:'admin@example.test',QA_EMAIL:'student-a@example.test'}
   await assert.rejects(()=>setOwnerValidationPassword(ownerEnv,'other@example.test','admin','StrongOwnerPassword123',now),error=>error.status===403)
   await assert.rejects(()=>setOwnerValidationPassword({...ownerEnv,PLATFORM_ENV:'production'},'admin@example.test','admin','StrongOwnerPassword123',now),error=>error.status===403)

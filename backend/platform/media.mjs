@@ -66,7 +66,13 @@ export async function uploadBegin(env,session,input,now){
  if(quota.bytes+bytes>4*1024*1024*1024)fail(429,'UPLOAD_QUOTA','O limite diário de envio é 4 GiB por administrador.')
  const opened=await env.QA_DB.prepare("select count(*) as n from media_uploads where owner_id=? and state='open' and expires_at>?").bind(session.user.id,now).first();if(opened.n>=3)fail(409,'UPLOAD_ACTIVE','Conclua ou cancele os envios anteriores.')
  const id=crypto.randomUUID(),key=`rv30/uploads/${id}.${kind==='video'?'mp4':'image'}`,upload=await env.VIDEOS.createMultipartUpload(key,{httpMetadata:{contentType:kind==='video'?'video/mp4':'application/octet-stream'}})
- try{await env.QA_DB.batch([env.QA_DB.prepare("insert into media_uploads(id,owner_id,object_key,upload_id,kind,label,expected_bytes,state,created_at,expires_at) values(?,?,?,?,?,?,?,'open',?,?)").bind(id,session.user.id,key,upload.uploadId,kind,label,bytes,now,now+86400000),audit(env.QA_DB,session,'media',id,'upload_started',{kind,bytes},now)])}catch(error){await upload.abort();throw error}
+ try{
+  const accepted=await env.QA_DB.batch([
+   env.QA_DB.prepare("insert into media_uploads(id,owner_id,object_key,upload_id,kind,label,expected_bytes,state,created_at,expires_at) select ?,?,?,?,?,?,?,'open',?,? where (select coalesce(sum(expected_bytes),0) from media_uploads where owner_id=? and created_at>? and state!='aborted')+?<=? and (select count(*) from media_uploads where owner_id=? and state='open' and expires_at>?)<3").bind(id,session.user.id,key,upload.uploadId,kind,label,bytes,now,now+86400000,session.user.id,now-86400000,bytes,4*1024*1024*1024,session.user.id,now),
+   env.QA_DB.prepare("insert into audit_events(id,actor_id,entity,subject_id,action,detail,at) select ?,?,'media',?,'upload_started',?,? where exists(select 1 from media_uploads where id=?)").bind(crypto.randomUUID(),session.user.id,id,JSON.stringify({kind,bytes}),now,id)
+  ])
+  if(accepted[0].meta.changes!==1)fail(409,'UPLOAD_LIMIT','Outro envio ocupou a quota. Conclua ou cancele os envios anteriores.')
+ }catch(error){await upload.abort();throw error}
  return{ok:true,id,partBytes:PART_BYTES,parts:Math.ceil(bytes/PART_BYTES),expiresAt:new Date(now+86400000).toISOString()}
 }
 async function ownedUpload(env,session,id,now){
@@ -98,11 +104,15 @@ export async function uploadFinish(env,session,id,now){
   const claim=await db.prepare("update media_uploads set state='finalizing' where id=? and state='open' and revision=?").bind(id,row.revision).run();if(!claim.meta.changes)fail(409,'UPLOAD_CONFLICT','O envio está sendo concluído. Consulte novamente.')
   try{await env.VIDEOS.resumeMultipartUpload(row.object_key,row.upload_id).complete(parts.map(({partNumber,etag})=>({partNumber,etag})))}catch(error){if(!await env.VIDEOS.head(row.object_key))throw error}
  }
+ // A retry can arrive while R2 is still completing the first request. It must
+ // not mark that valid upload failed merely because the object is not ready.
+ if(!await env.VIDEOS.head(row.object_key))fail(409,'UPLOAD_FINALIZING','O arquivo ainda está sendo concluído. Consulte novamente em instantes.')
  let metadata
  try{metadata=await inspectObject(env,row)}catch(error){if(error.code){await db.batch([db.prepare("update media_uploads set state='failed' where id=?").bind(id),audit(db,session,'media',id,'upload_rejected',{code:error.code},now)])}throw error}
  await db.batch([
   db.prepare("insert into media_records(id,object_key,kind,label,state,bytes,duration,width,height,format,created_by,created_at) values(?,?,?,?,'review',?,?,?,?,?,?,?) on conflict(id) do nothing").bind(id,row.object_key,row.kind,row.label,row.expected_bytes,metadata.duration,metadata.width,metadata.height,metadata.format,session.user.id,now),
-  db.prepare("update media_uploads set state='completed' where id=? and state='finalizing'").bind(id),audit(db,session,'media',id,'upload_completed',{state:'review',bytes:row.expected_bytes},now)
+  db.prepare("update media_uploads set state='completed' where id=? and state='finalizing'").bind(id),
+  db.prepare("insert into audit_events(id,actor_id,entity,subject_id,action,detail,at) select ?,?,'media',?,'upload_completed',?,? where not exists(select 1 from audit_events where entity='media' and subject_id=? and action='upload_completed')").bind(crypto.randomUUID(),session.user.id,id,JSON.stringify({state:'review',bytes:row.expected_bytes}),now,id)
  ])
  return{ok:true,id,state:'review',message:'Arquivo privado recebido. Confira a prévia e confirme a revisão antes de associar a uma aula.'}
 }

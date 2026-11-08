@@ -14,6 +14,7 @@
       time: lesson?.materials?.length ? lesson.materials.join(', ') : 'Confira os materiais nas orientações do vídeo.',
       objective: lesson?.objective || 'Objetivo em revisão pela responsável.',
       instructions: lesson?.instructions ? [['Orientações da aula',lesson.instructions],...(lesson.warnings||[]).map(text=>['Aviso',text])] : [['Conteúdo em revisão','Confira as orientações apresentadas no vídeo. As instruções editoriais desta aula aguardam revisão da responsável.']],
+      phase: item.day === 0 ? 'Comece aqui' : lesson?.available === true ? 'Aula disponível' : 'Conteúdo em preparação',
       order: lesson?.order || item.day, coverUrl: lesson?.coverUrl || '', durationInformed:lesson?.durationLabel||'',
       videoUrl: '', available: lesson?.available === true }
   })

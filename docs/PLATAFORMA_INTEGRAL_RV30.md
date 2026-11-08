@@ -78,8 +78,9 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 - Etapa 3: APROVADA EM STAGING. Commit `1714b46a1e00850640a4a2b3ec94a83352e98ab2`, Actions `42403803838` aprovado, preview `dpl_3e5yc1jmDHq8VXnTCgGm4EhZwyQv` READY. Capturas e persistência conferidas no preview exato.
 - Etapa 4: APROVADA EM STAGING. Commit `c85e0f8a750bd30865d30835f25d8bfb314ffd10`, Actions `42405439742`, preview `dpl_5M9CdLJy1nbT35xDLEZjkZvgZMZ7` READY; áudio, reprodução, busca, retomada e revogação comprovados.
 - Etapa 5: APROVADA EM STAGING. Commit `badeaf0d3541c9a59329089912eb51168145ddd9`, Actions `42408546531`, preview `dpl_FfMd8oCSmQuBvmen75B18WN39tNw` READY; quatro perfis, recuperação, isolamento e expiração reais conferidos.
-- Etapa 6: EM IMPLEMENTAÇÃO, após aprovação da etapa 5.
-- Etapas 7 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 6: APROVADA EM STAGING. Commit `6bae377f5dc6ddd82410854fb85744c466b136c9`, Actions `42511656121` aprovado, preview `dpl_AFM15E699t5gf2RZj4oRgeL1umcb` READY; jornada administrativa e mídia reais repetidas na URL exata.
+- Etapa 7: EM REVISÃO, após aprovação da etapa 6.
+- Etapas 8 a 10: PENDENTES, ainda não iniciadas nesta rodada.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
@@ -475,3 +476,76 @@ existente de nova liberação por 365 dias. Matrículas de origem pagamento não
 podem ser renovadas, reativadas ou ter validade alterada manualmente. Bloqueio,
 liberação e revogação também entram na auditoria central na mesma transação.
 Esses limites têm contratos D1 locais, sem simular confirmação de pagamento.
+
+### Fechamento em staging — 08/11/2026
+
+Preview exato: `https://rv-treino-30-dias-jjo5u8wl2-matheus-silvas-projects-feb13148.vercel.app`.
+A jornada real foi repetida sem interceptações: 97 respostas, convite, login,
+perfil, validade, suporte, upload de vídeo e capa, revisão, publicação, conclusão,
+despublicação, restauração, revogação, bloqueio, exportação e auditoria aprovados.
+Evidência sanitizada: `output/platform-stage6-preview-journey.json`.
+O perfil exclusivo terminou bloqueado e revogado. A aula 29 retornou ao conteúdo
+anterior, com revisão 19 e mídia `import-day-29`, preservando versões e auditoria.
+
+Os dias 1/15/25/29 reproduziram respectivamente 180/266/262/242 frames, com áudio
+não silencioso e posição restaurada. As requisições Range retornaram 206; o dia
+30 permaneceu bloqueado. Evidência: `output/platform-stage6-preview-videos.json`.
+Isso não constitui aprovação editorial nem teste real de upload de 2 GiB.
+
+Foram abertas e examinadas individualmente 35 capturas administrativas, 15
+capturas públicas e quatro capturas de reprodução do preview, além das quatro
+capturas locais dos vídeos. As cinco resoluções obrigatórias e larguras
+adicionais constam dos registros `platform-stage6-preview-{captures,public-captures}.json`.
+Não houve overflow ou exceção JavaScript nos respectivos percursos. As capturas
+ficam em `output/qa-previews/integral-stage6-*`; dados pessoais foram mascarados.
+
+O bucket continua privado: domínio gerenciado desabilitado e nenhum domínio
+customizado. O domínio principal foi consultado novamente: deployment
+`dpl_4iei9qAakJwvSk83Hy9orDcTCPYR`, SHA `a9a8b54`, sem promoção desta versão.
+Pagamento, entrega automática por e-mail, revisão editorial e dia 30 continuam
+pendentes. O reset real de senha pelo proprietário via Access não foi executado.
+
+Na inspeção visual foram identificados dois ajustes para a revisão da etapa 7:
+referência fixa a Asaas no checkout, ainda sem provedor homologado, e subtítulos
+de semanas oriundos do catálogo demonstrativo na navegação das aulas remotas.
+
+## Etapa 7 — revisão em andamento
+
+Correções implementadas após inspeção da prévia:
+
+- A navegação remota usa disponibilidade real das aulas, sem nomes de semanas
+  herdados da demonstração. Os critérios de regressão conferem também o dia 30.
+- Provedor escolhido em 08/11: Mercado Pago. Landing, checkout, configuração,
+  termos e privacidade atualizados; a interface informa integração em preparação.
+  A aplicação ainda precisa ser criada pelo proprietário. Ver
+  [pendências e critérios](MERCADO_PAGO_RV30.md). Não há pagamento homologado.
+- Quota e limite de uploads ativos passam por verificação SQL atômica no momento
+  da inserção. O multipart recém-aberto é abortado se perder essa disputa.
+- Nova tentativa de conclusão enquanto o R2 ainda processa o upload retorna 409,
+  preservando o estado, em vez de marcar o arquivo como rejeitado. A conclusão
+  persistida não duplica o evento de auditoria. Contratos com D1/R2 locais incluem
+  quatro aberturas concorrentes e uma conclusão deliberadamente pausada.
+- Títulos do suporte usam a escala compacta compartilhada da administração;
+  a inspeção encontrou tamanho herdado da landing no formulário de atendimento.
+
+Verificação local: `npm test`, 66 E2E, lint, typecheck, build, dry-runs dos três
+Workers e seis auditorias Python aprovados antes da repetição em staging.
+`npm audit --omit=dev` não relatou vulnerabilidades nas dependências de produção
+nesta consulta; isso não é auditoria de segurança integral. Os testes de UI
+continuam identificados como fixtures; os testes D1/R2 locais não são apresentados
+como serviços comerciais homologados.
+
+O novo código do Worker foi enviado somente a `rv30-platform-staging`:
+deployment `b6fd630792da4db1ae899d580e4a434e`, sem migração ou alteração nos bancos
+da produção. As configurações protegidas foram preservadas. Contratos de batch
+e multipart foram conferidos na documentação oficial da Cloudflare:
+[D1](https://developers.cloudflare.com/d1/worker-api/d1-database/) e
+[R2](https://developers.cloudflare.com/r2/api/workers/workers-multipart-usage/).
+
+Capturas locais de checkout, aula e suporte nas cinco resoluções, mais detalhe
+do estado do provedor, em `output/qa-previews/integral-stage7-local-*`.
+As capturas iniciais que ainda mostravam carregamento foram descartadas e refeitas
+após estabilizar a API e decodificar vídeo; capturar uma tela vazia não aprovou
+o resultado. Revisão de preview exato, CI e verificação conectada continuam
+necessárias antes de aprovar esta etapa. Não há certificação WCAG integral nem
+medição de desempenho de usuários reais neste registro.

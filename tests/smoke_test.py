@@ -94,8 +94,8 @@ checkout = (ROOT/"checkout.html").read_text(encoding="utf-8")
 config = (ROOT/"assets/js/config.js").read_text(encoding="utf-8")
 if "Resultado garantido pela profissional" in index:
     errors.append("Claim antigo de resultado garantido encontrado")
-if not re.search(r"paymentProvider\s*:\s*['\"]asaas['\"]", config):
-    errors.append("Provedor Asaas não configurado")
+if not re.search(r"paymentProvider\s*:\s*['\"]mercado_pago['\"]", config):
+    errors.append("Mercado Pago não está selecionado como provedor")
 if not re.search(r"accessDurationDays\s*:\s*365\b", config):
     errors.append("Prazo aprovado de 365 dias não configurado")
 if re.search(r"\bKiwify\b", index + checkout + config, re.I):

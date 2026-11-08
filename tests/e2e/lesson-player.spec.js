@@ -44,3 +44,10 @@ test('Player: falha de mídia permite nova tentativa sem repetir solicitações 
  await expect(page.locator('[data-course-video]')).toContainText('A conexão com a aula está indisponível.')
  expect(requests()).toBe(2)
 })
+
+test('Player: catálogo remoto não herda semanas editoriais da demonstração',async({page})=>{
+ await fixture(page,'network');await page.goto('/curso/rv30?day=1')
+ await expect(page.locator('[data-day-list]')).not.toContainText('Semana')
+ await expect(page.locator('[data-select-day="1"]')).toContainText('Aula disponível')
+ await expect(page.locator('[data-select-day="30"]')).toContainText('Conteúdo em preparação')
+})
