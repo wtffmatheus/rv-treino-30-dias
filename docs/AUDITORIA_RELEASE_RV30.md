@@ -1,5 +1,10 @@
 # Auditoria de lançamento comercial — registro de 25/10/2026
 
+> Estado vigente em 10/11/2026: este é um registro histórico. As etapas 1–7 da
+> nova plataforma foram validadas em staging. A integração Mercado Pago,
+> entrega automática e revisão editorial continuam pendentes; o dia 30 não tem
+> mídia publicada. Evidências e limites em [plataforma integral](PLATAFORMA_INTEGRAL_RV30.md).
+
 > Atualização de 07/11/2026: a marca RV 30 foi publicada no domínio principal por autorização explícita. Há 29 MP4 privados no R2 e um acesso de aluno para validação com banco D1 isolado. Consulte [publicação e conta de teste](CONTA_TESTE_RV30_20261107.md). O NO_GO comercial permanece: esse acesso não homologa compras nem pagamentos. O inventário descrito abaixo é o registro histórico da auditoria comercial, não o estado atual do armazenamento privado.
 
 Execute `npm.cmd run audit:launch`. O resultado atual é **NO_GO** e o comando retorna um código diferente de zero de propósito. Isso não é falha de build: sinaliza que as vendas reais continuam bloqueadas.

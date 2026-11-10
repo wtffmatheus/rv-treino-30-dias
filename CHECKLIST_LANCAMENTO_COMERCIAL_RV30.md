@@ -1,4 +1,5 @@
 # RV 30 — Guia operacional até o lançamento para vendas reais
+> Estado vigente em 10/11/2026: etapas 1–7 validadas em staging; etapa 8 ainda pendente para o lançamento completo. O provedor escolhido é Mercado Pago, cuja aplicação ainda precisa ser configurada. A nova plataforma não foi promovida ao domínio principal. Consulte o [plano e evidências atuais](docs/PLATAFORMA_INTEGRAL_RV30.md) e os [critérios Mercado Pago](docs/MERCADO_PAGO_RV30.md). O restante deste documento mantém o histórico das rodadas anteriores.
 > Atualização de 07/11/2026: a versão azul RV 30 está publicada e o responsável autorizou uma conta de aluno para validação. Instruções e limites atuais: [conta de teste](docs/CONTA_TESTE_RV30_20261107.md). Há 29 MP4 no R2 privado; o dia 30 está pendente. Asaas foi preparado após a preferência por menor taxa, mas ainda não há conta conectada e as vendas seguem bloqueadas. Os itens datados abaixo são históricos e não substituem a homologação comercial.
 **Revisado em 22/10/2026** · Base de código: `qa/rv30-release-hardening-20261016` + fotos reais.
 

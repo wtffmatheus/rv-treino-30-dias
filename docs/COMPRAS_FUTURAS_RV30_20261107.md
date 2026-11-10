@@ -1,5 +1,11 @@
 # Liberação automática nas próximas compras — RV 30
 
+> Histórico da API Node/Supabase anterior. A plataforma em homologação usa
+> Workers/D1/R2 e ainda não tem checkout comercial conectado. O proprietário
+> escolheu Mercado Pago em 08/11/2026; consulte [a decisão atual](MERCADO_PAGO_RV30.md)
+> e [o plano integral](PLATAFORMA_INTEGRAL_RV30.md). Asaas e URLs assinadas citados
+> abaixo não descrevem a entrega da nova API, que autoriza cada GET/HEAD/Range.
+
 O proprietário confirmou que quer preparar as **próximas compras**, sem importar
 compradores anteriores. O destino é a área do aluno do RV 30, com liberação por
 pagamento aprovado. A área privada de revisão continua separada.

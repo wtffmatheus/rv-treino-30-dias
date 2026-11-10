@@ -79,8 +79,9 @@ O encerramento de uma etapa aprovada inicia automaticamente a próxima. Dependê
 - Etapa 4: APROVADA EM STAGING. Commit `c85e0f8a750bd30865d30835f25d8bfb314ffd10`, Actions `42405439742`, preview `dpl_5M9CdLJy1nbT35xDLEZjkZvgZMZ7` READY; áudio, reprodução, busca, retomada e revogação comprovados.
 - Etapa 5: APROVADA EM STAGING. Commit `badeaf0d3541c9a59329089912eb51168145ddd9`, Actions `42408546531`, preview `dpl_FfMd8oCSmQuBvmen75B18WN39tNw` READY; quatro perfis, recuperação, isolamento e expiração reais conferidos.
 - Etapa 6: APROVADA EM STAGING. Commit `6bae377f5dc6ddd82410854fb85744c466b136c9`, Actions `42511656121` aprovado, preview `dpl_AFM15E699t5gf2RZj4oRgeL1umcb` READY; jornada administrativa e mídia reais repetidas na URL exata.
-- Etapa 7: EM REVISÃO, após aprovação da etapa 6.
-- Etapas 8 a 10: PENDENTES, ainda não iniciadas nesta rodada.
+- Etapa 7: APROVADA EM STAGING para a implementação disponível. Commit `bca2a044ba067286e7c0783cdd97082d6b3fd8ad`, Actions `42513180898` aprovado, preview `dpl_3TmZYeGUiTLFtQKmhfYZ8zTKsJX5` READY. Aprovação técnica não substitui homologação comercial/editorial.
+- Etapa 8: EM VALIDAÇÃO; pagamento, entrega automática e conteúdo final continuam pendências críticas.
+- Etapas 9 e 10: PENDENTES, sem promoção autorizada pelos gates técnicos.
 - Veredito da plataforma completa: PENDENTE. O acesso publicado atual continua sendo de validação.
 
 ## Etapa 2 — implementação e validação
@@ -549,3 +550,86 @@ após estabilizar a API e decodificar vídeo; capturar uma tela vazia não aprov
 o resultado. Revisão de preview exato, CI e verificação conectada continuam
 necessárias antes de aprovar esta etapa. Não há certificação WCAG integral nem
 medição de desempenho de usuários reais neste registro.
+
+### Fechamento da revisão disponível em staging
+
+URL exata: `https://rv-treino-30-dias-37y1i5zwy-matheus-silvas-projects-feb13148.vercel.app`.
+Commit, Actions, READY e logs de build conferidos; duas verificações conectadas
+de configuração/recursos e dashboard aprovadas. As 15 capturas de checkout,
+aula e suporte e o detalhe do provedor foram abertas e examinadas no preview.
+Sem overflow nas cinco resoluções e nas quatro larguras adicionais.
+
+Revisão real em 11 rotas/contextos: rótulos visíveis, imagens com alt, um h1,
+foco com contorno e ausência de exceções JavaScript aprovados. Observações sem
+limitação de rede: TTFB de 19–29 ms e DOMContentLoaded de 96–594 ms nesta execução.
+Esses números não medem espera da API, prontidão do vídeo nem Core Web Vitals
+de usuários reais. Registros sanitizados: `output/platform-stage7-browser-review.json`
+e `output/platform-stage7-preview-captures.json`. Os contratos de concorrência
+de upload foram testados com D1/R2 locais; não são apresentados como ensaio de
+concorrência do serviço remoto. Essa repetição faz parte da etapa 8.
+
+## Etapa 8 — serviços reais e limite da homologação
+
+Testes adicionais realizados na URL exata do commit `bca2a04`:
+
+- Senha inválida recusada; administrador sem matrícula recebe 403 na mídia.
+- Quatro aberturas simultâneas no R2/D1 remoto retornaram 201/409/201/201:
+  três uploads admitidos, um recusado. Os três multiparts vazios foram cancelados.
+- Arquivo real do dia 1, 35.797.622 bytes, enviado pela interface em sete partes.
+  O vídeo privado reproduziu 22 frames, 720×1280 e duração de 120,510113 s.
+  A mídia permaneceu em revisão; nova conclusão foi idempotente. Range anônimo
+  recebeu 401. O teste não comprova upload de 2 GiB.
+- Remoção do papel administrativo invalidou a sessão; novo login como aluno
+  recebeu 403 em métricas, alunos, mídias, conteúdo, auditoria e uploads. Sem
+  matrícula, recebeu 403 também na reprodução. A conta exclusiva de validação
+  terminou bloqueada, sem papel administrativo e sem sessões, reconsultados em
+  10/11. Nenhuma matrícula ou compra foi criada nesse percurso.
+- Evidência: `output/platform-stage8-connected.json`. Foram usados apenas
+  registros próprios de homologação e nenhuma credencial foi publicada.
+
+Reverificação em 10/11: 23 cenários negativos na API remota aprovados. Incluem
+GET/HEAD/Range anônimos, cookie forjado, RBAC, conta administrativa sem matrícula,
+HEAD e Range válidos, Range fora do arquivo (416), dia 30 ausente (404), conversa
+de outro aluno (404), origem não autorizada (403) e sessão revogada por logout
+(401). Pedidos e webhook não homologado retornam 503; isso comprova o bloqueio,
+não a integração financeira. Fonte: `output/platform-stage8-negative.json`.
+
+### Recuperação de dados em banco isolado
+
+Backup privado de 266.673 bytes exportado antes dos testes. Importado com sucesso
+pela API oficial em `rv30-restore-validation-20261108`, UUID
+`2053c61d-8dcf-4ab9-80a6-6dc4acb30a5b`: 844 instruções processadas. Contagens de
+todas as 29 tabelas da aplicação coincidem com o arquivo de backup; consulta
+`foreign_key_check` não encontrou violações. O banco restaurado não foi associado
+à aplicação ou ao domínio. A produção não foi restaurada ou alterada.
+
+Limites: D1 recusou `integrity_check` com `SQLITE_AUTH`; essa verificação física
+não é declarada aprovada. Não foi exercitada autenticação contra o banco
+restaurado nem comparação de cada campo. Arquivo SQL, hashes de senha e sessões
+continuam privados e ignorados pelo Git. Registro sanitizado:
+`output/platform-stage8-restore.json`.
+
+### Pendências que impedem fechar o gate integral
+
+1. Aplicação Mercado Pago ainda não configurada pelo proprietário: não há
+   credenciais conectadas, checkout, webhook e conciliação homologados na API D1.
+2. Canal de e-mail para identidade e entrega automática ainda não homologado.
+   Convite privado manual não substitui essa entrega comercial.
+3. Conteúdo das aulas ainda precisa de aprovação editorial/profissional; vídeo
+   30 ausente do catálogo privado. Não foi revalidado o inventário do Google Drive.
+4. Troca de senha pelo responsável na página privada `/plataforma` não executada
+   pelo proprietário. A tentativa de conexão à sessão Chrome em 10/11 falhou
+   na integração antes de acessar qualquer aba; nenhum estado da sessão foi lido.
+
+Etapa 8: PENDENTE para homologação integral, apesar dos percursos técnicos acima
+VALIDADOS EM STAGING. Etapas 9 e 10 não são aprovadas por consequência desses
+testes. O domínio foi reconsultado em 10/11: permanece no deployment
+`dpl_4iei9qAakJwvSk83Hy9orDcTCPYR`, SHA `a9a8b54`. Bucket permanece privado,
+sem domínio público ou customizado. Nenhum pedido comercial existe no D1 de staging.
+
+Repetição no Chromium em 10/11: dias 1/15/25/29 com 208/266/260/238 frames,
+áudio não silencioso, busca/retomada e 78 respostas Range observadas. Dia 30
+bloqueado, sem exceções JavaScript; as quatro capturas foram abertas e examinadas.
+HEAD autenticado dos 30 dias: 29 respostas 200 e dia 30 com 404. Duas verificações
+de preview conectadas novamente aprovadas. Relatório com as 20 categorias e
+situação individual das aulas: [validação em 10/11](RELATORIO_VALIDACAO_RV30_20261110.md).

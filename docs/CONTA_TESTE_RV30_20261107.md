@@ -1,5 +1,11 @@
 # RV 30 — publicação e conta de validação, 07/11/2026
 
+> Registro histórico da versão antiga. A nova plataforma usa as duas contas
+> reais indicadas depois pelo proprietário e permanece em staging. A página
+> privada `/plataforma` do serviço de revisão permite ao responsável definir
+> senhas fortes dessas contas após autenticação Cloudflare Access. Ela não altera
+> a versão antiga do domínio principal. Consulte o [estado atual e pendências](PLATAFORMA_INTEGRAL_RV30.md).
+
 O responsável autorizou publicar a alteração visual RV 30 no domínio principal e liberar `aluno@rv.com.br` para validar o site como aluno. A decisão anterior de aguardar a plataforma completa foi substituída para esse escopo. Vendas reais continuam desativadas.
 
 ## Como entrar
