@@ -39,9 +39,23 @@
       const row = node('div'); row.append(node('dt', label), node('dd', value)); facts.append(row)
     }
     card.append(facts)
-    const progress = node('progress', undefined, 'native-progress'); progress.max = 30; progress.value = result.progress.completedDays
-    progress.setAttribute('aria-label', 'Progresso no RV 30')
-    card.append(progress, node('p', `${result.progress.completedDays} de 30 aulas concluídas · ${result.progress.percent}%`, 'student-progress-caption'))
+    const strip = node('div', undefined, 'day-strip')
+    strip.setAttribute('role', 'img')
+    strip.setAttribute('aria-label', `${result.progress.completedDays} de 30 dias concluídos`)
+    const weekSizes = [7, 7, 7, 9]
+    let dayNumber = 0
+    for (const size of weekSizes) {
+      const week = node('div', undefined, 'day-strip-week')
+      for (let i = 0; i < size; i++) {
+        dayNumber++
+        const tick = node('span')
+        if (dayNumber <= result.progress.completedDays) tick.classList.add('is-done')
+        else if (result.resume && dayNumber === result.resume.day) tick.classList.add('is-current')
+        week.append(tick)
+      }
+      strip.append(week)
+    }
+    card.append(strip, node('p', `${result.progress.completedDays} de 30 aulas concluídas · ${result.progress.percent}%`, 'student-progress-caption'))
     if (result.resume && Number.isInteger(result.resume.day)) {
       const link = lessonLink(result.resume.day, result.activity.lastLessonDay ? 'Continuar de onde parei' : 'Começar meu programa')
       link.className = 'button button--primary'; card.append(link)

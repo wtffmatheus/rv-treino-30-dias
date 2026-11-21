@@ -6,7 +6,7 @@ async function adminLogin(page) {
   await page.goto('/admin/entrar')
   await page.getByLabel('E-mail administrativo').fill('admin@rvfisiologia.test')
   await page.getByLabel('Senha', { exact: true }).fill('rv30admin')
-  await page.getByRole('button', { name: 'Entrar no painel RV 30' }).click()
+  await page.getByRole('button', { name: 'Entrar no painel administrativo' }).click()
   await expect(page.getByRole('heading', { name: 'Gestão de alunos', exact: true }).first()).toBeVisible()
 }
 async function studentLogin(page) {

@@ -88,7 +88,7 @@ async function login(page, admin = false) {
   await page.goto(admin ? '/admin/entrar' : '/entrar')
   await page.getByLabel(admin ? 'E-mail administrativo' : 'E-mail', { exact: true }).fill(admin ? 'responsavel@example.test' : 'novo@example.test')
   await page.getByLabel('Senha', { exact: true }).fill('SenhaApenasDeTeste123')
-  await page.getByRole('button', { name: admin ? 'Entrar no painel RV 30' : 'Entrar', exact: true }).click()
+  await page.getByRole('button', { name: admin ? 'Entrar no painel administrativo' : 'Entrar', exact: true }).click()
 }
 
 test('QA: sessão de aluno não desloca o formulário administrativo nem anuncia recuperação indisponível', async ({ page }) => {

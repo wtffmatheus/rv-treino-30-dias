@@ -83,7 +83,7 @@ for (const admin of [false, true]) {
     await expect(error).toHaveText('E-mail ou senha inválidos, ou e-mail ainda não confirmado.')
     await expect(error).toHaveAttribute('role', 'alert')
     await expect(error).toHaveAttribute('aria-live', /polite|assertive/)
-    await expect(form.getByRole('button', { name: admin ? 'Entrar no painel RV 30' : 'Entrar', exact: true })).toBeEnabled()
+    await expect(form.getByRole('button', { name: admin ? 'Entrar no painel administrativo' : 'Entrar', exact: true })).toBeEnabled()
   })
 }
 
