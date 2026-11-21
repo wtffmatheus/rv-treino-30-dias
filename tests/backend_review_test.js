@@ -11,7 +11,7 @@ const env={PUBLIC_SITE_URL:origin,SUPABASE_URL:'https://review.supabase.co',SUPA
 
 function app() {
   const calls = []
-  const testOrder = { id: ORDER, user_id: USER, product_id: 'rv30', amount_cents: 39900, currency: 'BRL', environment: 'test', status: 'pending', checkout_url: 'https://sandbox.mercadopago.com.br/test' }
+  const testOrder = { id: ORDER, user_id: USER, product_id: 'rv30', amount_cents: 49900, currency: 'BRL', environment: 'test', status: 'pending', checkout_url: 'https://sandbox.mercadopago.com.br/test' }
   const response = (body) => ({ ok: true, json: async () => body })
   const api = createApi({ env, fetchImpl: async (raw, options = {}) => {
     const url = new URL(raw)
@@ -20,7 +20,7 @@ function app() {
     if (url.pathname === '/auth/v1/user') return response({ id: USER, email: 'student@example.test', email_confirmed_at: '2026-01-01' })
     if (url.pathname === '/rest/v1/rpc/rv30_session_active') return response(true)
     if (url.pathname === '/rest/v1/rv30_profiles') return response(options.method === 'POST' ? null : [{ user_id: USER, name: 'Teste', status: 'active' }])
-    if (url.pathname === '/rest/v1/rv30_products') return response([{ id: 'rv30', status: 'active', title: 'RV 30', price_cents: 39900, currency: 'BRL', commercial_approved: true,provider:'asaas',access_days:365 }])
+    if (url.pathname === '/rest/v1/rv30_products') return response([{ id: 'rv30', status: 'active', title: 'RV 30', price_cents: 49900, currency: 'BRL', commercial_approved: true,provider:'asaas',access_days:365 }])
     if (url.pathname === '/rest/v1/rv30_orders') {
       if (options.method === 'POST') return response([])
       return response(url.searchParams.get('environment') === 'eq.production' ? [] : [testOrder])

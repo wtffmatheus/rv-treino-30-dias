@@ -11,7 +11,7 @@ async function setup(page,{support=false}={}){
   if(path==='/api/admin/students'&&method==='POST')return json({ok:false,message:'Já existe uma conta com esse e-mail.'},409)
   if(path==='/api/admin/students')return json({ok:true,students:[],total:0,page:1})
   if(path==='/api/admin/orders')return json({ok:true,orders:[],message:'Gateway não homologado.'})
-  if(path==='/api/admin/content')return json({ok:true,course:{revision:1,draft:{title:'RV 30',description:'',priceCents:39900,accessDurationDays:365}},lessons:[{day:1,revision:1,draft:document,published:null}]})
+  if(path==='/api/admin/content')return json({ok:true,course:{revision:1,draft:{title:'RV 30',description:'',priceCents:49900,accessDurationDays:365}},lessons:[{day:1,revision:1,draft:document,published:null}]})
   if(path==='/api/admin/media')return json({ok:true,media:[]})
   if(path.endsWith('/versions'))return json({ok:true,versions:[]})
   if(path==='/api/admin/content/lesson/1'&&method==='PUT')return json({ok:false,message:'Outra alteração foi salva. Recarregue antes de editar novamente.'},409)

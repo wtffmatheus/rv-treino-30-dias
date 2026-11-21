@@ -51,7 +51,7 @@ async function mockAdmin(page) {
     if (p === '/api/admin/metrics') return json(route, adminMetricsFixture)
     if (p === '/api/admin/students') return json(route, { ok: true, students: [], total: 0, page: 1 })
     if (p === '/api/admin/orders') return json(route, { ok: true, orders: [], message: 'Gateway não homologado.' })
-    if (p === '/api/admin/content') return json(route, { ok: true, course: { revision: 1, draft: { title: 'RV 30', description: '', priceCents: 39900, accessDurationDays: 365 } }, lessons: [] })
+    if (p === '/api/admin/content') return json(route, { ok: true, course: { revision: 1, draft: { title: 'RV 30', description: '', priceCents: 49900, accessDurationDays: 365 } }, lessons: [] })
     if (p === '/api/admin/media') return json(route, { ok: true, media: [] })
     if (p === '/api/admin/uploads') return json(route, { ok: true, uploads: [] })
     if (p === '/api/support') return json(route, { ok: true, threads: [] })

@@ -70,7 +70,7 @@ export function createQaHandler(){return{async fetch(request,env){
   if(!['GET','HEAD'].includes(request.method)&&!origins.includes(requestOrigin))fail(403,'ORIGIN_REJECTED','Origem não autorizada.')
   const items=catalog({REVIEW_MEDIA_MANIFEST:env.QA_MEDIA_MANIFEST})
   if(!items||!env.VIDEOS)fail(503,'MEDIA_NOT_CONFIGURED','Os vídeos estão em configuração.')
-  if(request.method==='GET'&&url.pathname==='/api/config')return json({ok:true,configured:true,qaOnly:true,salesEnabled:false,environment:'test',product:{id:'rv30',title:'RV 30',totalDays:30,priceCents:39900,currency:'BRL',accessDurationDays:365}})
+  if(request.method==='GET'&&url.pathname==='/api/config')return json({ok:true,configured:true,qaOnly:true,salesEnabled:false,environment:'test',product:{id:'rv30',title:'RV 30',totalDays:30,priceCents:49900,currency:'BRL',accessDurationDays:365}})
   if(request.method==='POST'&&url.pathname==='/api/auth/login'){
    await limit(request,env);const input=await body(request)
    if(typeof input.email!=='string'||typeof input.password!=='string'||input.password.length<1||input.password.length>128)fail(401,'LOGIN_FAILED','E-mail ou senha inválidos.')

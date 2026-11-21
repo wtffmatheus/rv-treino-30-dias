@@ -4,8 +4,8 @@ const {configuration,authorizeNotification,checkoutURL,instant,validatePayment,c
 const now=Date.parse('2026-11-07T12:00:00.000Z')
 const id='88888888-8888-4888-8888-888888888888'
 const env={PAYMENT_PROVIDER:'asaas',PAYMENT_ENVIRONMENT:'test',ASAAS_API_KEY:'fixture-api-key-not-real',ASAAS_WEBHOOK_TOKEN:'fixture-webhook-token-not-real-1234567890',ASAAS_ACCOUNT_ID:'77777777-7777-4777-8777-777777777777',ASAAS_WEBHOOK_UTC_OFFSET:'-03:00',ASAAS_INTEGRATION_VERIFIED:'true',PUBLIC_SITE_URL:'https://preview.example.test'}
-const local={id:'33333333-3333-4333-8333-333333333333',user_id:'11111111-1111-4111-8111-111111111111',product_id:'rv30',amount_cents:39900,currency:'BRL',provider:'asaas',environment:'test',preference_id:id,status:'pending',payment_id:null}
-const remote={id:'pay_fixture123',checkoutSession:id,externalReference:local.id,value:399,billingType:'CREDIT_CARD',status:'CONFIRMED',confirmedDate:'2026-11-07'}
+const local={id:'33333333-3333-4333-8333-333333333333',user_id:'11111111-1111-4111-8111-111111111111',product_id:'rv30',amount_cents:49900,currency:'BRL',provider:'asaas',environment:'test',preference_id:id,status:'pending',payment_id:null}
+const remote={id:'pay_fixture123',checkoutSession:id,externalReference:local.id,value:499,billingType:'CREDIT_CARD',status:'CONFIRMED',confirmedDate:'2026-11-07'}
 const event={id:'evt_fixture123&123',event:'PAYMENT_CONFIRMED',dateCreated:'2026-11-07 09:00:00',account:{id:env.ASAAS_ACCOUNT_ID},payment:{id:remote.id}}
 const options={environment:'test',event,now,offset:'-03:00'}
 let passed=0
@@ -58,7 +58,7 @@ async function test(name,fn){await fn();passed++;console.log('OK Asaas '+name)}
     assert.equal(call.options.headers.access_token,env.ASAAS_API_KEY)
     const body=JSON.parse(call.options.body)
     assert.equal(body.externalReference,local.id);assert.deepEqual(body.billingTypes,['PIX','CREDIT_CARD']);assert.deepEqual(body.chargeTypes,['DETACHED'])
-    assert.equal(body.items[0].value,399);assert.equal(body.items[0].quantity,1)
+    assert.equal(body.items[0].value,499);assert.equal(body.items[0].quantity,1)
     assert.ok(!body.installment&&!body.subscription&&!body.customerData)
     assert.equal(created.url,`https://sandbox.asaas.com/checkoutSession/show?id=${id}`)
   })

@@ -3,7 +3,7 @@
 // Commercial terms explicitly confirmed by the owner on 27/10/2026.
 const PRODUCT_ID = 'rv30'
 const PROVIDER = 'asaas'
-const PRICE_CENTS = 39900
+const PRICE_CENTS = 49900
 const CURRENCY = 'BRL'
 const ACCESS_DAYS = 365
 const ACCESS_MILLISECONDS = ACCESS_DAYS * 24 * 60 * 60 * 1000

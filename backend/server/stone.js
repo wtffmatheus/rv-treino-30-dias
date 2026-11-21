@@ -2,7 +2,7 @@
 
 // Stone's documented digital gateway: Pagar.me v5, for an enabled contract only.
 // This is not the OpenBank OAuth/JWE API and never treats STONE_API_KEY as interchangeable.
-const PRICE_CENTS=39900
+const PRICE_CENTS=49900
 const PRODUCT='rv30'
 const validId=(value,prefix)=>typeof value==='string'&&new RegExp(`^${prefix}_[a-zA-Z0-9]{6,100}$`).test(value)
 class StoneError extends Error {

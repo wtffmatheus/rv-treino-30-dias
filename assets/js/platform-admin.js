@@ -5,7 +5,7 @@
  async function mount(){
   const U=window.RVPlatformUI,{el,link,button,field,form,request,run,status,table,card,date}=U
   const account=window.RVApi.account();if(!account?.roles?.includes('admin')){location.replace('/admin/entrar');return}
-  const header=el('header',null,'platform-header'),brand=link('','/','platform-brand'),logo=el('img');logo.src='/public/logo-rv.png';logo.alt='RV Fisiologia';brand.append(logo,el('span','Gestão RV 30'))
+  const header=el('header',null,'platform-header'),brand=link('','/','platform-brand'),logo=el('img');logo.src='/public/logo-rv.png';logo.alt='RV Fisiologia';brand.append(logo,el('span','RV Fisiologia'))
   const actions=el('div',null,'platform-actions'),globalStatus=status();actions.append(link('Área do aluno','/meus-cursos','button button--ghost'),button('Sair',btn=>run(btn,globalStatus,async()=>{await window.RVApi.logout();location.replace('/admin/entrar')}),'button button--ghost'));header.append(brand,actions)
   const layout=el('div',null,'platform-layout'),navigation=el('details',null,'platform-navigation');navigation.open=matchMedia('(min-width:801px)').matches;navigation.append(el('summary','Menu da administração'));const nav=el('nav');nav.setAttribute('aria-label','Administração');navigation.append(nav)
   matchMedia('(min-width:801px)').addEventListener('change',event=>{navigation.open=event.matches})
@@ -26,7 +26,7 @@
     if(view==='support')await window.RVPlatformSupport.mount(body,{admin:true})
     if(view==='orders')await orders(body)
     if(view==='audit')await audits(body,Number(extra.page)||1)
-    if(current===generation){main.replaceChildren(body);document.title=sections.find(x=>x[0]===view)[1]+' — Gestão RV 30'}
+    if(current===generation){main.replaceChildren(body);document.title=sections.find(x=>x[0]===view)[1]+' — RV Fisiologia'}
    }catch(error){if(current===generation)main.replaceChildren(el('h1','Não foi possível carregar'),el('p',error.message,'form-error'),button('Tentar novamente',()=>navigate(view,extra,false)),link('Entrar novamente','/admin/entrar','text-link'))}
   }
   const internal=(label,view,extra={})=>{const node=link(label,href(view,extra));node.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey)return;event.preventDefault();navigate(view,extra)});return node}

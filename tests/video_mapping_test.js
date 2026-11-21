@@ -73,7 +73,7 @@ assert.equal(media.list('rv30').find((item) => item.day === 2).driveUrl, file(2)
 assert.equal(media.list('rv30').find((item) => item.day === 3).driveUrl, file(3).driveUrl)
 assert.equal(media.list('rv30').some((item) => item.day === 5), true)
 
-const snapshot = { users: [{ id: 'buyer_1', email: 'qa@example.test', status: 'active', entitlements: ['rv30'] }], orders: [{ id: 'order_1', userId: 'buyer_1', courseId: 'rv30', status: 'approved', amountCents: 39900 }] }
+const snapshot = { users: [{ id: 'buyer_1', email: 'qa@example.test', status: 'active', entitlements: ['rv30'] }], orders: [{ id: 'order_1', userId: 'buyer_1', courseId: 'rv30', status: 'approved', amountCents: 49900 }] }
 const unchanged = JSON.stringify(snapshot)
 const report = diagnostic(snapshot, 'order_1', [])
 assert.equal(report.ok, true)
