@@ -11,7 +11,7 @@ const BASE_URL = `http://127.0.0.1:${PORT}`
 const OUT_DIR = path.resolve(__dirname, '../output/qa-previews')
 
 const BREAKPOINTS = [
-  { label: '390x844', width: 390, height: 844 },
+  { label: '375x812', width: 375, height: 812 },
   { label: '768x1024', width: 768, height: 1024 },
   { label: '1366x768', width: 1366, height: 768 },
   { label: '1440x900', width: 1440, height: 900 },

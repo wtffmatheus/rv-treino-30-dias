@@ -3,7 +3,7 @@
 .rv30-package-logo{display:block;aspect-ratio:1;object-fit:contain;border-radius:8px}
 .rv30-landing{background:var(--rv30-ink);color:var(--rv30-light)}
 .rv30-landing .container{width:min(1180px,calc(100% - 64px))}
-.rv30-landing h1,.rv30-landing h2,.rv30-landing h3{font-family:"Segoe UI",Arial,sans-serif;text-transform:none;font-weight:800;letter-spacing:-.055em}
+.rv30-landing h1,.rv30-landing h2,.rv30-landing h3{font-family:var(--font-display);text-transform:none;font-weight:800;letter-spacing:-.03em}
 .rv30-landing h2{font-size:clamp(2.4rem,4.4vw,4rem);line-height:1.12}
 .rv30-landing h3{font-size:1.2rem;line-height:1.3;letter-spacing:-.025em}
 .rv30-landing .eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.13em;color:var(--accent2);margin-bottom:22px}
@@ -49,7 +49,7 @@
 .rv30-landing .hero-visual::after{background:linear-gradient(0deg,rgba(11,29,38,.95),rgba(11,29,38,0) 48%)}
 .rv30-landing .hero-visual-caption{bottom:28px;left:27px;right:27px;gap:var(--space-3);align-items:end}
 .rv30-landing .hero-visual-caption small{display:block;font-size:.75rem;font-weight:700;letter-spacing:.12em;color:#b5e0ee;margin-bottom:9px}
-.rv30-landing .hero-visual-caption strong{font-family:"Segoe UI",Arial,sans-serif;font-size:1.4rem;font-weight:800;text-transform:none;letter-spacing:-.045em}
+.rv30-landing .hero-visual-caption strong{font-family:var(--font-display);font-size:1.4rem;font-weight:800;text-transform:none;letter-spacing:-.02em}
 .rv30-landing .hero-visual-caption span{font-size:.75rem;color:#e0eff4;margin-top:6px}
 .rv30-landing .hero-visual-caption .rv30-caption-index{font-size:.75rem;letter-spacing:.08em;border:1px solid #78929a;border-radius:3px;padding:7px;color:var(--text);white-space:nowrap}
 .rv30-landing .skip-link:not(:focus){transform:translateY(-180%)}
@@ -120,7 +120,7 @@
 .rv30-price-header strong{display:block;font-size:1.6rem;line-height:1.3;color:var(--text);font-weight:800;letter-spacing:-.04em;margin:5px 0}
 .rv30-price-header span{display:block;font-size:.75rem;color:#c7dfe7}
 .rv30-landing .price-main{display:block;margin:0 0 10px}
-.rv30-landing .price-main.price-main--simple strong{font-family:"Segoe UI",Arial,sans-serif;font-size:clamp(2.5rem,4vw,3.65rem);letter-spacing:-.06em;color:var(--text);white-space:normal;overflow-wrap:anywhere;line-height:1.1}
+.rv30-landing .price-main.price-main--simple strong{font-family:var(--font-display);font-size:clamp(2.5rem,4vw,3.65rem);letter-spacing:-.03em;color:var(--text);white-space:normal;overflow-wrap:anywhere;line-height:1.1}
 .rv30-landing .price-total{font-size:.75rem;line-height:1.8;color:var(--muted)}
 .rv30-landing .price-total strong{color:#e0eff4}
 .rv30-landing .price-card ul{font-size:.76rem;line-height:1.8;border-color:#3f6d7c;margin-block:var(--space-6);padding-block:23px}
@@ -135,7 +135,7 @@
 .rv30-landing .catalog-card-top{gap:var(--space-2);flex-wrap:wrap}
 .rv30-landing .catalog-card-top small{font-size:.75rem;letter-spacing:.08em;color:#c7dfe7}
 .rv30-landing .catalog-card-top>span{font-size:.75rem;letter-spacing:.05em;border-color:#6f94a0;color:#c7dfe7}
-.rv30-landing .catalog-card h3{font-size:1.45rem;font-family:"Segoe UI",Arial,sans-serif;letter-spacing:-.03em;color:var(--text);margin-block:26px 14px}
+.rv30-landing .catalog-card h3{font-size:1.45rem;font-family:var(--font-display);letter-spacing:-.02em;color:var(--text);margin-block:26px 14px}
 .rv30-landing .catalog-card p{font-size:.79rem;line-height:1.85;color:#c7dfe7}
 .rv30-landing .catalog-card-bottom{margin-top:22px;gap:18px;flex-wrap:wrap}
 .rv30-landing .catalog-card-bottom strong{font-family:"Segoe UI",Arial,sans-serif;letter-spacing:-.03em;font-size:1.15rem;color:var(--text)}
@@ -176,19 +176,19 @@
 .rv30-login-signature img{width:72px;height:72px;object-fit:contain;border-radius:6px;flex-shrink:0}
 .rv30-login-signature strong{display:block;font-size:.9rem;line-height:1.8;color:var(--text);letter-spacing:.08em}
 .rv30-login-signature small{display:block;color:var(--muted);font-size:.75rem;line-height:1.7;letter-spacing:.04em}
-.portal-body .auth-brand-panel h1{font-family:"Segoe UI",Arial,sans-serif;font-size:clamp(2.5rem,4.8vw,4.7rem);font-weight:800;letter-spacing:-.055em;line-height:1.15;max-width:12ch}
+.portal-body .auth-brand-panel h1{font-family:var(--font-display);font-size:clamp(2.5rem,4.8vw,4.7rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;max-width:12ch}
 .portal-body .auth-brand-panel h1 em{color:var(--accent2)}
 .portal-body .auth-brand-panel>div>p:last-child{line-height:1.9;font-size:.9rem;color:#c7dfe7;max-width:43ch}
 .portal-body .auth-form-panel{background:var(--bg);border-color:#345a66}
 .portal-body .auth-card{background:transparent;border:0;box-shadow:none}
-.portal-body .auth-card h2{font-family:"Segoe UI",Arial,sans-serif;font-size:2rem;font-weight:750;line-height:1.25;letter-spacing:-.04em}
+.portal-body .auth-card h2{font-family:var(--font-display);font-size:2rem;font-weight:800;line-height:1.25;letter-spacing:-.02em}
 .portal-body .portal-form input:not([type=checkbox]){border-radius:5px}
 .portal-body .button{border-radius:5px;text-transform:none;letter-spacing:0;box-shadow:none}
 .portal-body .course-header{background:var(--bg);border-color:#345a66;backdrop-filter:none}
-.portal-body .student-welcome h1{font-family:"Segoe UI",Arial,sans-serif;font-weight:800;letter-spacing:-.05em;font-size:clamp(2.7rem,5vw,4rem)}
+.portal-body .student-welcome h1{font-family:var(--font-display);font-weight:800;letter-spacing:-.03em;font-size:clamp(2.7rem,5vw,4rem)}
 .portal-body .my-course-card{background:var(--panel);border-color:#3f6d7c;border-radius:8px;box-shadow:none}
 .portal-body .my-course-cover{background:var(--bg2)}
-.portal-body .my-course-copy h3{font-family:"Segoe UI",Arial,sans-serif;font-weight:750;letter-spacing:-.035em}
+.portal-body .my-course-copy h3{font-family:var(--font-display);font-weight:800;letter-spacing:-.02em}
 .portal-body .form-error{font-size:.76rem;line-height:1.7}
 @media(max-width:1100px){.rv30-landing .header-inner{gap:18px}.rv30-landing .brand{min-width:190px}.rv30-landing .main-nav{gap:13px}.rv30-landing .main-nav a{font-size:.75rem}.rv30-landing .hero-grid{gap:35px}.rv30-landing .hero h1{font-size:clamp(3rem,5.4vw,4rem)}.rv30-landing .professional-grid,.rv30-landing .pricing-layout{gap:60px}.rv30-landing .split-layout{gap:55px}.rv30-landing .section-heading--wide{gap:50px}}
 @media(max-width:900px){.rv30-landing .header-inner{min-height:76px}.rv30-landing .container{width:calc(100% - 44px)}.rv30-landing .site-header .brand{min-width:0}.rv30-landing .hero{padding-top:30px}.rv30-landing .hero-grid{gap:28px;grid-template-columns:1.1fr 1fr}.rv30-landing .hero-copy{padding:0}.rv30-landing .hero-visual{aspect-ratio:auto;min-height:530px}.rv30-landing .hero h1{font-size:3.2rem}.rv30-program-signature{gap:15px}.rv30-program-signature .rv30-package-logo{width:61px;height:61px}.rv30-program-signature .eyebrow{font-size:.75rem}.rv30-landing .hero-lead{font-size:.82rem}.rv30-landing .hero-actions .text-link{font-size:.75rem}.rv30-landing .hero-proof span{font-size:.75rem}.rv30-landing .hero-visual-caption{left:19px;right:19px;bottom:23px}.rv30-landing .hero-visual-caption strong{font-size:1.12rem}.rv30-landing .hero-visual-caption .rv30-caption-index{display:none}.rv30-landing .section{padding-block:75px}.rv30-landing .section-heading--wide{gap:var(--space-8)}.rv30-landing .split-layout,.rv30-landing .professional-grid,.rv30-landing .pricing-layout,.rv30-landing .faq-layout{gap:var(--space-10)}.rv30-landing .price-card{padding:25px}.rv30-landing .student-preview{grid-template-columns:170px 1fr}.rv30-landing .preview-rail{padding:22px var(--space-4)}.rv30-landing .preview-content{padding:22px}}
