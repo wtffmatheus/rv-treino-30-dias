@@ -144,3 +144,91 @@ Sem fazer isso por você (requer sua autorização e, possivelmente, credenciais
 3. Se o projeto usa Vercel/Cloudflare Pages com deploy automático por branch (confirme em `vercel.json`/`wrangler.*.jsonc`), o push já deve gerar uma URL de Preview isolada — **não** promove produção.
 4. Abra a Preview e repita manualmente (ou com `BASE_URL=<url-da-preview> npm run test:e2e`) pelo menos: landing, checkout, login aluno/admin, área do aluno, admin — exatamente as páginas revisadas aqui.
 5. Só promova a produção depois de validar a Preview — e com sua autorização explícita, como de costume.
+
+---
+
+# REDESIGN ESTRUTURAL — EXECUÇÃO DEFINITIVA
+
+A rodada anterior (commit `bdd9430`) entregou tipografia, preço e identidade — mas, como o próprio relatório reconheceu, não alterou a composição estrutural de nenhuma página. Esta seção documenta a rodada seguinte, que implementou mudanças reais de layout/HTML/JS, não apenas CSS.
+
+## Resumo da transformação
+
+| Página | O que mudou estruturalmente (não é CSS cosmético) |
+|---|---|
+| Landing — Hero | Novo elemento flutuante (`.hero-visual-badge`) sobreposto ao canto superior esquerdo da foto, dentro de um novo wrapper `.hero-visual-frame`. Exigiu corrigir um bug real de `align-items:stretch` que empurrava o badge para fora da foto na primeira tentativa — corrigido e reverificado antes de prosseguir. |
+| Landing — Metodologia | Os 3 passos numerados ganharam um trilho vertical conectando marcadores circulares — de texto plano para uma linha do tempo genuína. Corrigido um override específico da landing (`rv30.css`) que cancelava o novo estilo. |
+| Landing — Oferta/RV30 | Nova faixa visual de 30 dias (`.day-strip`), agrupada em 4 semanas (7/7/7/9 — a mesma estrutura real já usada na barra lateral do player), ao lado do texto comercial. |
+| Área do aluno — Dashboard | A barra `<progress>` genérica foi substituída, em `assets/js/student-dashboard.js`, pelo mesmo componente `.day-strip`, agora **orientado a dados reais**: os primeiros N dias (N = `completedDays` vindo da API) aparecem concluídos, o dia de retomada (`resume.day`) aparece em destaque. Nenhum dado novo foi inventado — a API não tem um array por dia, então a visualização usa exatamente a mesma suposição linear que a barra de progresso antiga já fazia. |
+| Painel administrativo | `assets/js/platform-admin.js`: o "Visão geral" deixou de ser uma parede de 12 cards idênticos. Agora são 3 cards grandes em destaque (Matrículas ativas, Alunos cadastrados, Conclusões no período) + 3 grupos com subtítulo ("Alunos no período", "Progresso", "Atenção") para os 9 indicadores restantes. |
+| Login / Login admin | Nova faixa de 2 estatísticas (30 dias de programa · 365 dias de acesso) no painel de marca, reaproveitando dados já verdadeiros em vez de inventar prova social. Botão do admin renomeado de "Entrar no painel RV 30" para "Entrar no painel administrativo" (mesmo ajuste conceitual plataforma×produto da fase anterior, que tinha ficado de fora deste botão). |
+
+## Skills realmente utilizadas nesta rodada
+
+- **`frontend-design`**: a decisão de não adicionar mais um "card genérico" e, em vez disso, dar ao conteúdo que já era sequencial (3 passos, 30 dias) um tratamento estrutural de linha do tempo/trilha é diretamente o princípio "marcadores numerados só quando o conteúdo é mesmo uma sequência" da skill — e o motivo de ter rejeitado a ideia inicial de simplesmente duplicar cards.
+- **Playwright/Chromium real**: cada uma das 6 mudanças acima foi renderizada e fotografada antes de ser considerada pronta; duas delas (badge do hero, trilho do método) só funcionaram na segunda tentativa porque a primeira captura revelou o elemento no lugar errado ou sem estilo — corrigido olhando o resultado real, não o código.
+- **Investigação sistemática da cascata CSS**: necessária de novo, porque `rv30.css` tinha 2 overrides específicos da landing (`.method-stack article>span`, implícito no grid stretch do hero) que cancelavam exatamente as mudanças que eu estava fazendo. Sem essa investigação, as mudanças pareceriam "não ter efeito".
+- **"Impeccable"**: segue indisponível; não interrompi o trabalho por causa disso, como instruído.
+
+## Capturas antes/depois desta rodada
+
+Specificamente para as mudanças estruturais (além das capturas gerais da rodada anterior, ainda válidas para preço/tipografia):
+
+- `output/qa-previews/redesign2-hero.png` — hero com o badge "30 dias de sequência guiada" sobre a foto (1440px).
+- `output/qa-previews/redesign2-method.png` — metodologia com o trilho conectando os 3 passos numerados (1440px).
+- `output/qa-previews/redesign2-pricing.png` / `redesign2-pricing-mobile.png` — oferta com a faixa de 30 dias, desktop e mobile (375px).
+- `output/qa-previews/redesign2-dashboard.png` — dashboard do aluno com a faixa de progresso real (12 de 30 concluídos, dia 13 em destaque) substituindo a barra genérica.
+- `output/qa-previews/redesign2-admin.png` — painel admin com 3 cards em destaque + 3 grupos com subtítulo, substituindo os 12 cards idênticos.
+- A varredura completa (`npm run qa:screenshots`) foi re-executada após todas as mudanças, cobrindo as 14 páginas nas 5 larguras (375/768/1366/1440/1920) em `output/qa-previews/*.png` — sem overflow novo, sem regressão.
+
+## Mudanças efetivamente implementadas (arquivos)
+
+- `index.html` — novo wrapper `.hero-visual-frame` + badge; novo `.day-strip` na seção de oferta.
+- `assets/css/projeto.css` — `.hero-visual-frame`/`.hero-visual-badge`, trilho do `.method-stack`, `.day-strip`/`.day-strip-week`, `.auth-stat-row`.
+- `assets/css/rv30.css` — correção do override que cancelava os marcadores circulares do método.
+- `assets/css/admin-platform.css` — `.platform-metrics--featured`, `.platform-metric--featured`, `.platform-metrics-group`.
+- `assets/js/student-dashboard.js` — substituição do `<progress>` pelo `.day-strip` orientado a dados.
+- `assets/js/platform-admin.js` — reestruturação do "Visão geral" em destaque + grupos.
+- `login.html` — faixa de estatísticas no painel de marca.
+- `admin-login.html` — mesmo ajuste de rótulo do CTA ("painel administrativo").
+- `tests/e2e/accessibility.spec.js`, `tests/e2e/platform.spec.js`, `tests/e2e/server-flow.spec.js` — asserções atualizadas para o novo rótulo do botão admin.
+
+## Testes executados
+
+Regressão completa **uma vez**, ao final desta rodada: 23 backend + 66 e2e mockado + 8 e2e real/zero-mock = **97/97** ✅, `npm audit` 0 vulnerabilidades ✅, `npm run check` (lint) ✅, `npm run typecheck` ✅. Nenhum teste novo foi necessário (as mudanças de layout não alteraram nenhum contrato de API testado); 3 testes existentes foram atualizados para o rótulo do botão renomeado, não adicionados.
+
+## Problemas corrigidos nesta rodada
+
+- Badge do hero renderizando fora da foto por causa de `align-items:stretch` herdado do grid — corrigido com `align-self:start` no novo wrapper.
+- Marcadores numerados do método voltando a texto plano por causa de um override específico de `rv30.css` da rodada de design anterior — identificado e corrigido.
+- Botão "Entrar no painel RV 30" remanescente com a mesma confusão plataforma×produto já corrigida em outros lugares na fase anterior.
+
+## Pendências identificadas
+
+- **Player de aula (`area.html`)** e **checkout** não receberam mudança estrutural nesta rodada (apenas tipografia/preço da rodada anterior) — a sidebar de 30 dias do player já era rica o suficiente (lista completa com status por dia) para não exigir retrabalho imediato; o checkout já tinha uma composição de 2 colunas adequada. Se "transformação" exigir ir além disso também, é o próximo passo natural.
+- **Hero com foto "sangrando" até a borda do viewport** (composição editorial de revista) foi considerada e descartada nesta rodada por exigir reestruturar a grade em 3 arquivos CSS sobrepostos com risco desproporcional ao ganho visual frente ao que foi entregue (badge + trilho + faixa de dias).
+- **"Impeccable"**: segue sem ser localizada.
+
+## Estado dos commits e da branch (atualizado)
+
+```
+redesign/rv30-visual-premium-20261121 (branch atual, isolada)
+  ec4a336 feat(design): structural redesign — hero, pricing, dashboard, admin, login
+  30e5e0e docs(design): add Fase 2B visual redesign report
+  bdd9430 feat(design): self-host Manrope ExtraBold for headlines/price display; button polish
+  7f2316a feat(commercial): standardize RV30 price to R$ 499,00 and fix platform/program nav copy
+qa/rv30-playwright-e2e-20261121 (branch-base, preservada, não tocada)
+  911121d / a64e53b (de outra sessão, preservados)
+  9db3804 e anteriores (Fase 1/2)
+```
+
+Nenhum `git push`, merge ou deploy nesta rodada. `publish/rv30-visual-20261121` (de outra sessão) permanece intocada, conforme instruído explicitamente.
+
+## Instruções para testar localmente
+
+```
+npm run dev                     # servidor local em http://127.0.0.1:8081
+npm run qa:screenshots          # varredura visual completa (375/768/1366/1440/1920)
+npm test && npx playwright test && npx playwright test --config playwright.real.config.js
+```
+
+Abra manualmente `/`, `/entrar`, `/admin/entrar`, `/meus-cursos` (com fixture de sessão) e `/admin` para ver as 5 mudanças estruturais listadas acima diretamente no navegador.
