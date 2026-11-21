@@ -37,6 +37,8 @@ async function mockStudent(page) {
     if (p === '/api/config') return json(route, configFixture)
     if (p === '/api/account') return json(route, studentAccount)
     if (p === '/api/student/dashboard') return json(route, dashboardFixture)
+    if (p === '/api/courses/rv30') return json(route, { ok: true, courseId: 'rv30', lessons: [{ day: 1, title: 'Dia 01', available: true }] })
+    if (p === '/api/support') return json(route, { ok: true, threads: [] })
     return json(route, { ok: false }, 404)
   })
 }
@@ -51,6 +53,7 @@ async function mockAdmin(page) {
     if (p === '/api/admin/orders') return json(route, { ok: true, orders: [], message: 'Gateway não homologado.' })
     if (p === '/api/admin/content') return json(route, { ok: true, course: { revision: 1, draft: { title: 'RV 30', description: '', priceCents: 39900, accessDurationDays: 365 } }, lessons: [] })
     if (p === '/api/admin/media') return json(route, { ok: true, media: [] })
+    if (p === '/api/admin/uploads') return json(route, { ok: true, uploads: [] })
     if (p === '/api/support') return json(route, { ok: true, threads: [] })
     return json(route, { ok: false }, 404)
   })
