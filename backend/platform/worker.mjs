@@ -18,7 +18,7 @@ export function createPlatformHandler({now=()=>Date.now()}={}){
    if(!['GET','HEAD'].includes(request.method)&&!String(env.PREVIEW_ORIGINS||'').split(',').filter(Boolean).includes(request.headers.get('origin')))fail(403,'ORIGIN_REJECTED','Origem não autorizada.')
    if(path==='/api/config'&&request.method==='GET'){
     await db.prepare('select count(*) as n from identity_metadata').first()
-    const product=administration?(await publishedContent(env)).course:{title:'RV 30',priceCents:39900,currency:'BRL',accessDurationDays:365}
+    const product=administration?(await publishedContent(env)).course:{title:'RV 30',priceCents:49900,currency:'BRL',accessDurationDays:365}
     return response({ok:true,configured:true,qaOnly:env.PLATFORM_ENV!=='production',platformMode:true,platformIdentity:true,platformAdmin:administration,salesEnabled:false,registrationEnabled:false,recoveryMode:'administrative_invite',environment:env.PLATFORM_ENV,activityRetentionDays:90,product:{...product,id:'rv30',totalDays:30}})
    }
    if(path==='/api/auth/login'&&request.method==='POST'){

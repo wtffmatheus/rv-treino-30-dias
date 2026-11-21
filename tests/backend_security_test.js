@@ -15,8 +15,8 @@ const timestamp = Date.now()
 const CHECKOUT='88888888-8888-4888-8888-888888888888'
 const date=new Date(timestamp).toISOString()
 const env={PUBLIC_SITE_URL:origin,SUPABASE_URL:'https://unit.supabase.co',SUPABASE_ANON_KEY:'public-test',SUPABASE_SERVICE_ROLE_KEY:'service-secret-test',ADMIN_EMAIL:'owner@example.test',PAYMENT_ENVIRONMENT:'test',PAYMENT_PROVIDER:'asaas',ASAAS_API_KEY:'fixture-api-key-not-real',ASAAS_WEBHOOK_TOKEN:'fixture-webhook-token-not-real-1234567890',ASAAS_ACCOUNT_ID:'77777777-7777-4777-8777-777777777777',ASAAS_WEBHOOK_UTC_OFFSET:'-03:00',ASAAS_INTEGRATION_VERIFIED:'true'}
-const order={id:ORDER,user_id:USER,buyer_email:'student@example.test',product_id:'rv30',amount_cents:39900,currency:'BRL',environment:'test',status:'approved',provider:'asaas',payment_id:'pay_fixture123',preference_id:CHECKOUT,approved_at:date}
-const payment={id:'pay_fixture123',checkoutSession:CHECKOUT,externalReference:ORDER,value:399,billingType:'CREDIT_CARD',status:'CONFIRMED',confirmedDate:date.slice(0,10)}
+const order={id:ORDER,user_id:USER,buyer_email:'student@example.test',product_id:'rv30',amount_cents:49900,currency:'BRL',environment:'test',status:'approved',provider:'asaas',payment_id:'pay_fixture123',preference_id:CHECKOUT,approved_at:date}
+const payment={id:'pay_fixture123',checkoutSession:CHECKOUT,externalReference:ORDER,value:499,billingType:'CREDIT_CARD',status:'CONFIRMED',confirmedDate:date.slice(0,10)}
 const notification={id:'evt_fixture123',account:{id:env.ASAAS_ACCOUNT_ID},event:'PAYMENT_CONFIRMED',dateCreated:date,payment:{id:payment.id}}
 let passed = 0
 async function test(name, run) { await run(); passed++; console.log(`OK ${name}`) }
@@ -146,15 +146,15 @@ function harness(options = {}) {
     assert.equal((await app.invoke('/api/orders',{method:'POST',body:{productId:'rv30',amountCents:1,userId:OTHER},cookie})).status,503)
   })
   await test('sales config requires approved active commercial product in protected database',async()=>{
-    for(const product of [null,{price_cents:39900,currency:'BRL',commercial_approved:false},{price_cents:null,currency:'BRL',commercial_approved:true},{price_cents:39900,currency:'USD',commercial_approved:true}]){
+    for(const product of [null,{price_cents:49900,currency:'BRL',commercial_approved:false},{price_cents:null,currency:'BRL',commercial_approved:true},{price_cents:49900,currency:'USD',commercial_approved:true}]){
       const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response(product?[product]:[]):undefined})
       const result=await app.invoke('/api/config')
-      assert.equal(result.body.salesEnabled,false);assert.equal(result.body.product.priceCents,39900)
+      assert.equal(result.body.salesEnabled,false);assert.equal(result.body.product.priceCents,49900)
       assert.equal(app.calls.find(call=>call.url.pathname.endsWith('rv30_products')).url.searchParams.get('status'),'eq.active')
     }
-    const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([{price_cents:39900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}]):undefined})
+    const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([{price_cents:49900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}]):undefined})
     const result=await app.invoke('/api/config')
-    assert.equal(result.body.salesEnabled,true);assert.equal(result.body.product.priceCents,39900)
+    assert.equal(result.body.salesEnabled,true);assert.equal(result.body.product.priceCents,49900)
   })
   await test('commercial database outage keeps config honest and does not expose internal error',async()=>{
     const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response({message:'private database diagnostic'},503):undefined})
@@ -279,7 +279,7 @@ function harness(options = {}) {
     assert.equal(result.status,200);assert.equal(result.body.expiresIn,2)
     assert.equal(JSON.parse(app.calls.find(call=>call.url.pathname.includes('/storage/')).body).expiresIn,2)
   })
-  const product={id:'rv30',price_cents:39900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}
+  const product={id:'rv30',price_cents:49900,currency:'BRL',provider:'asaas',access_days:365,commercial_approved:true}
   await test('active access prevents a second checkout before any Asaas request',async()=>{
     const app=harness({env:{RV30_SALES_ENABLED:'true'},fetch:url=>url.pathname.endsWith('rv30_products')?response([product]):undefined})
     const {cookie}=await app.login()
@@ -301,7 +301,7 @@ function harness(options = {}) {
     const {cookie}=await app.login()
     const request={method:'POST',cookie,body:{productId:'rv30',amountCents:1,userId:OTHER},headers:{'idempotency-key':'fixture-idempotent-request'}}
     const first=await app.invoke('/api/orders',request)
-    assert.equal(first.status,200);assert.equal(first.body.order.amountCents,39900)
+    assert.equal(first.status,200);assert.equal(first.body.order.amountCents,49900)
     assert.equal(first.body.order.checkoutUrl,`/api/orders/${ORDER}/checkout`)
     assert.equal((await app.invoke('/api/orders',request)).status,200)
     assert.equal(app.calls.filter(call=>call.url.pathname==='/v3/checkouts').length,1)

@@ -18,7 +18,7 @@ test('API simulada: comprador autorizado carrega URL R2 permitida pela política
 async function mockApi(page, options = {}) {
   const state = {
     authenticated: false, role: 'student', loginAs: 'student', purchased: false,
-    salesEnabled: false, priceCents: 39900, orderStatus: 'pending', videoAvailable: false,
+    salesEnabled: false, priceCents: 49900, orderStatus: 'pending', videoAvailable: false,
     videoError: 'A aula está temporariamente indisponível. Tente novamente.',
     verifyUsed: false, ...options
   }
@@ -63,7 +63,7 @@ async function mockApi(page, options = {}) {
     }
     if (url.pathname === `/api/orders/${ORDER}`) {
       if (!state.authenticated) return json({ ok: false, code: 'AUTH_REQUIRED', message: 'Entre novamente para continuar.' }, 401)
-      return json({ ok: true, order: { id: ORDER, courseId: 'rv30', status: state.orderStatus, amountCents: 39900, currency: 'BRL', environment: 'test' } })
+      return json({ ok: true, order: { id: ORDER, courseId: 'rv30', status: state.orderStatus, amountCents: 49900, currency: 'BRL', environment: 'test' } })
     }
     if (url.pathname === '/api/orders' && request.method() === 'POST') {
       if (!state.authenticated || !state.salesEnabled) return json({ ok: false, message: 'As inscrições ainda não estão disponíveis.' }, 503)
@@ -240,11 +240,11 @@ test('API indisponível: preço e prazo aprovados aparecem sem habilitar vendas 
   })
   await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, code: 'BACKEND_NOT_CONFIGURED', message: 'As inscrições estão em preparação.' }) }))
   await page.goto('/')
-  await expect(page.locator('#investimento .price-main')).toContainText('R$ 399,00')
+  await expect(page.locator('#investimento .price-main')).toContainText('R$ 499,00')
   await expect(page.locator('#investimento .rv30-access-term')).toContainText('365 dias de acesso')
   await expect(page.locator('.hero-actions [data-buy]')).toBeDisabled()
   await page.goto('/checkout/rv30')
-  await expect(page.locator('[data-order-total]').last()).toHaveText('R$ 399,00')
+  await expect(page.locator('[data-order-total]').last()).toHaveText('R$ 499,00')
   await expect(page.locator('[data-checkout-form]')).toBeHidden()
   await expect(page.locator('[data-test-payment]')).toBeHidden()
   await expect(page.locator('.secure-note')).toContainText('Mercado Pago')

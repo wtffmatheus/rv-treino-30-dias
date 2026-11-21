@@ -3,8 +3,8 @@ const assert=require('node:assert/strict')
 const {configuration,checkoutURL,validateOrder,createStoneClient}=require('../backend/server/stone')
 const now=Date.parse('2026-11-07T12:00:00.000Z')
 const date=new Date(now).toISOString()
-const local={id:'33333333-3333-4333-8333-333333333333',user_id:'11111111-1111-4111-8111-111111111111',buyer_email:'fixture@example.test',provider:'stone',product_id:'rv30',amount_cents:39900,currency:'BRL',environment:'test',status:'pending',payment_id:null}
-const remote={id:'or_fixture123',code:local.id,customer:{code:local.user_id},status:'paid',amount:39900,currency:'BRL',updated_at:date,items:[{description:'RV 30',amount:39900,quantity:1}],charges:[{id:'ch_fixture123',amount:39900,currency:'BRL',status:'paid',paid_amount:39900,paid_at:date,updated_at:date}]}
+const local={id:'33333333-3333-4333-8333-333333333333',user_id:'11111111-1111-4111-8111-111111111111',buyer_email:'fixture@example.test',provider:'stone',product_id:'rv30',amount_cents:49900,currency:'BRL',environment:'test',status:'pending',payment_id:null}
+const remote={id:'or_fixture123',code:local.id,customer:{code:local.user_id},status:'paid',amount:49900,currency:'BRL',updated_at:date,items:[{description:'RV 30',amount:49900,quantity:1}],charges:[{id:'ch_fixture123',amount:49900,currency:'BRL',status:'paid',paid_amount:49900,paid_at:date,updated_at:date}]}
 const env={PAYMENT_PROVIDER:'stone',PAYMENT_ENVIRONMENT:'test',STONE_GATEWAY:'stone_pagarme_v5',STONE_INTEGRATION_VERIFIED:'true',STONE_PAGARME_SECRET_KEY:'sk_test_fixture_secret',STONE_PAGARME_ACCOUNT_ID:'acc_fixture123'}
 let passed=0
 async function test(name,fn){await fn();passed++;console.log('OK Stone '+name)}
@@ -21,7 +21,7 @@ async function test(name,fn){await fn();passed++;console.log('OK Stone '+name)}
   })
   await test('amount product account binding currency and environment cannot be substituted',()=>{
     assert.equal(validateOrder(remote,local,'test',now).status,'approved')
-    for(const patch of [{code:'other'},{customer:{code:'other'}},{amount:1},{currency:'USD'},{items:[{description:'Other',amount:39900,quantity:1}]},{items:[{description:'RV 30',amount:39900,quantity:2}]},{charges:[]},{charges:[{...remote.charges[0],paid_amount:1}]},{updated_at:'invalid',charges:[{...remote.charges[0],updated_at:'invalid'}]}])assert.throws(()=>validateOrder({...remote,...patch},local,'test',now))
+    for(const patch of [{code:'other'},{customer:{code:'other'}},{amount:1},{currency:'USD'},{items:[{description:'Other',amount:49900,quantity:1}]},{items:[{description:'RV 30',amount:49900,quantity:2}]},{charges:[]},{charges:[{...remote.charges[0],paid_amount:1}]},{updated_at:'invalid',charges:[{...remote.charges[0],updated_at:'invalid'}]}])assert.throws(()=>validateOrder({...remote,...patch},local,'test',now))
     for(const patch of [{provider:'mercado_pago'},{amount_cents:50000},{product_id:'other'},{environment:'production'},{payment_id:'or_other123'}])assert.throws(()=>validateOrder(remote,{...local,...patch},'test',now))
   })
   await test('approval requires an actual paid timestamp and forbids future provider dates',()=>{
@@ -29,7 +29,7 @@ async function test(name,fn){await fn();passed++;console.log('OK Stone '+name)}
   })
   await test('refunds and chargebacks take priority over a stale paid order status',()=>{
     assert.equal(validateOrder({...remote,charges:[{...remote.charges[0],status:'chargedback'}]},local,'test',now).status,'chargeback')
-    assert.equal(validateOrder({...remote,charges:[{...remote.charges[0],status:'canceled',canceled_amount:39900}]},local,'test',now).status,'refunded')
+    assert.equal(validateOrder({...remote,charges:[{...remote.charges[0],status:'canceled',canceled_amount:49900}]},local,'test',now).status,'refunded')
     assert.equal(validateOrder({...remote,status:'canceled'},{...local,status:'approved'},'test',now).status,'refunded')
     assert.equal(validateOrder({...remote,status:'canceled',charges:[{...remote.charges[0],status:'canceled',paid_amount:0,paid_at:null}]},local,'test',now).status,'canceled')
   })
@@ -53,7 +53,7 @@ async function test(name,fn){await fn();passed++;console.log('OK Stone '+name)}
     const body=JSON.parse(call.options.body)
     assert.equal(body.order_code,local.id);assert.equal(body.max_paid_sessions,1);assert.equal(body.max_sessions,1)
     assert.equal(body.customer_settings.customer.code,local.user_id)
-    assert.equal(body.cart_settings.items[0].amount,39900)
+    assert.equal(body.cart_settings.items[0].amount,49900)
     assert.equal(body.type,'order')
   })
   await test('provider errors never disclose tokens or internal messages',async()=>{

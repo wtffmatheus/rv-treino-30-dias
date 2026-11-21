@@ -1,5 +1,14 @@
 # RV 30 — identidade e referências
 
+> Atualização de 21/11/2026 (Fase 2B): o preço comercial do RV 30 passa de
+> R$ 399,00 para **R$ 499,00, pagamento único**, apresentado como "menos de
+> R$ 17 por dia" (R$ 16,63/dia) ao dividir pelos 30 dias do programa — não é
+> cobrança recorrente. O acesso continua sendo de 365 dias a partir do
+> pagamento aprovado. As referências de R$ 399,00 abaixo e nos documentos de
+> `backend/ASAAS_ACCESS365.md`/`backend/STONE_ACCESS365.md` registram a
+> aprovação histórica de 27/10/2026 e foram mantidas como registro; o valor
+> vigente em código é `PRICE_CENTS=49900` (`backend/access-terms.js`).
+
 > Diretriz definitiva de 07/11/2026: petróleo esverdeado e turquesa, derivados da logo, substituem a orientação anterior de azul-marinho puro. A fonte dos tokens é `assets/css/tokens.css`. A extração do PNG original 1254 × 1254 encontrou mediana turquesa `#01E0D5`; o destaque da interface foi moderado para `#27C6BD`, mantendo a família cromática e a legibilidade. Fundos `#0B1D26` / `#102B35`, superfícies `#173945` / `#204650`, textos `#F4F8FA` / `#BCD0D5`. Confira os gates e a execução atual em [plataforma integral](PLATAFORMA_INTEGRAL_RV30.md). O histórico abaixo registra decisões superadas quando divergir desta diretriz.
 
 > Rodada de 07/11/2026: o novo prompt substitui a orientação anterior de turquesa por uma paleta integralmente azul, com acabamento de vidro sutil. Consulte [revisão premium e validação](REVISAO_PREMIUM_RV30_20261107.md). As decisões abaixo registram a versão anterior quando houver divergência de cores.

@@ -50,7 +50,7 @@ function check() {
   // Códigos históricos preservados para os consumidores de check(). Os gates
   // exigem comprovação real, não a simples ausência de auth-demo.js no bundle.
   add('price_gateway_configured', false,
-    'R$ 399 e 365 dias aprovados pelo proprietário; Asaas preparado para a preferência por menor taxa. Faltam conta, credenciais e pagamento de sandbox verificado na implantação de homologação.')
+    'R$ 499 (pagamento único) e 365 dias aprovados pelo proprietário; Asaas preparado para a preferência por menor taxa. Faltam conta, credenciais e pagamento de sandbox verificado na implantação de homologação.')
   add('production_auth', false,
     'Autorização no servidor preparada. Cadastro, e-mail, recuperação, revogação e separação de contas ainda precisam ser verificados com o provedor real em homologação.')
   add('protected_video_delivery', false,

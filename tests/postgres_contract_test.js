@@ -43,11 +43,11 @@ async function run(){
       assert.equal((await one('select count(*)::int as n from rv30_products')).n,1)
       assert.equal((await one("select to_regprocedure('public.rv30_apply_payment(uuid,text,text,timestamptz,text,text)') as old")).old,null)
       const p=await one('select price_cents,provider,access_days,status,commercial_approved from rv30_products')
-      assert.deepEqual(p,{price_cents:39900,provider:'asaas',access_days:365,status:'draft',commercial_approved:true})
+      assert.deepEqual(p,{price_cents:49900,provider:'asaas',access_days:365,status:'draft',commercial_approved:true})
     })
     await q('insert into auth.users values ($1),($2)',[USER,OTHER])
     await q("insert into rv30_profiles(user_id,name) values($1,'Fixture A'),($2,'Fixture B')",[USER,OTHER])
-    await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'fixture@example.test','rv30',39900,'BRL','test','fixture-first')",[ORDER,USER])
+    await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'fixture@example.test','rv30',49900,'BRL','test','fixture-first')",[ORDER,USER])
     const times=await one("select now()-interval '60 minutes' as first,now()-interval '30 minutes' as second,now() as updated")
     const first=times.first,second=times.second,updated=times.updated
     await check('checkout creation claim is one time, even on retry',async()=>{
@@ -97,7 +97,7 @@ async function run(){
       assert.equal((await one("select public from storage.buckets where id='rv30-videos'")).public,false)
     })
     await check('a newer paid purchase cannot be replaced by late older approval/refund',async()=>{
-      await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'fixture@example.test','rv30',39900,'BRL','test','fixture-second')",[SECOND,USER])
+      await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'fixture@example.test','rv30',49900,'BRL','test','fixture-second')",[SECOND,USER])
       await apply(SECOND,'approved','paid-second',updated,second)
       await apply(ORDER,'approved','late-first',updated,first)
       assert.equal((await one('select order_id from rv30_entitlements')).order_id,SECOND)
@@ -115,7 +115,7 @@ async function run(){
     await check('expiry is exact, keeps history and is idempotent',async()=>{
       const old=await one("select now()-interval '8760 hours 1 second' as approved")
       const id='55555555-5555-4555-8555-555555555555'
-      await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'other@example.test','rv30',39900,'BRL','test','old-approved')",[id,OTHER])
+      await q("insert into rv30_orders(id,user_id,buyer_email,product_id,amount_cents,currency,environment,idempotency_key) values($1,$2,'other@example.test','rv30',49900,'BRL','test','old-approved')",[id,OTHER])
       await apply(id,'approved','old-approved',updated,old.approved)
       assert.equal((await one('select status from rv30_entitlements where user_id=$1',[OTHER])).status,'expired')
       const before=await one('select count(*)::int as n from rv30_orders')

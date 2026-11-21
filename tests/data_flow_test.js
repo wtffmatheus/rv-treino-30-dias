@@ -27,7 +27,7 @@ const auth = window.RVCourseAuthDemo
 assert(auth, 'API de demonstração não foi criada')
 auth.resetAllDemoData()
 
-const order = auth.createDemoOrder({ courseId:'rv30', name:'Aluno Teste', email:'Aluno@Teste.com', phone:'11999999999', amountCents:39900 })
+const order = auth.createDemoOrder({ courseId:'rv30', name:'Aluno Teste', email:'Aluno@Teste.com', phone:'11999999999', amountCents:49900 })
 assert.equal(order.status, 'approved')
 assert.equal(order.email, 'aluno@teste.com')
 assert.equal(auth.claimApprovedOrder('123', order.id).ok, false, 'senha fraca não pode criar conta')
@@ -106,7 +106,7 @@ assert.equal(auth.hasAccess('rv30'), true)
 assert.equal(auth.adminResetProgress(userId, 'rv30').ok, true)
 assert.equal(auth.adminStudents('rv30')[0].completed, 0)
 
-const secondOrder = auth.createDemoOrder({ courseId:'rv30', name:'Aluno Teste', email:'aluno@teste.com', phone:'11999999999', amountCents:39900 })
+const secondOrder = auth.createDemoOrder({ courseId:'rv30', name:'Aluno Teste', email:'aluno@teste.com', phone:'11999999999', amountCents:49900 })
 const secondClaim = auth.claimApprovedOrder('', secondOrder.id)
 assert.equal(secondClaim.ok, true)
 assert.equal(secondClaim.existing, true, 'nova compra no mesmo e-mail deve usar a conta existente')
@@ -130,7 +130,7 @@ assert.equal(auth.adminSetDayProgress(created.user.id, 'rv30', 30, true).ok, tru
 // Migração da V4 deve preservar conta, progresso e comentários de teste quando existirem.
 auth.resetAllDemoData()
 localStorage.setItem('rv-cursos-demo-account-v4', JSON.stringify({ name:'Legado', email:'legado@teste.com', password:'SenhaLegado', entitlements:['rv30'] }))
-localStorage.setItem('rv-cursos-demo-order-v4', JSON.stringify({ id:'ord_legado', courseId:'rv30', name:'Legado', email:'legado@teste.com', phone:'11933334444', amountCents:39900, status:'approved', approvedAt:new Date().toISOString() }))
+localStorage.setItem('rv-cursos-demo-order-v4', JSON.stringify({ id:'ord_legado', courseId:'rv30', name:'Legado', email:'legado@teste.com', phone:'11933334444', amountCents:49900, status:'approved', approvedAt:new Date().toISOString() }))
 localStorage.setItem('rv30-progress-v4-legado-teste-com', JSON.stringify([0,1,2]))
 localStorage.setItem('rv30-comments-v4-legado-teste-com', JSON.stringify({2:[{id:'cmt_legado',name:'Legado',text:'Dúvida antiga',createdAt:new Date().toISOString(),status:'open'}]}))
 assert.equal(auth.adminStudents('rv30').length, 0, 'dados administrativos não podem ser lidos sem sessão admin')
@@ -142,7 +142,7 @@ assert.equal(auth.adminCourseComments(legacyStudents[0].id, 'rv30').length, 1)
 
 // O painel não pode popular alunos fictícios quando já existe uma compra real/de teste pendente.
 auth.resetAllDemoData()
-const pending = auth.createDemoOrder({ courseId:'rv30', name:'Compra Pendente', email:'pendente@teste.com', phone:'11988887777', amountCents:39900 })
+const pending = auth.createDemoOrder({ courseId:'rv30', name:'Compra Pendente', email:'pendente@teste.com', phone:'11988887777', amountCents:49900 })
 assert.equal(auth.adminSeedDemoData().ok, false, 'seed administrativo exige autenticação')
 assert.equal(auth.adminLogin('admin@rvfisiologia.test', 'rv30admin').ok, true)
 assert.equal(auth.adminSeedDemoData().skipped, true)

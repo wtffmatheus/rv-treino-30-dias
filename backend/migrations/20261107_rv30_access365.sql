@@ -6,7 +6,7 @@ begin;
 
 alter table public.rv30_products add column if not exists provider text not null default 'asaas' check(provider='asaas');
 alter table public.rv30_products add column if not exists access_days smallint not null default 365 check(access_days=365);
-update public.rv30_products set title='RV 30',provider='asaas',price_cents=39900,currency='BRL',access_days=365,commercial_approved=true
+update public.rv30_products set title='RV 30',provider='asaas',price_cents=49900,currency='BRL',access_days=365,commercial_approved=true
 where id='rv30';
 -- Product status and the server sales switch are intentionally not activated.
 
@@ -28,7 +28,7 @@ update public.rv30_entitlements e set granted_at=o.approved_at,
   status=case when e.status='revoked' or o.status in ('refunded','chargeback') then 'revoked'
     when o.approved_at+interval '8760 hours'<=now() then 'expired' else e.status end
 from public.rv30_orders o where e.order_id=o.id and e.expires_at is null
-  and o.provider='asaas' and o.product_id='rv30' and o.amount_cents=39900 and o.currency='BRL' and o.approved_at is not null;
+  and o.provider='asaas' and o.product_id='rv30' and o.amount_cents=49900 and o.currency='BRL' and o.approved_at is not null;
 update public.rv30_entitlements e set status='revoked' from public.rv30_orders o
 where e.order_id=o.id and o.status in ('refunded','chargeback') and e.status<>'revoked';
 
@@ -50,7 +50,7 @@ begin
     or p_event_key is null or char_length(p_event_key) not between 1 and 200 then raise exception 'invalid_payment_state'; end if;
   select * into o from public.rv30_orders where id=p_order_id for update;
   if not found then raise exception 'order_missing'; end if;
-  if o.provider<>'asaas' or o.product_id<>'rv30' or o.amount_cents<>39900 or o.currency<>'BRL' then raise exception 'order_terms_mismatch'; end if;
+  if o.provider<>'asaas' or o.product_id<>'rv30' or o.amount_cents<>49900 or o.currency<>'BRL' then raise exception 'order_terms_mismatch'; end if;
   if exists(select 1 from public.rv30_payment_events where event_key=p_event_key) then return jsonb_build_object('result','duplicate'); end if;
   if o.payment_id is not null and o.payment_id<>p_payment_id and o.status not in ('pending','declined','canceled') then raise exception 'payment_mismatch'; end if;
   if p_provider_updated_at is null or p_provider_updated_at>now()+interval '5 minutes' then raise exception 'invalid_provider_time'; end if;

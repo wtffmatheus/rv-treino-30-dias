@@ -381,5 +381,5 @@ using (public.rv_course_is_admin());
 
 -- Seed mínimo do curso. Ajustar preço/status antes da produção se necessário.
 insert into public.rv_courses (id, title, status, price_cents, total_days)
-values ('rv30', 'RV 30', 'draft', 39900, 30)
+values ('rv30', 'RV 30', 'draft', 49900, 30)
 on conflict (id) do update set title = excluded.title;

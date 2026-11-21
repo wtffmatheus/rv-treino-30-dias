@@ -15,7 +15,7 @@ function mp4(){
    await db.prepare('insert into qa_users(id,email,name,password_salt,password_hash,created_at) values(?,?,?,?,?,?)').bind(id,id+'@example.test',id,hash.salt,hash.hash,now).run();await db.prepare("insert into identity_metadata(user_id,kind,verified_at,verification_method) values(?,'validation',?,'owner_provisioned')").bind(id,now).run();await db.prepare('insert into user_roles(user_id,role,assigned_at) values(?,?,?)').bind(id,id==='admin'?'admin':'student',now).run()
    if(id!=='admin')await db.prepare("insert into enrollments(user_id,course_id,source,starts_at,expires_at,updated_at) values(?,'rv30','owner_validation',?,?,?)").bind(id,now,now+365*86400000,now).run()
   }
-  const course={title:'RV 30',description:'Curso em validação',priceCents:39900,currency:'BRL',accessDurationDays:365}
+  const course={title:'RV 30',description:'Curso em validação',priceCents:49900,currency:'BRL',accessDurationDays:365}
   await db.prepare("insert into course_records(id,draft,published,updated_at) values('rv30',?,?,?)").bind(JSON.stringify(course),JSON.stringify(course),now).run()
   const bytes=mp4(),key='rv30/uploads/fixture.mp4';await bucket.put(key,bytes)
   await db.prepare("insert into media_records(id,object_key,kind,label,state,bytes,duration,width,height,format,created_at) values('video',?,'video','Vídeo de fixture','ready',?,10,720,1280,'video/mp4',?)").bind(key,bytes.length,now).run()
