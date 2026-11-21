@@ -21,14 +21,15 @@
     "check:review": "node tests/review_worker_test.js && wrangler deploy --config wrangler.review.jsonc --dry-run --outdir output/review-dry-run",
     "media:import": "node scripts/prepare-r2-lesson-import.js",
     "check:platform": "wrangler deploy --config wrangler.platform.jsonc --dry-run --outdir output/platform-dry-run",
-    "test:preview": "playwright test --config playwright.preview.config.js"
+    "test:preview": "playwright test --config playwright.preview.config.js",
+    "qa:screenshots": "node scripts/qa-screenshots.js"
   },
   "overrides": {
     "undici": "7.30.1"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.12",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.5",
     "typescript": "^7.0.2",
     "wrangler": "4.152.0"
