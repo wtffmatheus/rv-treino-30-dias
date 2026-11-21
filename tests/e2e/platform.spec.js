@@ -196,10 +196,10 @@ test('modelo JSON do Google Drive cobre 30 aulas MOV sem links inventados', asyn
 
 test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('.hero-visual .hero-portrait')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
+  await expect(page.locator('.hero-v2-media .hero-v2-photo')).toHaveAttribute('src', '/assets/brand/rv-rosangela-clinica.webp')
   await expect(page.locator('#investimento .price-total [data-price-daily]')).toContainText('R$ 16,63')
   await expect(page.locator('#investimento .price-main [data-price-total]')).toContainText('R$ 499,00')
-  await expect(page.locator('.hero h1')).toContainText('RV 30')
+  await expect(page.locator('.hero-v2-title')).toContainText('RV 30')
   await expect(page.locator('.rv30-program-signature .rv30-package-logo')).toHaveAttribute('src', '/assets/brand/rv30-logo.png')
   await expect(page.locator('.site-header .brand img')).toHaveAttribute('src', '/public/logo-rv.png')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
@@ -208,7 +208,7 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
     const background = selector => getComputedStyle(document.querySelector(selector)).backgroundColor
     return {
       page: background('.rv30-landing'),
-      hero: background('.hero'),
+      hero: background('.hero-v2'),
       program: background('#proposta'),
       professional: background('#rosangela'),
       faq: background('.rv30-faq'),
@@ -224,7 +224,7 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
     professional: 'rgb(16, 43, 53)',
     faq: 'rgb(16, 43, 53)'
   })
-  const heroLayout = await page.locator('.hero-grid').evaluate(el => getComputedStyle(el).display)
+  const heroLayout = await page.locator('.hero-v2').evaluate(el => getComputedStyle(el).display)
   expect(heroLayout).toBe('grid')
   await page.locator('.hero-actions [data-buy]').click()
   await expect(page.getByRole('heading', { name: 'Finalize sua inscrição.' })).toBeVisible()
@@ -324,21 +324,21 @@ test('composição RV 30 desktop e mobile mantém fotos, inscrição e checkout'
   await page.goto('/')
   const heading = page.locator('#hero-title')
   await expect(heading).toContainText('RV 30')
-  await expect(page.locator('.hero-visual')).toBeVisible()
-  await expect(page.locator('.hero-proof span')).toHaveCount(4)
-  const desktop = await page.locator('.hero-grid').evaluate(e => getComputedStyle(e).display)
+  await expect(page.locator('.hero-v2-media')).toBeVisible()
+  await expect(page.locator('.hero-v2-strip > div')).toHaveCount(3)
+  const desktop = await page.locator('.hero-v2').evaluate(e => getComputedStyle(e).display)
   expect(desktop).toBe('grid')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.reload()
-  const heroPhotoPosition = await page.locator('.hero-visual').evaluate(e => getComputedStyle(e).position)
+  const heroPhotoPosition = await page.locator('.hero-v2-media').evaluate(e => getComputedStyle(e).position)
   expect(heroPhotoPosition).toBe('relative')
-  const heroGeometry = await page.locator('.hero-grid').evaluate(el => {
-    const copy = el.querySelector('.hero-copy').getBoundingClientRect()
-    const photo = el.querySelector('.hero-visual').getBoundingClientRect()
-    return { copyBottom: copy.bottom, photoTop: photo.top }
+  const heroGeometry = await page.locator('.hero-v2').evaluate(el => {
+    const panel = el.querySelector('.hero-v2-panel').getBoundingClientRect()
+    const photo = el.querySelector('.hero-v2-media').getBoundingClientRect()
+    return { panelTop: panel.top, photoTop: photo.top }
   })
-  expect(heroGeometry.photoTop).toBeGreaterThanOrEqual(heroGeometry.copyBottom)
+  expect(heroGeometry.photoTop).toBeLessThanOrEqual(heroGeometry.panelTop)
   await expect(page.locator('.hero-actions [data-buy]')).toBeVisible()
   await page.locator('.hero-actions [data-buy]').click()
   await expect(page.locator('.rv-checkout .checkout-card')).toBeVisible()
@@ -368,13 +368,13 @@ test('retratos reais da Rosangela estão carregados e sem distorção em desktop
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
-    for (const selector of ['.hero-portrait', '.professional-photo img']) {
+    for (const selector of ['.hero-v2-photo', '.professional-photo img']) {
       const image = page.locator(selector)
       await image.scrollIntoViewIfNeeded()
       await expect(image).toBeVisible()
       await expect.poll(async () => image.evaluate(el => el.complete && el.naturalWidth > 1000 && el.naturalHeight > 1000)).toBe(true)
     }
-    const heroFit = await page.locator('.hero-portrait').evaluate(el => getComputedStyle(el).objectFit)
+    const heroFit = await page.locator('.hero-v2-photo').evaluate(el => getComputedStyle(el).objectFit)
     expect(heroFit).toBe('cover')
     if (width === 390) {
       const buybar = page.locator('.mobile-buybar')
