@@ -16,6 +16,7 @@ on:
       - rv30-evolucao-20261025
       - rv30-premium-preview-20261107
       - rv30-plataforma-integral-20261107
+      - qa/rv30-playwright-e2e-20261121
   pull_request:
     branches: [main]
 jobs:
@@ -58,6 +59,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser end-to-end tests
         run: npm run test:e2e
+      - name: Browser regression with local backend
+        run: npx playwright test --config playwright.real.config.js
       - name: Upload visual review screenshots
         if: always()
         uses: actions/upload-artifact@v4
