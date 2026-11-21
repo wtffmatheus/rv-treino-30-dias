@@ -284,7 +284,7 @@ test('API simulada: preço vem do servidor e checkout envia somente produto e id
   const { state, calls } = await mockApi(page, { authenticated: true })
   await page.goto('/checkout/rv30')
   await expect(page.locator('[data-checkout-config-error]')).toContainText('Inscrições em preparação')
-  await expect(page.locator('[data-order-total]').last()).toHaveText(/R\$\s*399,00/)
+  await expect(page.locator('[data-order-total]').last()).toHaveText(/R\$\s*499,00/)
   await expect(page.locator('.rv30-access-term')).toContainText('365 dias de acesso')
   await expect(page.locator('[data-checkout-form]')).toBeHidden()
   state.salesEnabled = true
