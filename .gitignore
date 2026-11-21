@@ -11,3 +11,33 @@ output/
 __pycache__/
 .agents/
 .github/agents/
+
+# Ruflo local secrets and runtime data
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+
+# AI coding tool config/skill mirrors (auto-generated locally by installed plugins,
+# not part of the RV30 app; never intended for the repo)
+.claude/
+.claude-flow/
+.swarm/
+.mcp.json
+.augment/
+.codebuddy/
+.codewhale/
+.continue/
+.cursor/
+.factory/
+.gemini/
+.kilocode/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.warp/
+.windsurf/
+.github/prompts/
