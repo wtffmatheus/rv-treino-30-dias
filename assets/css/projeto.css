@@ -95,7 +95,7 @@ h1,h2,h3,p{margin-top:0}h1,h2,h3{color:var(--text);margin-bottom:var(--space-4);
 .legal-page{padding:clamp(54px,7vw,96px) 0}.legal-shell{width:min(calc(100% - 40px),860px);margin:auto}
 .legal-shell h1{font-size:clamp(2.6rem,6vw,4.8rem)}.legal-shell h2{margin-top:42px;font-size:1.55rem;letter-spacing:-.025em}
 .legal-shell p,.legal-shell li{color:var(--soft);font-size:.9rem}.legal-shell ul{padding-left:var(--space-5)}.legal-notice{margin:var(--space-6) 0;padding:18px;border:1px solid rgba(246,196,83,.25);border-radius:14px;background:rgba(246,196,83,.06);color:#f2d994}
-.error-page{min-height:100vh;display:grid;place-items:center;padding:30px}.error-card{width:min(620px,100%);padding:var(--space-10);border:1px solid var(--line);border-radius:28px;background:var(--panel);text-align:center}.error-card strong{color:var(--accent);font-size:4rem}
+.error-page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:30px}.error-card{width:min(620px,100%);padding:var(--space-10);border:1px solid var(--line);border-radius:28px;background:var(--panel);text-align:center}.error-card strong{color:var(--accent);font-size:4rem}
 
 @media(max-width:900px){
   .qual-grid{grid-template-columns:1fr}.phase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
