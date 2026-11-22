@@ -1,0 +1,29 @@
+.checkout-page {background:radial-gradient(ellipse at 78% 26%,#254156 0,transparent 49%);padding-bottom:5rem}
+.checkout-heading,.checkout-grid {max-width:1160px}
+.checkout-heading {padding-block:clamp(2.5rem,5vw,5rem) 2rem;border-bottom:1px solid var(--line2)}
+.checkout-heading .portal-lead {max-width:61ch;margin-top:1rem}
+.checkout-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.88fr);gap:clamp(2rem,8vw,8rem);align-items:start;margin-top:2rem}
+.checkout-card {padding-block:1rem}
+.checkout-card h2 {margin-bottom:1.25rem}
+.checkout-card .portal-form {gap:1.2rem}
+.order-card {min-width:0}
+.order-card-header {position:relative;isolation:isolate;min-height:220px;overflow:hidden;border-radius:16px 16px 0 0;background:var(--panel)}
+.order-card-photo,.order-card-header-scrim {position:absolute;inset:0;width:100%;height:100%;z-index:-1;object-fit:cover;object-position:50% 10%}
+.order-card-header-scrim {background:linear-gradient(90deg,#071621ea,transparent 85%),linear-gradient(0deg,#071621c4,transparent 60%)}
+.order-card-header-copy {padding:1.4rem;display:grid;align-content:space-between;min-height:220px}
+.order-card-header-copy>small {font-size:.73rem;letter-spacing:.11em}
+.order-product {display:flex;align-items:center;gap:.7rem}
+.order-product-mark img {width:45px;height:45px;border-radius:6px}
+.order-product strong,.order-product span {display:block}
+.order-card-body {position:relative;margin-top:-.8rem;border-radius:12px;padding:clamp(1.1rem,2.2vw,2rem)}
+.order-lines p,.order-total {display:flex;align-items:baseline;justify-content:space-between;gap:.8rem}
+.order-total {border-top:1px solid var(--line2);padding-top:.85rem;margin-top:.85rem}
+.order-total strong {font:800 clamp(1.85rem,3vw,3rem) var(--font-display);letter-spacing:-.07em}
+.order-daily-note,.rv30-access-term,.secure-note,.order-card .tiny-note {margin-top:1rem;font-size:.9rem;color:var(--soft)}
+.secure-note {display:flex;gap:.6rem;padding-top:1rem;border-top:1px solid var(--line2)}
+.secure-note small {display:block}
+.test-payment-box,.production-payment-box {margin-top:1rem;padding:1rem;background:var(--panel)}
+.test-payment-box p,.production-payment-box p {margin:.7rem 0}
+@media(prefers-reduced-motion:no-preference){.order-card {animation:enter .35s ease-out}.checkout-card {animation:enter .3s .08s ease-out backwards}}
+@media(max-width:760px){.checkout-grid{grid-template-columns:1fr;gap:2rem}.checkout-heading {padding-top:2rem}.order-card-header,.order-card-header-copy {min-height:180px}}
+

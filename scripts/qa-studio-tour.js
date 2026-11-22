@@ -1,0 +1,65 @@
+'use strict'
+const {chromium, expect} = require('@playwright/test')
+const path = require('node:path')
+const {PASSWORD} = require('./qa-platform-repro-server')
+const platform = 'http://127.0.0.1:18421'
+const demo = 'http://127.0.0.1:18420'
+const dir = path.resolve(__dirname,'../output/codex-redesign-completo/videos')
+
+async function record() {
+  const browser = await chromium.launch()
+  const context = await browser.newContext({viewport:{width:1440,height:900}, recordVideo:{dir,size:{width:1440,height:900}},serviceWorkers:'block'})
+  try {
+    const page = await context.newPage()
+    await page.route('**/*',route=>{
+      const url = new URL(route.request().url())
+      if (![platform,demo].includes(url.origin)) return route.abort()
+      if (url.origin === demo && url.pathname === '/api/config') return route.fulfill({json:{ok:true,configured:false,salesEnabled:false}})
+      return route.continue()
+    })
+    const wait = ms => page.waitForTimeout(ms)
+    async function signIn(email) {
+      const response = await context.request.post(platform+'/api/auth/login',{headers:{Origin:platform},data:{email,password:PASSWORD}})
+      if (!response.ok()) throw Error('Falha ao iniciar a sessão de teste.')
+    }
+    await page.goto(platform+'/')
+    await wait(1300)
+    await signIn('golden@example.test')
+    await page.goto(platform+'/meus-cursos')
+    await page.locator('.student-program').waitFor()
+    await wait(1600)
+    await page.locator('.student-plan').scrollIntoViewIfNeeded()
+    await wait(900)
+    await page.goto(platform+'/curso/rv30?day=15')
+    const video = page.locator('video')
+    await video.evaluate(async v=>{v.muted=true; await v.play();v.scrollIntoView({block:'center'})})
+    await expect.poll(()=>video.evaluate(v=>v.currentTime)).toBeGreaterThan(.5)
+    await wait(1250)
+    await page.locator('[data-tab-trigger=materiais]').click()
+    await wait(850)
+    await page.locator('[data-tab-trigger=sobre]').click()
+    await wait(650)
+    await signIn('equipe@example.test')
+    await page.goto(platform+'/admin?view=dashboard')
+    await page.locator('.admin-view').first().waitFor()
+    await wait(1400)
+    await page.getByLabel('Período',{exact:true}).selectOption('7')
+    await wait(950)
+    await page.goto(platform+'/admin?view=content')
+    await page.getByLabel('Aula',{exact:true}).selectOption('15')
+    await page.getByRole('button',{name:'Visualizar rascunho'}).click()
+    await wait(1300)
+    await page.keyboard.press('Escape')
+    await page.goto(demo+'/checkout/rv30')
+    const name = page.locator('[data-checkout-form] [name=name]')
+    await name.focus()
+    await name.pressSequentially('Validação local',{delay:85})
+    await wait(1000)
+    const recording = page.video()
+    await context.close()
+    await recording.saveAs(path.join(dir,'percurso.webm'))
+    await recording.delete()
+  } finally { await browser.close() }
+}
+record().catch(error=>{console.error(error.message);process.exitCode=1})
+

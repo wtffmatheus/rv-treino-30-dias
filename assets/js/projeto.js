@@ -30,7 +30,7 @@
         : '<strong>A confirmar</strong><small>Inscrições em preparação</small>'
 
       return `
-        <article class="catalog-card ${available ? 'catalog-card--active' : ''} reveal is-visible">
+        <article class="catalog-card ${available ? 'catalog-card--active' : ''}">
           <div class="catalog-card-top"><small>${course.eyebrow}</small>${available ? '<span>PROGRAMA DE 30 DIAS</span>' : '<span>EM PLANEJAMENTO</span>'}</div>
           <h3>${course.title}</h3>
           <p>${course.description}</p>
@@ -61,14 +61,19 @@
     } : {
       '[data-sales-summary]': 'Inscrições em preparação. A compra será disponibilizada após a liberação do programa.',
       '[data-sales-label]': 'Inscrições em preparação',
-      '[data-sales-detail]': 'O programa custa R$ 499,00, pagamento único — menos de R$ 17 por dia nos 30 dias do programa — e oferece 365 dias de acesso após o pagamento aprovado. As inscrições serão liberadas após a preparação do checkout Mercado Pago e das aulas.',
+      '[data-sales-detail]': 'A compra será liberada após a preparação do checkout Mercado Pago e das aulas.',
       '[data-sales-faq]': 'As inscrições estão em preparação. O preço é R$ 499,00, pagamento único, com pagamento pela Mercado Pago e acesso por 365 dias após a aprovação. A compra será liberada quando o checkout e as aulas estiverem disponíveis.'
     }
     Object.entries(enrollmentCopy).forEach(([selector, message]) => {
       document.querySelectorAll(selector).forEach((element) => { element.textContent = message })
     })
-    if (salesReady(course)) return
     document.querySelectorAll('[data-buy]').forEach((button) => {
+      const product = CONFIG.courses.find((item) => item.id === button.dataset.buy)
+      if (salesReady(product)) {
+        button.disabled = false
+        button.textContent = 'Conhecer inscrição'
+        return
+      }
       button.disabled = true
       button.setAttribute('aria-label', 'Inscrições ainda não liberadas')
       button.textContent = 'Inscrições em preparação'
@@ -126,22 +131,24 @@
     const menu = document.querySelector('[data-menu]')
     if (!toggle || !menu) return
 
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') === 'true'
-      toggle.setAttribute('aria-expanded', String(!open))
-      document.body.classList.toggle('menu-open', !open)
-    })
-
+    const header = toggle.closest('header')
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open))
+      document.body.classList.toggle('menu-open', open)
+    }
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'))
     menu.addEventListener('click', (event) => {
-      if (event.target.closest('a')) {
-        toggle.setAttribute('aria-expanded', 'false')
-        document.body.classList.remove('menu-open')
-      }
+      if (event.target.closest('a')) setOpen(false)
     })
+    for (const eventName of ['focusin', 'pointerdown']) {
+      document.addEventListener(eventName, (event) => {
+        if (!header.contains(event.target) && toggle.getAttribute('aria-expanded') === 'true') setOpen(false)
+      })
+    }
+    window.matchMedia('(max-width: 760px)').addEventListener('change', () => setOpen(false))
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
-        toggle.setAttribute('aria-expanded', 'false')
-        document.body.classList.remove('menu-open')
+        setOpen(false)
         toggle.focus()
       }
     })
@@ -149,10 +156,7 @@
 
   function setupReveal() {
     const items = [...document.querySelectorAll('.reveal')]
-    if (!('IntersectionObserver' in window)) {
-      items.forEach((item) => item.classList.add('is-visible'))
-      return
-    }
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -166,13 +170,6 @@
     items.forEach((item) => observer.observe(item))
   }
 
-  function setupHeader() {
-    const header = document.querySelector('[data-header]')
-    const update = () => header?.classList.toggle('is-scrolled', window.scrollY > 12)
-    update()
-    window.addEventListener('scroll', update, { passive: true })
-  }
-
   function setupBuyButtons() {
     document.addEventListener('click', (event) => {
       const button = event.target.closest('[data-buy]')
@@ -182,17 +179,16 @@
   }
 
   async function boot() {
-    if (window.RVApi) await window.RVApi.ready
     document.documentElement.classList.remove('no-js')
     document.documentElement.classList.add('js')
+    setupNavigation()
+    setupReveal()
+    setupVideo()
+    if (window.RVApi) await window.RVApi.ready
     setupPricing()
     renderCatalog()
     updateSalesStatus()
-    setupVideo()
-    setupNavigation()
-    setupHeader()
     setupBuyButtons()
-    setupReveal()
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot)

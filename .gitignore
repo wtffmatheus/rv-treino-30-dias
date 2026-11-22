@@ -41,3 +41,6 @@ __pycache__/
 .warp/
 .windsurf/
 .github/prompts/
+
+.vercel
+.env*

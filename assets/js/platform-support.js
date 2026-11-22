@@ -1,7 +1,7 @@
 (() => {
  'use strict'
  async function mount(target,{admin=false}={}){
-  const{el,button,field,form,request,run,status,date,card}=window.RVPlatformUI,base=admin?'/api/admin/support':'/api/support'
+  const{el,button,field,form,request,run,status,date,card,pill}=window.RVPlatformUI,base=admin?'/api/admin/support':'/api/support'
   let current=null,sequence=0
   const filters=el('form',null,'platform-filters'),query=field('Buscar atendimento','q',''),filter=field('Situação','status','all','select',{choices:[{value:'all',label:'Todos'},{value:'open',label:'Aguardando equipe'},{value:'answered',label:'Respondidos'},{value:'resolved',label:'Resolvidos'},{value:'unread',label:'Não lidos'}]}),search=el('button','Buscar','button button--secondary');search.type='submit';filters.append(query.wrapper,filter.wrapper,search)
   const feedback=status(),columns=el('div',null,'platform-support-columns'),list=el('section',null,'platform-thread-list'),detail=el('section',null,'platform-thread-detail');list.setAttribute('aria-label','Atendimentos');detail.setAttribute('aria-label','Conversa selecionada');columns.append(list,detail)
@@ -9,7 +9,8 @@
   async function load(){
    const result=await request(base+'?'+new URLSearchParams({q:query.input.value,status:filter.input.value}));list.replaceChildren()
    if(!result.threads.length)list.append(el('p','Nenhum atendimento neste filtro.','platform-empty'))
-   for(const thread of result.threads){const item=button('',()=>open(thread.id),'platform-thread');item.append(el('strong',thread.subject),el('span',`${admin?thread.student_name+' · ':''}${{open:'Aguardando equipe',answered:'Respondida',resolved:'Resolvida'}[thread.status]}`),el('small',`${date(thread.updated_at)}${thread.unread?' · '+thread.unread+' não lida(s)':''}`));item.setAttribute('aria-pressed',String(current===thread.id));list.append(item)}
+   const tones={open:['Aguardando equipe','pending'],answered:['Respondida','active'],resolved:['Resolvida','muted']}
+   for(const thread of result.threads){const item=button('',()=>open(thread.id),'platform-thread');const meta=el('span');if(admin)meta.append(thread.student_name+' · ');meta.append(pill(...tones[thread.status]));if(thread.unread)meta.append(pill(thread.unread+' não lida(s)','danger'));item.append(el('strong',thread.subject),meta,el('small',date(thread.updated_at)));item.setAttribute('aria-pressed',String(current===thread.id));list.append(item)}
   }
   async function open(id){
    const generation=++sequence;current=id;detail.replaceChildren(el('p','Carregando conversa…'))

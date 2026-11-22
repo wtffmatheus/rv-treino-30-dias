@@ -1,35 +1,28 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="public-design">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <base href="/">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br https://*.supabase.co; font-src 'self'; form-action 'self'; upgrade-insecure-requests"><meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#0b1d26"><title>Entrar no RV 30 · RV Fisiologia</title>
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="assets/css/projeto.css?v=20261108-admin">
-  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261107-student">
+  <meta name="theme-color" content="#071621"><title>Entrar no RV 30 · RV Fisiologia</title>
   <script src="assets/js/config.js?v=20261108-review" defer></script>
   <script src="assets/js/runtime.js?v=20261025" defer></script>
   <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261108-admin" defer></script>
-  <script src="assets/js/login.js?v=20261108-admin" defer></script><script src="/assets/js/auth-forms.js?v=20261108-admin" defer></script>
+  <script src="assets/js/login.js?v=piloto1" defer></script><script src="/assets/js/auth-forms.js?v=20261108-admin" defer></script>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
-  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261107-student">
-
-  <link rel="stylesheet" href="/assets/css/rv30.css?v=20261107-petroleum">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=piloto1">
+  <link rel="stylesheet" href="/assets/css/publico.css">
+  <link rel="stylesheet" href="/assets/css/entrada.css">
 </head>
 <body class="portal-body">
+  <a class="skip-link" href="#acesso">Pular para o acesso</a>
   <main class="auth-layout">
-    <section class="auth-brand-panel auth-brand-panel--photo">
-      <img class="auth-brand-photo" src="/assets/brand/rv-rosangela-clinica.webp" alt="" aria-hidden="true" width="1122" height="1402" loading="lazy">
-      <a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>RV Fisiologia</strong><small>Cursos e projetos</small></span></a>
-      <div><div class="rv30-login-signature"><img src="/assets/brand/rv30-logo.png" alt="Logo do programa RV 30" width="72" height="72"><div><strong>RV 30</strong><small>COM ROSANGELA VARAS</small></div></div><h1>Seu próximo dia no <em>RV 30.</em></h1><p>Entre com sua conta para continuar os treinos e acompanhar seu progresso.</p><div class="auth-stat-row"><div><strong>30</strong><span>dias de programa</span></div><div><strong>365</strong><span>dias de acesso</span></div></div></div>
-      <small class="auth-copyright">RV Fisiologia • Programa RV 30</small>
-    </section>
-    <section class="auth-form-panel">
-      <div class="auth-card">
-        <p class="eyebrow"><span></span> JÁ SOU ALUNO</p>
-        <h2>Entrar no RV 30</h2>
+    <div class="login-scene" aria-hidden="true"></div>
+    <header class="login-header"><a class="brand" href="/"><img src="/public/logo-rv.png" width="64" height="32" alt=""><strong>RV Fisiologia</strong></a><a class="entry-link" href="/" data-back-to-site>Voltar ao site ↗</a></header>
+    <div class="login-stage">
+      <section class="auth-card glass" id="acesso" tabindex="-1" aria-labelledby="login-title">
+        <p class="kicker">Área do aluno</p><h1 id="login-title">Entrar no <em>RV 30.</em></h1>
         <p class="portal-lead" data-login-message>Use o e-mail e a senha da sua conta.</p>
         <form class="portal-form" method="post" data-login-form>
           <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
@@ -63,11 +56,13 @@
             </form>
           </details>
         </div>
-        <a class="button button--ghost button--wide" data-back-to-site href="/">← Voltar à plataforma</a>
-        <div class="auth-divider"><span>Primeira vez aqui?</span></div>
-        <p class="tiny-note">Criar uma conta não libera o programa. O acesso depende da confirmação da compra. <a href="index.html#investimento">Conheça o RV 30</a>.</p>
-      </div>
-    </section>
+
+        <noscript><p>Ative o JavaScript para entrar na sua conta.</p></noscript>
+        <p class="tiny-note">Primeira vez aqui? <a href="/#investimento">Conheça o RV 30 ↗</a></p>
+      </section>
+      <div class="login-caption"><p class="kicker">RV 30 · Programa de treinos</p><h2>Um dia de<br><em>cada vez.</em></h2><p>Com Rosângela Varas, fisiologista.</p></div>
+    </div>
+    <footer class="login-footer"><span>RV Fisiologia</span><a href="/privacidade">Privacidade</a><a href="/termos">Termos</a></footer>
   </main>
 </body>
 </html>

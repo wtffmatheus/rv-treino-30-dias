@@ -153,19 +153,26 @@
     const email = data.get('email')
     const password = data.get('password')
     const button = form.querySelector('button[type=submit]')
-    if (button) button.disabled = true
-
-    ensureDemoStudent(email, password)
-
-    const result = await auth.login(email, password)
-    if (button) button.disabled = false
-
-    if (!result.ok) {
-      if (error) error.textContent = result.message
-      return
+    if (form.getAttribute('aria-busy') === 'true') return
+    form.setAttribute('aria-busy', 'true')
+    const idleLabel = button.textContent
+    button.disabled = true
+    button.textContent = 'Entrando…'
+    try {
+      ensureDemoStudent(email, password)
+      const result = await auth.login(email, password)
+      if (!result.ok) {
+        if (error) error.textContent = result.message
+        return
+      }
+      location.href = window.RVRoute?.resolve(next) || next
+    } catch {
+      if (error) error.textContent = 'Não foi possível entrar. Tente novamente.'
+    } finally {
+      form.removeAttribute('aria-busy')
+      button.disabled = false
+      button.textContent = idleLabel
     }
-
-    location.href = window.RVRoute?.resolve(next) || next
   })
   const submit=form?.querySelector('button[type=submit]');if(submit)submit.disabled=false
 })()

@@ -23,7 +23,8 @@ async function setup(page,{support=false}={}){
  return calls
 }
 test('Administração: indicadores do contrato, período e navegação mobile por teclado',async({page})=>{
- const calls=await setup(page);await page.goto('/admin');await expect(page.locator('.platform-metric')).toHaveCount(12)
+ const calls=await setup(page);await page.goto('/admin');await expect(page.locator('.platform-metric')).toHaveCount(9)
+ await expect(page.locator('.platform-alerts').getByText('Nenhum alerta no momento.',{exact:true})).toBeVisible()
  await page.getByLabel('Período',{exact:true}).selectOption('7');await expect.poll(()=>calls.filter(x=>x.path==='/api/admin/metrics').length).toBe(2)
  for(const width of [320,390,768,1024,1440,1920]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1)}
  await page.setViewportSize({width:390,height:844});await expect(page.locator('.platform-navigation')).toHaveJSProperty('open',false);await page.locator('.platform-navigation summary').focus();await page.keyboard.press('Enter');await expect(page.locator('.platform-navigation')).toHaveJSProperty('open',true);await page.getByRole('link',{name:'Alunos',exact:true}).click();await expect(page.getByRole('heading',{name:'Alunos',exact:true})).toBeVisible()

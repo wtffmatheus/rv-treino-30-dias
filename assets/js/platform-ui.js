@@ -25,5 +25,34 @@
  const status=()=>{const node=el('p',null,'platform-status');node.setAttribute('role','status');node.setAttribute('aria-live','polite');return node}
  const table=(head,rows)=>{const wrapper=el('div',null,'platform-table-wrap'),node=el('table',null,'platform-table'),thead=el('thead'),tr=el('tr'),tbody=el('tbody');for(const item of head){const th=el('th',item);th.scope='col';tr.append(th)}thead.append(tr);for(const row of rows){const tr=el('tr');for(const [column,value]of row.entries()){const cell=el('td');cell.dataset.label=head[column];cell.append(value instanceof Node?value:el('span',value));tr.append(cell)}tbody.append(tr)}node.append(thead,tbody);wrapper.append(node);return wrapper}
  const card=(title,...children)=>{const node=el('section',null,'platform-card');node.append(el('h2',title),...children);return node}
- window.RVPlatformUI={el,link,button,date,field,form,request,run,status,table,card}
+ const pill=(label,tone)=>el('span',label,'status-pill status-pill--'+tone)
+ const svgNS='http://www.w3.org/2000/svg'
+ const icon=(path,className='platform-metric-icon')=>{const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('width','20');svg.setAttribute('height','20');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');if(className)svg.setAttribute('class',className);const p=document.createElementNS(svgNS,'path');p.setAttribute('d',path);svg.append(p);return svg}
+ const ring=(percent,label)=>{const wrap=el('div',null,'platform-ring');wrap.style.setProperty('--pct',String(Math.max(0,Math.min(100,percent))));wrap.setAttribute('role','img');wrap.setAttribute('aria-label',label||`${percent}%`);wrap.append(el('strong',`${percent}%`));return wrap}
+ const lineChart=(points,{width=560,height=160,valueKey='value',labelKey='label'}={})=>{
+  const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('class','platform-linechart');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('role','img')
+  svg.setAttribute('aria-label',points.map(p=>`${p[labelKey]}: ${p[valueKey]}`).join(', '))
+  if(!points.length)return svg
+  const max=Math.max(1,...points.map(p=>p[valueKey])),pad=10
+  const x=i=>points.length>1?pad+(i/(points.length-1))*(width-pad*2):width/2
+  const y=v=>height-pad-(v/max)*(height-pad*2)
+  const coords=points.map((p,i)=>`${x(i)},${y(p[valueKey])}`)
+  const line=document.createElementNS(svgNS,'polyline');line.setAttribute('points',coords.join(' '));line.setAttribute('pathLength','1');line.setAttribute('class','platform-linechart-line');svg.append(line)
+  if (points.length === 1) {
+   const dot=document.createElementNS(svgNS,'circle')
+   dot.setAttribute('cx',String(x(0)));dot.setAttribute('cy',String(y(points[0][valueKey])))
+   dot.setAttribute('r','4');dot.setAttribute('fill','currentColor');svg.append(dot)
+  }
+  const area=document.createElementNS(svgNS,'polygon');area.setAttribute('points',`${x(0)},${height-pad} ${coords.join(' ')} ${x(points.length-1)},${height-pad}`);area.setAttribute('class','platform-linechart-area');svg.insertBefore(area,line)
+  return svg
+ }
+ const barChart=(points,{width=560,height=160,valueKey='value',labelKey='label'}={})=>{
+  const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('class','platform-barchart');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('role','img')
+  svg.setAttribute('aria-label',points.map(p=>`${p[labelKey]}: ${p[valueKey]}`).join(', '))
+  if(!points.length)return svg
+  const max=Math.max(1,...points.map(p=>p[valueKey])),pad=6,gap=4,barWidth=(width-pad*2)/points.length-gap
+  points.forEach((p,i)=>{const h=Math.max(1,(p[valueKey]/max)*(height-pad*2));const rect=document.createElementNS(svgNS,'rect');rect.setAttribute('x',String(pad+i*((width-pad*2)/points.length)));rect.setAttribute('y',String(height-pad-h));rect.setAttribute('width',String(Math.max(1,barWidth)));rect.setAttribute('height',String(h));rect.setAttribute('class','platform-barchart-bar');svg.append(rect)})
+  return svg
+ }
+ window.RVPlatformUI={el,link,button,date,field,form,request,run,status,table,card,pill,icon,ring,lineChart,barChart}
 })()

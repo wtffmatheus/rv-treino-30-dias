@@ -203,9 +203,13 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
   await expect(page.locator('.rv30-program-signature .rv30-package-logo')).toHaveAttribute('src', '/assets/brand/rv30-logo.png')
   await expect(page.locator('.site-header .brand img')).toHaveAttribute('src', '/public/logo-rv.png')
   const accent = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--accent').trim())
-  expect(accent).toBe('#27c6bd')
+  expect(accent).toBe('#67D7F6')
   const navyPalette = await page.evaluate(() => {
-    const background = selector => getComputedStyle(document.querySelector(selector)).backgroundColor
+    const background = selector => {
+      let element = document.querySelector(selector)
+      while (getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)') element = element.parentElement
+      return getComputedStyle(element).backgroundColor
+    }
     return {
       page: background('.rv30-landing'),
       hero: background('.hero-v2'),
@@ -216,13 +220,13 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
     }
   })
   const {panel, ...surfaces} = navyPalette
-  expect(['rgb(21, 52, 63)', 'rgba(23, 57, 69, 0.82)']).toContain(panel)
+  expect(['rgb(21, 43, 61)', 'rgba(15, 36, 53, 0.66)']).toContain(panel)
   expect(surfaces).toEqual({
-    page: 'rgb(11, 29, 38)',
-    hero: 'rgb(11, 29, 38)',
-    program: 'rgb(16, 43, 53)',
-    professional: 'rgb(16, 43, 53)',
-    faq: 'rgb(16, 43, 53)'
+    page: 'rgb(7, 22, 33)',
+    hero: 'rgb(7, 22, 33)',
+    program: 'rgb(7, 22, 33)',
+    professional: 'rgb(7, 22, 33)',
+    faq: 'rgb(21, 43, 61)'
   })
   const heroLayout = await page.locator('.hero-v2').evaluate(el => getComputedStyle(el).display)
   expect(heroLayout).toBe('grid')
@@ -231,7 +235,7 @@ test('identidade RV 30: marca do pacote, fotos fornecidas e resumo do checkout',
   await expect(page.locator('.rv-checkout .order-total [data-order-total]')).toHaveText('R$ 499,00')
   await expect(page.locator('.rv-checkout .check-row a')).toHaveCount(2)
   const bodyColor = await page.locator('.rv-checkout').evaluate(el => getComputedStyle(el).backgroundColor)
-  expect(bodyColor).toBe('rgb(11, 29, 38)')
+  expect(bodyColor).toBe('rgb(7, 22, 33)')
 })
 
 test('design RV em telas pequenas: sem rolagem horizontal na landing e no checkout', async ({ page }) => {
@@ -241,7 +245,16 @@ test('design RV em telas pequenas: sem rolagem horizontal na landing e no checko
       await page.goto(route)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       expect(overflow, route + ' / ' + width).toBeLessThanOrEqual(1)
-      await expect(page.locator('link[href*="rv-performance.css"]')).toHaveCount(1)
+      const action = page.locator(route === '/' ? '.hero-actions a' : '[data-checkout-submit]')
+      await expect(action).toBeVisible()
+      const box = await action.boundingBox()
+      expect(box.height).toBeGreaterThanOrEqual(44)
+      expect(box.x).toBeGreaterThanOrEqual(0)
+      expect(box.x + box.width).toBeLessThanOrEqual(width + 1)
+      await page.keyboard.press('Tab')
+      await action.focus()
+      await expect(action).toBeFocused()
+      await expect(action).toHaveCSS('outline-style', 'solid')
     }
   }
 })
@@ -353,7 +366,7 @@ test('menu RV de aluno e painel lateral da aula aparecem conforme tamanho de tel
   await page.goto('/curso/rv30/dia/1')
   await expect(page.locator('.rv-student-nav')).toBeVisible()
   await expect(page.locator('.rv-lesson-grid .course-video')).toBeVisible()
-  await expect(page.locator('.rv-lesson-details .daily-info article')).toHaveCount(4)
+  await expect(page.locator('.rv-lesson-details .daily-info article')).toHaveCount(2)
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.locator('.rv-mobile-course-nav')).toBeVisible()
   await expect(page.locator('.rv-mobile-course-nav a')).toHaveCount(5)

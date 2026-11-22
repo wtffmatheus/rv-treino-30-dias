@@ -1,12 +1,16 @@
 (() => {
  'use strict'
  const entityLabel=value=>({student:'Aluno',lesson:'Aula',course:'Curso',media:'Mídia',support:'Atendimento',report:'Relatório',catalog:'Catálogo',identity:'Acesso'})[value]||'Registro'
+ const METRIC_ICONS={students:'M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4ZM2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1M18 8a3 3 0 1 1 0 6M20 21v-1a5 5 0 0 0-3-4.6',activeEnrollments:'M22 10v6M2 10l10-5 10 5-10 5-10-5Zm4 2v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5',lessonsCompleted:'M20 7 10 18l-5-5M4 13h4m8 0h4M4 7h4m8 0h4',completionRate:'',blocked:'M6 11V8a6 6 0 0 1 12 0v3M5 11h14v9H5v-9Z',expiredEnrollments:'M12 7v5l3 3M12 2a10 10 0 1 0 .001 0Z',pendingSupport:'M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-4-1L3 20l1.1-5.6a8.3 8.3 0 0 1-1-4A8.4 8.4 0 0 1 11.5 2 8.4 8.4 0 0 1 21 11.5Z',newStudents:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 3v6m3-3h-6',activeStudents:'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5m5 5H3',lessonsStarted:'M8 5v14l11-7-11-7Z',averageProgress:'M3 12h4l2-7 4 14 2-7h6',averageActivitySeconds:'M12 7v5l3 3M12 2a10 10 0 1 0 .001 0Z'}
  const eventLabel=value=>({technical_validation_restored:'Conteúdo restaurado após validação',student_report_exported:'Relatório de alunos exportado',content_save:'Rascunho salvo',content_publish:'Conteúdo publicado',content_unpublish:'Conteúdo despublicado',content_restore:'Versão restaurada como rascunho',media_reviewed:'Mídia revisada',upload_completed:'Upload concluído',upload_started:'Upload iniciado',upload_cancelled:'Upload cancelado',upload_rejected:'Upload recusado',support_status:'Situação do atendimento alterada',support_reply:'Resposta enviada',support_created:'Atendimento aberto',student_created:'Aluno criado',student_profile:'Perfil atualizado',student_validity:'Validade alterada',student_note:'Observação adicionada',student_role:'Permissão alterada',catalog_imported:'Catálogo importado',login:'Entrada na conta',logout:'Saída da conta',blocked:'Conta bloqueada',unblocked:'Conta desbloqueada',access_granted:'Acesso liberado',access_revoked:'Acesso revogado',invitation_issued:'Convite gerado',invitation_accepted:'Convite aceito',recovery_issued:'Recuperação gerada',recovery_accepted:'Senha recuperada',owner_validation_password_set:'Senha de homologação definida pelo responsável'})[value]||'Alteração registrada'
  async function mount(){
-  const U=window.RVPlatformUI,{el,link,button,field,form,request,run,status,table,card,date}=U
+  const U=window.RVPlatformUI,{el,link,button,field,form,request,run,status,table,card,date,pill}=U
   const account=window.RVApi.account();if(!account?.roles?.includes('admin')){location.replace('/admin/entrar');return}
   const header=el('header',null,'platform-header'),brand=link('','/','platform-brand'),logo=el('img');logo.src='/public/logo-rv.png';logo.alt='RV Fisiologia';brand.append(logo,el('span','RV Fisiologia'))
-  const actions=el('div',null,'platform-actions'),globalStatus=status();actions.append(link('Área do aluno','/meus-cursos','button button--ghost'),button('Sair',btn=>run(btn,globalStatus,async()=>{await window.RVApi.logout();location.replace('/admin/entrar')}),'button button--ghost'));header.append(brand,actions)
+  const actions=el('div',null,'platform-actions'),globalStatus=status();actions.append(link('Área do aluno','/meus-cursos','button button--ghost'),button('Sair',btn=>run(btn,globalStatus,async()=>{await window.RVApi.logout();location.replace('/admin/entrar')}),'button button--ghost'));const locationLabel = el('span','Administração','platform-location')
+  brand.append(locationLabel)
+  header.classList.add('glass')
+  header.append(brand,actions)
   const layout=el('div',null,'platform-layout'),navigation=el('details',null,'platform-navigation');navigation.open=matchMedia('(min-width:801px)').matches;navigation.append(el('summary','Menu da administração'));const nav=el('nav');nav.setAttribute('aria-label','Administração');navigation.append(nav)
   matchMedia('(min-width:801px)').addEventListener('change',event=>{navigation.open=event.matches})
   const main=el('main',null,'platform-main');main.id='conteudo';const skip=link('Pular para o conteúdo','#conteudo','skip-link');layout.append(navigation,main);document.body.className='platform-body';document.body.replaceChildren(skip,header,globalStatus,layout)
@@ -18,19 +22,30 @@
    if(push)history.pushState({},'',href(view,extra));nav.querySelectorAll('a').forEach(a=>a.setAttribute('aria-current',a.dataset.view===view?'page':'false'))
    if(matchMedia('(max-width:800px)').matches)navigation.open=false
    main.replaceChildren(el('p','Carregando registros do servidor…','platform-empty'));globalStatus.textContent=''
-   const body=el('div');try{
+   const body=el('div',null,'admin-view');body.dataset.view=view;try{
     if(view==='dashboard')await dashboard(body)
-    if(view==='students')await(extra.id?student(body,extra.id):studentList(body))
+    if(view==='students')await(extra.id?student(body,extra.id):studentList(body,'',extra.status||'all'))
     if(view==='content')await content(body,Number(extra.day)||1)
     if(view==='media')await library(body)
     if(view==='support')await window.RVPlatformSupport.mount(body,{admin:true})
     if(view==='orders')await orders(body)
     if(view==='audit')await audits(body,Number(extra.page)||1)
-    if(current===generation){main.replaceChildren(body);document.title=sections.find(x=>x[0]===view)[1]+' — RV Fisiologia'}
+    if(current===generation){locationLabel.textContent=sections.find(section=>section[0]===view)[1];main.replaceChildren(body);document.title=sections.find(x=>x[0]===view)[1]+' — RV Fisiologia'}
    }catch(error){if(current===generation)main.replaceChildren(el('h1','Não foi possível carregar'),el('p',error.message,'form-error'),button('Tentar novamente',()=>navigate(view,extra,false)),link('Entrar novamente','/admin/entrar','text-link'))}
   }
   const internal=(label,view,extra={})=>{const node=link(label,href(view,extra));node.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey)return;event.preventDefault();navigate(view,extra)});return node}
-  for(const[view,label]of sections){const node=internal(label,view);node.dataset.view=view;nav.append(node)}
+  const navPaths = {
+    dashboard:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+    students:METRIC_ICONS.students, content:'M4 4h16v16H4z M10 8l6 4-6 4z',
+    media:'M3 6h7l2 2h9v12H3z',support:METRIC_ICONS.pendingSupport,
+    orders:'M5 3h14v18l-3-2-4 2-4-2-3 2z M8 8h8 M8 12h6', audit:'M4 4h16v16H4z M7 9h10 M7 14h8'
+  }
+  for(const [view,label] of sections){
+    const node=internal(label,view)
+    node.prepend(U.icon(navPaths[view],'nav-symbol'))
+    node.dataset.view=view
+    nav.append(node)
+  }
   window.addEventListener('popstate',()=>{const p=new URLSearchParams(location.search);navigate(p.get('view')||'dashboard',Object.fromEntries(p),false)})
   const notice=()=>el('p',window.RVApi.qaOnly?'Homologação privada: registros de validação, sem cobranças.':'Os indicadores usam registros persistidos no servidor.','environment-note')
   async function dashboard(target,days=30){
@@ -38,21 +53,61 @@
    const filters=el('div',null,'platform-filters');filters.append(period.wrapper);target.replaceChildren(el('h1','Visão geral'),notice(),filters)
    const labels={students:'Alunos cadastrados',activeEnrollments:'Matrículas ativas',blocked:'Contas bloqueadas',expiredEnrollments:'Matrículas expiradas',newStudents:'Novos no período',activeStudents:'Com login no período',lessonsStarted:'Aulas iniciadas',lessonsCompleted:'Conclusões no período',averageProgress:'Progresso médio',completionRate:'Curso concluído',averageActivitySeconds:'Atividade média',pendingSupport:'Atendimentos pendentes'}
    const display=key=>{const value=result.totals[key];return key==='averageActivitySeconds'?Math.floor(value/60)+' min '+value%60+' s':['averageProgress','completionRate'].includes(key)?value+'%':value}
-   const metricCard=(key,featured)=>{const metric=el('article',null,featured?'platform-metric platform-metric--featured':'platform-metric');metric.append(el('p',labels[key]),el('strong',display(key)));return metric}
+   const metricCard=(key,featured)=>{
+    const metric=el('article',null,featured?'platform-metric platform-metric--featured':'platform-metric')
+    if(key==='completionRate')metric.append(U.ring(result.totals.completionRate,'Taxa de conclusão do programa'),el('p',labels[key]))
+    else{if(METRIC_ICONS[key])metric.append(U.icon(METRIC_ICONS[key]));metric.append(el('p',labels[key]),el('strong',display(key)))}
+    return metric
+   }
    const featured=el('section',null,'platform-metrics platform-metrics--featured');featured.setAttribute('aria-label','Indicadores principais do programa')
-   for(const key of['activeEnrollments','students','lessonsCompleted'])featured.append(metricCard(key,true))
+   for(const key of['activeEnrollments','students','lessonsCompleted','completionRate'])featured.append(metricCard(key,true))
    target.append(featured)
-   const groups=[['Alunos no período',['newStudents','activeStudents','lessonsStarted']],['Progresso',['averageProgress','completionRate','averageActivitySeconds']],['Atenção',['blocked','expiredEnrollments','pendingSupport']]]
+   const groups=[['Alunos no período',['newStudents','activeStudents','lessonsStarted']],['Progresso',['averageProgress','averageActivitySeconds']]]
    for(const[title,keys]of groups){const group=el('section',null,'platform-metrics-group');group.append(el('h3',title));const grid=el('div',null,'platform-metrics');grid.setAttribute('aria-label',title);for(const key of keys)grid.append(metricCard(key,false));group.append(grid);target.append(group)}
    target.append(el('p',result.definitions.period,'portal-lead'))
-   const activity=card('Atividade registrada no período'),chart=el('div',null,'platform-chart'),maximum=Math.max(1,...result.activity.map(x=>x.seconds));for(const item of result.activity){const row=el('div',null,'platform-chart-row'),bar=el('progress');bar.max=maximum;bar.value=item.seconds;bar.setAttribute('aria-label',item.date_utc+': '+item.seconds+' segundos');row.append(el('span',item.date_utc),bar,el('span',Math.round(item.seconds/60)+' min'));chart.append(row)}activity.append(result.activity.length?chart:el('p','Ainda não há intervalos de reprodução validados neste período.','platform-empty'),el('p',result.definitions.activity));target.append(activity)
-   target.append(card('Aulas iniciadas e conclusões',result.lessons.length?table(['Aula','Iniciaram','Concluíram','Sem conclusão marcada'],result.lessons.map(x=>['Dia '+x.day,x.started,x.completed,x.notCompleted])):el('p','Nenhuma aula foi iniciada neste período.','platform-empty'),el('p',result.definitions.notCompleted)))
+
+   const alerts=el('section',null,'platform-alerts');alerts.setAttribute('aria-label','Alertas e pendências');alerts.append(el('h3','Alertas e pendências'))
+   const alertRows=[
+    [result.totals.blocked,'conta(s) bloqueada(s)','students',{status:'blocked'}],
+    [result.totals.expiredEnrollments,'matrícula(s) expirada(s)','students',{status:'expired'}],
+    [result.totals.pendingSupport,'atendimento(s) pendente(s)','support',{}]
+   ]
+   let anyAlert=false
+   for(const[count,label,view,extra]of alertRows){
+    if(!count)continue
+    anyAlert=true
+    const row=el('div',null,'platform-alert-row');row.append(U.icon(METRIC_ICONS.pendingSupport,'platform-alert-icon'),el('strong',`${count} ${label}`),internal('Ver →',view,extra))
+    alerts.append(row)
+   }
+   if(!anyAlert)alerts.append(el('p','Nenhum alerta no momento.','platform-empty'))
+   target.append(alerts)
+
+   const activity=card('Atividade registrada no período')
+   if(result.activity.length){
+    const seconds = result.activity.reduce((sum, item) => sum + item.seconds, 0)
+    activity.append(el('p',Math.floor(seconds/60)+' min '+seconds%60+' s registrados','chart-total'))
+    activity.append(U.lineChart(result.activity.map(x=>({label:x.date_utc,value:x.seconds}))))
+    const chart=el('div',null,'platform-chart'),maximum=Math.max(1,...result.activity.map(x=>x.seconds))
+    for(const item of result.activity){const row=el('div',null,'platform-chart-row'),bar=el('progress');bar.max=maximum;bar.value=item.seconds;bar.setAttribute('aria-label',item.date_utc+': '+item.seconds+' segundos');row.append(el('span',item.date_utc),bar,el('span',Math.round(item.seconds/60)+' min'));chart.append(row)}
+    activity.append(el('details',null,'platform-chart-detail'))
+    activity.lastChild.append(el('summary','Ver valores por dia'),chart)
+   } else activity.append(el('p','Ainda não há intervalos de reprodução validados neste período.','platform-empty'))
+   activity.append(el('p',result.definitions.activity));featured.after(activity)
+
+   const lessonsCard=card('Aulas iniciadas e conclusões')
+   if(result.lessons.length){
+    const byDay=[...result.lessons].sort((a,b)=>a.day-b.day)
+    const barWrap=el('div',null,'platform-barchart-legend');barWrap.append(el('span',null,'legend-dot legend-dot--started'),el('span','Aulas iniciadas, por dia do programa'))
+    lessonsCard.append(barWrap,U.barChart(byDay.map(x=>({label:'Dia '+x.day,value:x.started}))))
+    lessonsCard.append(table(['Aula','Iniciaram','Concluíram','Sem conclusão marcada'],result.lessons.map(x=>['Dia '+x.day,x.started,x.completed,x.notCompleted])))
+   } else lessonsCard.append(el('p','Nenhuma aula foi iniciada neste período.','platform-empty'))
+   lessonsCard.append(el('p',result.definitions.notCompleted));activity.after(lessonsCard)
+
    target.append(card('Financeiro',el('p','Gateway e webhook ainda não homologados. Não há receita confirmada disponível para este painel.'),internal('Consultar pedidos','orders')))
   }
   async function studentList(target,query='',filter='all',page=1){
    const result=await request('/api/admin/students?'+new URLSearchParams({q:query,status:filter,page})),search=field('Nome ou e-mail','q',query),select=field('Situação','status',filter,'select',{choices:[['all','Todos'],['active','Matrícula ativa'],['blocked','Bloqueados'],['expired','Expirados'],['revoked','Revogados'],['none','Sem matrícula'],['inactive','Sem login em 30 dias']].map(([value,label])=>({value,label}))}),filters=el('form',null,'platform-filters'),go=el('button','Buscar','button button--secondary');go.type='submit';filters.append(search.wrapper,select.wrapper,go);filters.addEventListener('submit',async event=>{event.preventDefault();try{await studentList(target,search.input.value,select.input.value)}catch(error){globalStatus.textContent=error.message}})
    target.replaceChildren(el('h1','Alunos'),notice(),filters,el('p',result.total+' perfil(is) encontrado(s).'))
-   const pill=(label,tone)=>el('span',label,'status-pill status-pill--'+tone)
    if(result.students.length)target.append(table(['Aluno','Conta','Matrícula','Progresso','Último login'],result.students.map(x=>[internal(x.name,'students',{id:x.id}),x.status==='blocked'?pill('Bloqueada','danger'):x.verified_at?pill('Ativa','active'):pill('Convite pendente','pending'),!x.expires_at?pill('Sem matrícula','muted'):x.revoked?pill('Revogada','danger'):'Até '+date(x.expires_at),x.completed+'/30',date(x.last_login)])))
    else target.append(el('p','Nenhum aluno neste filtro.','platform-empty'))
    const paging=el('div',null,'platform-actions');if(page>1)paging.append(button('Página anterior',()=>studentList(target,query,filter,page-1)));if(result.total>page*25)paging.append(button('Próxima página',()=>studentList(target,query,filter,page+1)));target.append(paging)
@@ -80,10 +135,10 @@
    const result=await request('/api/admin/content'),media=await request('/api/admin/media'),lesson=result.lessons.find(x=>x.day===day)||result.lessons[0],select=field('Aula','day',lesson.day,'select',{choices:result.lessons.map(x=>({value:String(x.day),label:`Dia ${String(x.day).padStart(2,'0')} · ${x.published?'publicada':'rascunho'}`}))});select.input.addEventListener('change',()=>navigate('content',{day:select.input.value}))
    target.replaceChildren(el('h1','Curso e aulas'),notice(),el('p','Rascunhos não alteram a versão do aluno. Publicar exige vídeo validado e revisão editorial. O progresso permanece vinculado ao dia original.'),select.wrapper)
    let courseRevision=result.course.revision,lessonRevision=lesson.revision
-   const course=result.course.draft,courseForm=form('Informações do RV 30',[field('Nome do curso','title',course.title,'text',{required:true,maxLength:160}),field('Descrição','description',course.description,'textarea',{maxLength:6000}),field('Preço em reais','price',String(course.priceCents/100),'number',{required:true,min:1,max:1000000,step:0.01})],'Salvar rascunho do curso',async(data,status)=>{const saved=await request('/api/admin/content/course/rv30',{method:'PUT',body:{action:'save',revision:courseRevision,document:{title:data.title,description:data.description,priceCents:Math.round(Number(data.price)*100),accessDurationDays:365}}});courseRevision=saved.revision;status.textContent='Rascunho salvo. O valor público só muda após publicar.'})
+   const course=result.course.draft,courseForm=form('Informações do RV 30',[field('Nome do curso','title',course.title,'text',{required:true,maxLength:160}),field('Preço em reais','price',String(course.priceCents/100),'number',{required:true,min:1,max:1000000,step:0.01}),field('Descrição','description',course.description,'textarea',{maxLength:6000})],'Salvar rascunho do curso',async(data,status)=>{const saved=await request('/api/admin/content/course/rv30',{method:'PUT',body:{action:'save',revision:courseRevision,document:{title:data.title,description:data.description,priceCents:Math.round(Number(data.price)*100),accessDurationDays:365}}});courseRevision=saved.revision;status.textContent='Rascunho salvo. O valor público só muda após publicar.'})
    const courseStatus=status(),courseDetails=el('details',null,'platform-editor-details');courseDetails.append(el('summary','Editar informações do curso'),card('Curso',courseForm,el('p','Acesso: 365 dias após confirmação real de compra. Vendas continuam desativadas.'),button('Publicar rascunho do curso',btn=>run(btn,courseStatus,async()=>{await request('/api/admin/content/course/rv30',{method:'PUT',body:{action:'publish',revision:courseRevision}});await content(target,day)})),courseStatus));target.append(courseDetails)
    const doc=lesson.draft,choices=kind=>[{value:'',label:'Nenhuma mídia'},...media.media.filter(x=>x.kind===kind&&x.state==='ready').map(x=>({value:x.id,label:x.label}))]
-   const fields=[field('Título','title',doc.title,'text',{required:true,maxLength:160}),field('Descrição','description',doc.description,'textarea',{maxLength:2000}),field('Objetivo','objective',doc.objective,'textarea',{maxLength:2000}),field('Orientações','instructions',doc.instructions,'textarea',{maxLength:6000}),field('Materiais — um por linha','materials',doc.materials.join('\n'),'textarea',{maxLength:10000}),field('Avisos — um por linha','warnings',doc.warnings.join('\n'),'textarea',{maxLength:10000}),field('Duração informada (opcional)','durationLabel',doc.durationLabel,'text',{maxLength:100}),field('Ordem de exibição','order',doc.order,'number',{required:true,min:1,max:30}),field('Vídeo validado','mediaId',doc.mediaId||'','select',{choices:choices('video')}),field('Capa validada','coverId',doc.coverId||'','select',{choices:choices('image')}),field('Revisei título, objetivo, orientações, materiais, avisos e vídeo desta aula','editorialReviewed',doc.editorialReviewed,'checkbox')]
+   const fields=[field('Título','title',doc.title,'text',{required:true,maxLength:160}),field('Ordem de exibição','order',doc.order,'number',{required:true,min:1,max:30}),field('Descrição','description',doc.description,'textarea',{maxLength:2000}),field('Objetivo','objective',doc.objective,'textarea',{maxLength:2000}),field('Orientações','instructions',doc.instructions,'textarea',{maxLength:6000}),field('Materiais — um por linha','materials',doc.materials.join('\n'),'textarea',{maxLength:10000}),field('Avisos — um por linha','warnings',doc.warnings.join('\n'),'textarea',{maxLength:10000}),field('Duração informada (opcional)','durationLabel',doc.durationLabel,'text',{maxLength:100}),field('Vídeo validado','mediaId',doc.mediaId||'','select',{choices:choices('video')}),field('Capa validada','coverId',doc.coverId||'','select',{choices:choices('image')}),field('Revisei título, objetivo, orientações, materiais, avisos e vídeo desta aula','editorialReviewed',doc.editorialReviewed,'checkbox')]
    const document=data=>({title:data.title,description:data.description,objective:data.objective,instructions:data.instructions,materials:data.materials.split('\n').map(x=>x.trim()).filter(Boolean),warnings:data.warnings.split('\n').map(x=>x.trim()).filter(Boolean),durationLabel:data.durationLabel,order:Number(data.order),mediaId:data.mediaId||null,coverId:data.coverId||null,editorialReviewed:data.editorialReviewed==='on'})
    const edit=form('Dia '+String(lesson.day).padStart(2,'0'),fields,'Salvar rascunho da aula',async(data,status)=>{const saved=await request('/api/admin/content/lesson/'+lesson.day,{method:'PUT',body:{action:'save',revision:lessonRevision,document:document(data)}});lessonRevision=saved.revision;status.textContent='Rascunho da aula salvo.'}),editorStatus=status(),buttons=el('div',null,'platform-actions')
    buttons.append(button('Visualizar rascunho',()=>{const draft=document(Object.fromEntries(new FormData(edit))),preview=el('div',null,'platform-inline-preview');preview.append(el('h2',draft.title),el('p',draft.description),el('h3','Objetivo'),el('p',draft.objective||'Ainda não definido'),el('h3','Orientações'),el('p',draft.instructions||'Ainda não definidas'),el('h3','Materiais e avisos'),el('p',[...draft.materials,...draft.warnings].join('\n')||'Ainda não definidos'));dialog('Prévia do rascunho',preview)}),button('Salvar e publicar aula',btn=>run(btn,editorStatus,async()=>{if(!edit.reportValidity())throw Error('Confira os campos da aula antes de publicar.');let saved=await request('/api/admin/content/lesson/'+lesson.day,{method:'PUT',body:{action:'save',revision:lessonRevision,document:document(Object.fromEntries(new FormData(edit)))}});lessonRevision=saved.revision;await request('/api/admin/content/lesson/'+lesson.day,{method:'PUT',body:{action:'publish',revision:lessonRevision}});await content(target,lesson.day)})),button('Despublicar aula',btn=>run(btn,editorStatus,async()=>{await request('/api/admin/content/lesson/'+lesson.day,{method:'PUT',body:{action:'unpublish',revision:lessonRevision}});await content(target,lesson.day)})))
@@ -103,14 +158,26 @@
     for(const[label,state]of [['Aprovar mídia','ready'],['Rejeitar mídia','rejected']])content.append(button(label,btn=>run(btn,reviewStatus,async()=>{if(!confirmed.input.checked)throw Error('Confira a prévia e marque a confirmação.');await request('/api/admin/media/'+item.id,{method:'PATCH',body:{state,reviewed:true}});modal.close();await library(target)})))
     content.append(reviewStatus);const modal=dialog(item.label,content)
    }
-   const states={ready:'Validada',review:'Aguardando revisão',rejected:'Rejeitada'}
-   target.append(result.media.length?table(['Arquivo','Estado','Metadados','Ação'],result.media.map(x=>[x.label,states[x.state],`${(x.bytes/1024/1024).toFixed(2)} MiB · ${x.width} × ${x.height}${x.duration?' · '+x.duration.toFixed(2)+' s':''}`,x.state==='rejected'?el('span','Envie uma nova versão para substituir.'):button('Conferir mídia',()=>review(x))])):el('p','Nenhuma mídia na biblioteca.','platform-empty'))
+   const states={ready:['Validada','active'],review:['Aguardando revisão','pending'],rejected:['Rejeitada','danger']}
+   const collection = el('section',null,'media-collection')
+   collection.setAttribute('aria-label','Arquivos da biblioteca')
+   for (const item of result.media) {
+    const entry = el('article',null,'media-entry')
+    const type = el('div',null,'media-format')
+    type.append(U.icon(item.kind==='video'?navPaths.content:navPaths.media,'nav-symbol'),el('span',item.kind==='video'?'Vídeo':'Capa'))
+    const description = el('div',null,'media-description')
+    description.append(el('h2',item.label),el('p',[(item.bytes/1024/1024).toFixed(2)+' MiB',item.width+' × '+item.height,item.duration?item.duration.toFixed(2)+' s':''].filter(Boolean).join(' · ')))
+    entry.append(type,description,pill(...states[item.state]),item.state==='rejected'?el('small','Envie uma nova versão para substituir.'):button('Conferir mídia',()=>review(item)))
+    collection.append(entry)
+   }
+   if(!result.media.length)collection.append(el('p','Nenhuma mídia na biblioteca.','platform-empty'))
+   target.append(collection)
    const uploadForm=(resume=null)=>{
     const title=field('Nome na biblioteca','label',resume?.label||'','text',{required:true,maxLength:160}),kind=field('Tipo','kind',resume?.kind||'video','select',{choices:[{value:'video',label:'Vídeo MP4'},{value:'image',label:'Capa PNG ou JPEG'}]}),file=field('Arquivo privado','file','','file',{required:true,accept:'.mp4,.png,.jpg,.jpeg'}),uploadStatus=status()
     const node=form(resume?'Retomar '+resume.label:'Enviar mídia',[title,kind,file],'Enviar arquivo privado',async(data,status)=>{
      const selected=file.input.files[0];if(!selected)throw Error('Selecione um arquivo.')
      if(resume&&(selected.size!==resume.expected_bytes||kind.input.value!==resume.kind))throw Error('Selecione o mesmo arquivo e tipo do envio anterior.')
-     const upload=resume||await request('/api/admin/uploads',{method:'POST',body:{label:title.input.value,kind:kind.input.value,bytes:selected.size}}),partBytes=result.partBytes,total=Math.ceil(selected.size/partBytes),done=new Set(resume?.parts||[])
+     const upload=resume||await request('/api/admin/uploads',{method:'POST',body:{label:title.input.value,kind:kind.input.value,bytes:selected.size}}),partBytes=uploads.partBytes,total=Math.ceil(selected.size/partBytes),done=new Set(resume?.parts||[])
      for(let part=1;part<=total;part++){
       if(done.has(part))continue;status.textContent=`Enviando bloco ${part} de ${total}… Mantenha esta página aberta.`
       const response=await fetch(`/api/admin/uploads/${upload.id}/parts/${part}`,{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/octet-stream'},body:selected.slice((part-1)*partBytes,part*partBytes)}),value=await response.json();if(!response.ok)throw Error(value.message+' O envio pode ser retomado na biblioteca após entrar novamente.')
@@ -118,11 +185,14 @@
      status.textContent='Validando metadados e concluindo…';await request(`/api/admin/uploads/${upload.id}/finish`,{method:'POST',body:{}});await library(target)
     });node.append(uploadStatus);return node
    }
-   const uploadDetails=el('details',null,'platform-editor-details');uploadDetails.append(el('summary','Enviar novo arquivo'),card('Novo envio',uploadForm()));const listing=target.querySelector('.platform-table-wrap');if(listing)listing.before(uploadDetails);else target.append(uploadDetails)
+   const uploadDetails=el('details',null,'platform-editor-details');uploadDetails.append(el('summary','Enviar novo arquivo'),card('Novo envio',uploadForm()));collection.before(uploadDetails)
    for(const upload of uploads.uploads){const section=card('Envio pendente: '+upload.label,el('p',`${upload.parts.length} bloco(s) recebido(s) · expira em ${date(upload.expires_at)}.`));if(upload.state==='open')section.append(uploadForm(upload),button('Cancelar envio',btn=>run(btn,feedback,async()=>{await request(`/api/admin/uploads/${upload.id}/cancel`,{method:'POST',body:{}});await library(target)})));else section.append(button('Verificar conclusão',btn=>run(btn,feedback,async()=>{await request(`/api/admin/uploads/${upload.id}/finish`,{method:'POST',body:{}});await library(target)})));target.append(section)}
    target.append(el('p','Substituição: envie e valide o novo arquivo; associe-o ao rascunho da aula e publique. O arquivo anterior e o histórico de versões são preservados.'))
   }
-  async function orders(target){const result=await request('/api/admin/orders');target.replaceChildren(el('h1','Pedidos e pagamentos'),notice(),el('p',result.message),result.orders.length?table(['Pedido','Provedor','Situação','Valor','Confirmação'],result.orders.map(x=>[x.id,x.provider,x.status,new Intl.NumberFormat('pt-BR',{style:'currency',currency:x.currency}).format(x.amount_cents/100),date(x.paid_at)])):el('p','Nenhum pedido confirmado pelo provedor foi recebido.','platform-empty'))}
+  async function orders(target){
+   const result=await request('/api/admin/orders'),tones={pending:['Pendente','pending'],paid:['Pago','active'],cancelled:['Cancelado','muted'],refunded:['Reembolsado','muted'],disputed:['Contestado','danger']}
+   target.replaceChildren(el('h1','Pedidos e pagamentos'),notice(),card('Situação do pagamento',el('p',result.message,'platform-callout')),result.orders.length?table(['Pedido','Provedor','Situação','Valor','Confirmação'],result.orders.map(x=>[x.id,x.provider,pill(...(tones[x.status]||[x.status,'muted'])),new Intl.NumberFormat('pt-BR',{style:'currency',currency:x.currency}).format(x.amount_cents/100),date(x.paid_at)])):el('p','Nenhum pedido confirmado pelo provedor foi recebido.','platform-empty'))
+  }
   async function audits(target,page){const result=await request('/api/admin/audit?page='+page);target.replaceChildren(el('h1','Auditoria'),el('p','Operações registradas no servidor, sem senhas, tokens ou conteúdo das mensagens.'),result.events.length?table(['Data','Responsável','Área','Operação','Referência'],result.events.map(x=>[date(x.at),x.actor,entityLabel(x.entity),eventLabel(x.action),x.subject_id||'Geral'])):el('p','Nenhum evento nesta página.','platform-empty'));const actions=el('div',null,'platform-actions');if(page>1)actions.append(button('Página anterior',()=>navigate('audit',{page:page-1})));if(result.events.length===50)actions.append(button('Próxima página',()=>navigate('audit',{page:page+1})));target.append(actions)}
   const initial=new URLSearchParams(location.search);await navigate(initial.get('view')||'dashboard',Object.fromEntries(initial),false)
  }

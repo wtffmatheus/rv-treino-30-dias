@@ -33,14 +33,22 @@
     form.querySelector('button[type=submit]').disabled=false
   }
   if(window.RVApi.platformIdentity){
+    window.addEventListener('hashchange',()=>{
+      const incoming=new URLSearchParams(location.hash.slice(1))
+      if(incoming.has('token') && ['recovery','invitation'].includes(incoming.get('type'))) location.reload()
+    })
     panel.querySelectorAll('[data-signup-form], [data-recover-form]').forEach(form=>form.closest('details').hidden=true)
     if(message&&new URLSearchParams(location.search).get('senha')!=='definida')message.textContent='Entre com sua conta. Para definir ou recuperar a senha, use um convite privado fornecido pela equipe após confirmar sua identidade. O cadastro público e o envio automático de e-mails ainda estão em preparação.'
     const fragment=new URLSearchParams(location.hash.slice(1)),token=fragment.get('token'),type=fragment.get('type')
     if(token&&['invitation','recovery'].includes(type)){
       history.replaceState({},'',location.pathname+location.search)
+      const heading=document.getElementById('login-title')
+      if(heading)heading.textContent=type==='recovery'?'Recuperar minha conta':'Ativar meu acesso'
+      if(message)message.textContent=type==='recovery'?'Escolha uma nova senha para voltar ao RV30.':'Escolha a senha que você usará para entrar no RV30.'
       loginForm.hidden=true
       const verification=panel.querySelector('[data-verify-form]'),password=verification.querySelector('[name=password]')
       verification.hidden=false;verification.querySelector('[data-verify-title]').textContent=type==='recovery'?'Definir nova senha':'Ativar meu acesso'
+      verification.querySelector('[data-verify-title]').hidden=Boolean(heading)
       password.closest('label').hidden=false;password.required=true
       bind('[data-verify-form]','/api/auth/accept',data=>({token,password:data.get('password')}),()=>{location.href='/entrar?senha=definida'})
     }

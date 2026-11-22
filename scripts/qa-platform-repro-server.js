@@ -18,7 +18,10 @@ const PASSWORD = 'TestPassword123!'
 
 const aliases = {
   '/': '/index.html', '/entrar': '/login.html', '/meus-cursos': '/aluno.html',
-  '/curso/rv30': '/area.html', '/admin': '/admin.html', '/admin/entrar': '/admin-login.html'
+  '/curso/rv30': '/area.html', '/admin': '/admin.html', '/admin/entrar': '/admin-login.html',
+  '/admin/suporte':'/suporte.html', '/admin/videos':'/admin-videos.html', '/suporte':'/suporte.html',
+  '/checkout/rv30':'/checkout.html', '/pagamento/sucesso':'/pagamento-confirmado.html',
+  '/termos':'/termos.html', '/privacidade':'/privacidade.html'
 }
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml' }
 
@@ -45,6 +48,10 @@ async function setup() {
       await db.prepare(sql).run()
     }
   }
+  if (process.env.RV_STUDIO_QA === '1') {
+    const {seedStudio} = require('./qa-studio-seed')
+    await seedStudio(db, bucket, await hashPassword(PASSWORD, PEPPER))
+  }
   const now = Date.now()
   const hash = await hashPassword(PASSWORD, PEPPER)
   for (const s of SCENARIOS) {
@@ -63,7 +70,7 @@ async function setup() {
   await bucket.put(item.key, '0123456789')
   const env = {
     QA_DB: db, VIDEOS: bucket, AUTH_PASSWORD_PEPPER: PEPPER, PLATFORM_ENV: 'staging',
-    PUBLIC_SITE_URL: ORIGIN, PREVIEW_ORIGINS: ORIGIN, QA_MEDIA_MANIFEST: JSON.stringify([item])
+    PUBLIC_SITE_URL: ORIGIN, PREVIEW_ORIGINS: ORIGIN, QA_MEDIA_MANIFEST: JSON.stringify([item]), PLATFORM_ADMIN_ENABLED: process.env.RV_STUDIO_QA === '1' ? 'true' : 'false'
   }
   const app = createPlatformHandler()
   return { app, env }
@@ -86,7 +93,7 @@ async function main() {
     }
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return }
     const url = new URL(req.url, ORIGIN)
-    const route = aliases[url.pathname] || url.pathname
+    const route = aliases[url.pathname] || (/^\/curso\/rv30\/dia\/\d+$/.test(url.pathname) ? '/area.html' : url.pathname)
     const name = route.slice(1)
     const allowed = files.includes(name) && !name.startsWith('_')
     const file = path.join(root, allowed ? name : '404.html')
@@ -97,7 +104,7 @@ async function main() {
   server.listen(PORT, '127.0.0.1', () => {
     console.log(`Platform repro fixture: ${ORIGIN}`)
     console.log(`Scenarios: ${SCENARIOS.map((s) => `${s.id}=${s.email} (${s.label})`).join(' | ')}`)
-    console.log(`Password for all: ${PASSWORD}`)
+
   })
 }
 

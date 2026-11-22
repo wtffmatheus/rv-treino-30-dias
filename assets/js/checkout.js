@@ -48,6 +48,8 @@
     const idempotencyKey = crypto.randomUUID()
     button.addEventListener('click', async () => {
       button.disabled = true
+      button.setAttribute('aria-busy', 'true')
+      button.textContent = 'Preparando pagamento…'
       const result = await window.RVApi.request('/api/orders', { method: 'POST', body: { productId: 'rv30' }, headers: { 'Idempotency-Key': idempotencyKey } })
       if (result.ok && result.order?.checkoutUrl) {
         const orderId = String(result.order.id || '')
@@ -61,6 +63,8 @@
       const note = document.createElement('p'); note.setAttribute('role', 'alert')
       note.textContent = result.message || 'Checkout indisponível. Nenhum acesso foi liberado.'
       setupError.append(note); button.disabled = false
+      button.removeAttribute('aria-busy')
+      button.textContent = 'Continuar para o pagamento'
     })
     return
   }

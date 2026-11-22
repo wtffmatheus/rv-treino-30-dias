@@ -108,7 +108,8 @@
     }
     const list = $('[data-day-list]')
     if (!list) return
-    list.innerHTML = CONTENT.map((item) => {
+    const openGroup = new Set([...list.querySelectorAll('details[open]')].map(group => group.dataset.start))
+    const rows = CONTENT.map((item) => {
       const complete = done.has(item.day)
       const active = selectedDay === item.day
       return `<button type="button" aria-label="${item.day === 0 ? 'Introdução' : `Dia ${item.day}`}${complete ? ', concluído' : ''}" class="course-day-btn ${active ? 'is-active' : ''} ${complete ? 'is-complete' : ''}" data-select-day="${item.day}" ${active ? 'aria-current="page"' : ''}>
@@ -116,7 +117,23 @@
         <span><strong>${item.day === 0 ? 'Introdução' : `Dia ${item.day}`}</strong><small>${escapeHtml(item.phase)}</small></span>
         <span class="course-day-state" aria-label="${complete ? 'Concluído' : 'Pendente'}">${complete ? '✓' : ''}</span>
       </button>`
-    }).join('')
+    })
+    list.replaceChildren()
+    for (let start = 0; start <= 29; start += 7) {
+      const end = Math.min(start + 7, 30)
+      const first = start + 1
+      const group = document.createElement('details')
+      group.dataset.start = String(first)
+      group.open = (selectedDay >= first && selectedDay <= end) || openGroup.has(String(first))
+      const label = document.createElement('summary')
+      label.textContent = first === end ? 'Dia ' + first : 'Dias ' + first + '–' + end
+      group.append(label)
+      for (const [index, item] of CONTENT.entries()) {
+        if (item.day === 0 && start === 0) list.insertAdjacentHTML('beforeend', rows[index])
+        if (item.day >= first && item.day <= end) group.insertAdjacentHTML('beforeend', rows[index])
+      }
+      list.append(group)
+    }
   }
 
   function renderProgress() {
@@ -128,6 +145,36 @@
     progress.value = completedDays
     progress.setAttribute('aria-valuetext', `${pct}% concluído`)
     $('[data-progress-copy]').textContent = completedDays ? `${pct}% do projeto concluído.` : 'Conclua os conteúdos para acompanhar sua evolução.'
+
+    const ring = $('[data-rail-ring]')
+    if (ring) {
+      ring.style.setProperty('--pct', String(pct))
+      ring.setAttribute('role', 'img'); ring.setAttribute('aria-label', `${pct}% do programa concluído`)
+      const ringValue = $('[data-rail-ring-value]')
+      if (ringValue) ringValue.textContent = `${pct}%`
+    }
+    const completedLabel = $('[data-rail-completed]')
+    if (completedLabel) completedLabel.textContent = `${completedDays} ${completedDays === 1 ? 'aula concluída' : 'aulas concluídas'}`
+    const remainingLabel = $('[data-rail-remaining]')
+    if (remainingLabel) { const remaining = 30 - completedDays; remainingLabel.textContent = `${remaining} ${remaining === 1 ? 'aula restante' : 'aulas restantes'}` }
+  }
+
+  function renderTabs() {
+    const triggers = document.querySelectorAll('[data-tab-trigger]')
+    triggers.forEach((trigger) => {
+      const selected = trigger.getAttribute('aria-selected') === 'true'
+      const panel = document.getElementById(`panel-${trigger.dataset.tabTrigger}`)
+      if (panel) panel.hidden = !selected
+    })
+  }
+
+  function selectTab(name) {
+    document.querySelectorAll('[data-tab-trigger]').forEach((trigger) => {
+      const active = trigger.dataset.tabTrigger === name
+      trigger.setAttribute('aria-selected', String(active))
+      trigger.tabIndex = active ? 0 : -1
+    })
+    renderTabs()
   }
 
   function embedVideo(url, title) {
@@ -241,7 +288,14 @@
     $('[data-type]').textContent = item.type
     $('[data-objective]').textContent = item.objective
     $('[data-content-status]').textContent = done.has(item.day) ? 'Conteúdo concluído' : 'Conteúdo disponível'
-    $('[data-instructions]').innerHTML = item.instructions.map(([title, text]) => `<li><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div></li>`).join('')
+    const warning = item.instructions.find(([title]) => title === 'Aviso')
+    const tipBox = $('[data-tip-box]')
+    if (tipBox) {
+      tipBox.hidden = !warning
+      if (warning) $('[data-tip-text]').textContent = warning[1]
+    }
+    $('[data-instructions]').innerHTML = item.instructions.filter(([title]) => title !== 'Aviso').map(([title, text]) => `<li><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div></li>`).join('')
+    selectTab('sobre')
 
     const button = $('[data-complete]')
     const complete = done.has(item.day)
@@ -253,6 +307,10 @@
     const index=CONTENT.findIndex(value=>value.day===item.day)
     $('[data-prev]').disabled = index<=0
     $('[data-next]').disabled = index>=CONTENT.length-1
+    const prevItem = index > 0 ? CONTENT[index - 1] : null
+    const nextItem = index < CONTENT.length - 1 ? CONTENT[index + 1] : null
+    const prevPreview = $('[data-prev-preview]'); if (prevPreview) prevPreview.textContent = prevItem ? `${prevItem.day === 0 ? 'Introdução' : `Dia ${prevItem.day}`} — ${prevItem.title}` : ''
+    const nextPreview = $('[data-next-preview]'); if (nextPreview) nextPreview.textContent = nextItem ? `${nextItem.day === 0 ? 'Introdução' : `Dia ${nextItem.day}`} — ${nextItem.title}` : ''
 
     embedVideo(item.videoUrl, item.videoTitle)
     if (serverMode && item.available) {
@@ -284,7 +342,10 @@
   function selectDay(day) {
     selectedDay = Math.min(30, Math.max(0, Number(day)))
     renderContent()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelector('.course-title')?.animate([{transform:'translateX(6px)',opacity:.7},{transform:'none',opacity:1}],{duration:220,easing:'ease-out'})
+    }
+    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
   }
 
   async function toggleComplete() {
@@ -303,12 +364,14 @@
       const target = id && document.getElementById(id)
       if (target) {
         event.preventDefault()
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
         return
       }
     }
     const dayButton = event.target.closest('[data-select-day]')
     if (dayButton) selectDay(dayButton.dataset.selectDay)
+    const tabTrigger = event.target.closest('[data-tab-trigger]')
+    if (tabTrigger) selectTab(tabTrigger.dataset.tabTrigger)
     if (event.target.closest('[data-complete]')) toggleComplete()
     const index=CONTENT.findIndex(value=>value.day===selectedDay)
     if (event.target.closest('[data-prev]') && index>0) selectDay(CONTENT[index-1].day)
@@ -362,7 +425,7 @@
     }
     $('[data-first-cardio]')?.addEventListener('click', () => {
       hideWelcome()
-      $('[data-cardio-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      $('[data-cardio-section]')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
       $('[data-cardio-section] [name=age]')?.focus({ preventScroll: true })
     })
     $('[data-first-skip]')?.addEventListener('click', () => {

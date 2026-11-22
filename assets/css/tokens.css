@@ -1,13 +1,13 @@
-/* RV30 design tokens. Logo original: mediana turquesa #01e0d5.
-   A interface reduz a intensidade para #27c6bd, preservando a família cromática. */
+/* RV Fisiologia · identidade da interface. As marcas usam os arquivos originais. */
 @font-face{font-family:"Manrope";font-style:normal;font-weight:800;font-display:swap;src:url("/assets/fonts/manrope-800.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root {
-  --bg:#0b1d26;--bg2:#102b35;--panel:#173945;--panel2:#204650;--panel3:#28535d;
-  --text:#f4f8fa;--soft:#d9e8eb;--muted:#bcd0d5;--muted2:#aec5cc;
-  --accent:#27c6bd;--accent2:#70d4d0;--accentSoft:rgba(39,198,189,.1);--accentLine:rgba(112,212,208,.38);
-  --line:rgba(188,208,213,.15);--line2:rgba(188,208,213,.28);
-  --surface-neutral:#16343f;--border-control:#6e929d;--warning:#f3ce79;--danger:#ffb4b4;
-  --glass:#15343f;--glass-translucent:rgba(23,57,69,.82);--glass-border:rgba(188,208,213,.22);--glass-blur:10px;
+
+  --bg:#071621;--bg2:#102332;--panel:#152B3D;--panel2:#1C3449;--panel3:#284459;
+  --text:#F3F8FC;--soft:#DAE7F1;--muted:#A9BBCE;--muted2:#abc1d2;
+  --accent:#67D7F6;--accent2:#9FE6FA;--accentSoft:rgba(103,215,246,.1);--accentLine:rgba(159,230,250,.38);
+  --line:rgba(188,208,213,.15);--line2:rgba(169,187,206,.32);
+  --surface-neutral:#152B3D;--border-control:#6e929d;--warning:#f3ce79;--danger:#ffb4b4;
+  --glass:#152B3D;--glass-translucent:rgba(15,36,53,.66);--glass-border:rgba(198,232,250,.34);--glass-blur:14px;
   --font:"Segoe UI",Arial,sans-serif;--font-display:"Manrope","Segoe UI",Arial,sans-serif;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
   --radius:8px;--radiusLg:12px;--radius-panel:12px;--control-height:48px;

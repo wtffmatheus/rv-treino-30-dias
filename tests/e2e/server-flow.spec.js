@@ -95,7 +95,12 @@ test('QA: sessão de aluno não desloca o formulário administrativo nem anuncia
   await mockApi(page, { authenticated: true, purchased: true, qaOnly: true })
   await page.goto('/admin/entrar')
   await expect(page.locator('[data-admin-login-form]')).toBeVisible()
-  await expect(page.locator('main.auth-layout > section')).toHaveCount(2)
+  const form = page.locator('[data-admin-login-form]')
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({width, height:900})
+    await expect(form.getByLabel('E-mail administrativo')).toBeInViewport()
+    await expect(form.getByRole('button', {name:'Entrar no painel administrativo'})).toBeInViewport()
+  }
   await expect(page.locator('main.auth-layout > [data-qa-account]')).toHaveCount(0)
   await expect(page.locator('[data-admin-test-note]')).toContainText('conta administrativa de teste')
   await expect(page.getByRole('link', { name: 'Recuperar minha senha' })).toBeHidden()

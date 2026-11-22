@@ -6,19 +6,12 @@
   <base href="/">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; img-src 'self' data: https://rvfisiologista.com.br; style-src 'self'; script-src 'self'; connect-src 'self'; media-src 'self' https://rvfisiologista.com.br https://*.supabase.co https://d0636456db3515c826fdc78467f5c899.r2.cloudflarestorage.com; font-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta name="theme-color" content="#0b1d26">
+  <meta name="theme-color" content="#071621">
   <meta name="color-scheme" content="dark">
   <meta name="robots" content="noindex,nofollow">
   <title>Área do Aluno — RV 30</title>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="assets/css/projeto.css?v=20261108-admin">
-  <link rel="stylesheet" href="/assets/css/plataforma.css?v=20261107-student">
-  <link rel="stylesheet" href="/assets/css/cardio.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="/assets/css/rv-performance.css?v=20261107-student">
-  <link rel="stylesheet" href="/assets/css/rv-moodboard.css?v=20261107-student">
-  <link rel="stylesheet" href="/assets/css/rv-evolua.css?v=20261107-petroleum">
-  <script src="assets/js/config.js?v=20261108-review" defer></script>
+<script src="assets/js/config.js?v=20261108-review" defer></script>
   <script src="assets/js/runtime.js?v=20261025" defer></script>
   <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261108-admin" defer></script>
   <script src="assets/js/content.js?v=20261025" defer></script>
@@ -27,8 +20,12 @@
   <script src="/assets/js/lesson-player.js?v=20261107-player" defer></script>
   <script src="assets/js/area.js?v=20261108-review" defer></script>
 
-  <link rel="stylesheet" href="/assets/css/rv30.css?v=20261107-petroleum">
-  <link rel="stylesheet" href="/assets/css/student-platform.css?v=20261107-player">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=navy1">
+  <link rel="stylesheet" href="/assets/css/publico.css?v=navy1">
+  <link rel="stylesheet" href="/assets/css/aplicativo.css?v=navy1">
+  <link rel="stylesheet" href="/assets/css/player.css?v=navy1">
+  <link rel="stylesheet" href="/assets/css/cardio.css?v=navy1">
 </head>
 <body class="course-body">
   <header class="course-header">
@@ -61,25 +58,22 @@
         <a href="#comments-title">◇ <span>Dúvidas e comentários</span></a>
         <a href="/suporte">▤ <span>Suporte</span></a>
       </nav>
+    <aside class="course-right-rail" aria-label="Seu progresso no programa">
+      <div class="course-progress-rail-card">
+        <h2>Progresso do programa</h2>
+        <div class="progress-ring" data-rail-ring><strong data-rail-ring-value></strong></div>
+        <ul class="rail-stat-list">
+          <li><span aria-hidden="true">✓</span><span data-rail-completed></span></li>
+          <li><span aria-hidden="true">○</span><span data-rail-remaining></span></li>
+        </ul>
+      </div>
+    </aside>
       <nav class="course-day-list" data-day-list aria-label="Dias do projeto"></nav>
       <label class="mobile-day-picker">Conteúdo do curso<select data-day-picker aria-label="Selecionar dia"></select></label>
     </aside>
 
     <section class="course-main" id="aula">
       <div class="course-main-inner">
-        <section class="rv-welcome-card" data-first-start hidden aria-labelledby="rv-welcome-title">
-          <div class="rv-welcome-emblem" aria-hidden="true">♡</div>
-          <div class="rv-welcome-copy">
-            <p class="rv-welcome-label">PRIMEIRO ACESSO · SEU PONTO DE PARTIDA</p>
-            <h2 id="rv-welcome-title">Conheça sua faixa cardíaca antes do treino.</h2>
-            <p>Calcule uma <strong>faixa estimada de intensidade aeróbica</strong> usando idade e frequência cardíaca de repouso. O resultado não define uma zona exclusiva de emagrecimento e não substitui uma avaliação profissional.</p>
-            <div class="rv-welcome-actions">
-              <button type="button" class="button button--primary" data-first-cardio>Calcular minha faixa</button>
-              <button type="button" class="button button--ghost" data-first-skip>Continuar sem calcular</button>
-            </div>
-          </div>
-        </section>
-
         <div class="course-topline">
           <div><span class="day-pill" data-day-pill>DIA 00</span><small data-phase-label>COMECE AQUI</small></div>
           <small data-content-status>Conteúdo disponível</small>
@@ -90,6 +84,10 @@
 
         <h1 class="course-title" data-title>Introdução ao RV 30</h1>
         <p class="course-lead" data-description>Apresentação do projeto, instruções iniciais e visão geral da experiência do aluno.</p>
+        <div class="lesson-instructor-card" aria-hidden="true">
+          <img src="/assets/brand/rv-rosangela-fisiologia.webp" alt="" width="96" height="96" loading="lazy" decoding="async">
+          <div><strong>Rosângela Varas</strong><small>À frente da RV Fisiologia</small></div>
+        </div>
         <p class="lesson-activity-status" role="status" data-activity-status></p>
 
         <div class="rv-lesson-grid">
@@ -103,13 +101,41 @@
           <aside class="rv-lesson-details" aria-label="Detalhes da aula">
             <div class="rv-details-tab">Sobre o treino</div>
             <div class="daily-info" aria-label="Informações do conteúdo">
-              <article><small>MATERIAIS</small><strong data-time>Carregando…</strong></article>
               <article><small>DURAÇÃO</small><strong data-duration>Carregando…</strong></article>
               <article><small>TIPO</small><strong data-type>Introdução</strong></article>
-              <article><small>OBJETIVO</small><strong data-objective>Entender o projeto</strong></article>
             </div>
           </aside>
         </div>
+
+        <section class="rv-welcome-card" data-first-start hidden aria-labelledby="rv-welcome-title">
+          <div class="rv-welcome-emblem" aria-hidden="true">♡</div>
+          <div class="rv-welcome-copy">
+            <p class="rv-welcome-label">PRIMEIRO ACESSO · SEU PONTO DE PARTIDA</p>
+            <h2 id="rv-welcome-title">Conheça sua faixa cardíaca antes do treino.</h2>
+            <p>Calcule uma <strong>faixa estimada de intensidade aeróbica</strong> usando idade e frequência cardíaca de repouso. O resultado não define uma zona exclusiva de emagrecimento e não substitui uma avaliação profissional.</p>
+            <div class="rv-welcome-actions">
+              <button type="button" class="button button--primary" data-first-cardio>Calcular minha faixa</button>
+              <button type="button" class="button button--ghost" data-first-skip>Continuar sem calcular</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="course-panel lesson-tabs" aria-labelledby="lesson-tabs-title">
+          <h2 id="lesson-tabs-title" class="sr-only">Detalhes da aula</h2>
+          <div class="lesson-tablist" role="tablist" aria-label="Detalhes da aula">
+            <button type="button" role="tab" id="tab-sobre" aria-controls="panel-sobre" aria-selected="true" data-tab-trigger="sobre">Sobre a aula</button>
+            <button type="button" role="tab" id="tab-materiais" aria-controls="panel-materiais" aria-selected="false" tabindex="-1" data-tab-trigger="materiais">Materiais de apoio</button>
+          </div>
+          <div id="panel-sobre" role="tabpanel" aria-labelledby="tab-sobre" data-tab-panel="sobre">
+            <p class="lesson-objective"><small>OBJETIVO DESTA AULA</small><strong data-objective>Entender o projeto</strong></p>
+            <div class="rv-tip-box" data-tip-box hidden><span aria-hidden="true">💡</span><div><strong>Dica da Rosângela</strong><p data-tip-text></p></div></div>
+            <h3>Orientações deste conteúdo</h3>
+            <ol class="instruction-list" data-instructions></ol>
+          </div>
+          <div id="panel-materiais" role="tabpanel" aria-labelledby="tab-materiais" data-tab-panel="materiais" hidden>
+            <p data-time>Carregando…</p>
+          </div>
+        </section>
 
         <section id="calculadora-cardiaca" class="course-panel rv-cardio-panel" data-cardio-section aria-labelledby="cardio-title">
           <div class="course-panel-head">
@@ -151,11 +177,6 @@
           <p class="rv-cardio-note">A faixa é apenas uma referência de intensidade, não comprova emagrecimento. O site não mede batimentos por foto ou câmera. Pessoas com condições cardiovasculares, uso de medicamentos que alterem a FC ou restrições de exercício devem seguir uma prescrição individual. Interrompa o esforço diante de sintomas preocupantes.</p>
         </section>
 
-        <section class="course-panel" aria-labelledby="orientacoes-title">
-          <div class="course-panel-head"><div><small>PASSO A PASSO</small><h2 id="orientacoes-title">Orientações deste conteúdo</h2></div><small data-panel-note>Leia antes de concluir.</small></div>
-          <ol class="instruction-list" data-instructions></ol>
-        </section>
-
         <div class="completion-row">
           <p><strong data-complete-title>Terminou este conteúdo?</strong><small data-complete-copy>Marque como concluído para salvar seu progresso.</small></p>
           <button class="button button--primary" type="button" data-complete>Marcar como concluído</button>
@@ -172,8 +193,8 @@
         </section>
 
         <nav class="course-nav" aria-label="Navegação entre conteúdos">
-          <button class="button button--ghost" type="button" data-prev>← Anterior</button>
-          <button class="button button--secondary" type="button" data-next>Próximo →</button>
+          <button class="button button--ghost course-nav-btn" type="button" data-prev>← Anterior<small data-prev-preview></small></button>
+          <button class="button button--secondary course-nav-btn" type="button" data-next>Próximo →<small data-next-preview></small></button>
         </nav>
       </div>
     </section>

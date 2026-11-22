@@ -1,0 +1,44 @@
+.container { width:min(92%,1360px); margin-inline:auto }
+body { accent-color:var(--accent) }
+h1 {font-size:clamp(2.25rem,4.6vw,4.6rem)}
+h2 {font-size:clamp(1.45rem,2.3vw,2.3rem)}
+h3 {font-size:1.25rem}
+.sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.eyebrow,.section-mini-head small,.course-panel-head small,.admin-panel-head small {display:block;font-size:.73rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent2);margin-bottom:.55rem}
+.portal-header,.course-header,.admin-header,.workspace-header {background:var(--bg2);border-bottom:1px solid var(--line2)}
+.portal-header-inner,.course-header-inner,.admin-header-inner,.workspace-header-inner {display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;min-height:72px;padding-block:.6rem}
+.course-brand {display:inline-flex;align-items:center;gap:.7rem;line-height:1.15}
+.course-brand img {width:54px;height:auto}
+.course-brand small,.course-brand strong {display:block}
+.course-brand strong {font:800 1rem var(--font-display)}
+.course-brand small {font-size:.78rem;color:var(--muted)}
+.course-header-actions,.admin-header-actions,.admin-section-nav,.workspace-nav,.dialog-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.7rem}
+.admin-section-nav a,.workspace-nav a,.text-link {display:inline-flex;min-height:44px;align-items:center;color:var(--accent2)}
+.admin-section-nav a[aria-current=page] {border-bottom:2px solid var(--accent)}
+.button {justify-content:center;max-width:100%}
+.button--ghost {background:transparent}
+.button--wide {width:100%}
+.portal-lead,.tiny-note,.comment-note {color:var(--muted)}
+.tiny-note,.comment-note {font-size:.87rem}
+.portal-form {display:grid;gap:1rem}
+.portal-form label,.field-label,.admin-filters label {display:grid;gap:.4rem;font-weight:600}
+input:not([type=checkbox]),select,textarea {min-width:0;max-width:100%;width:100%;min-height:46px;border-radius:7px;border:1px solid var(--border-control);background:var(--bg);color:var(--text);font:inherit;padding:.68rem .85rem}
+input[type=checkbox] {width:20px;height:20px;flex:none}
+input:focus-visible,textarea:focus-visible,select:focus-visible {border-color:var(--accent);outline:3px solid var(--accent2);outline-offset:2px}
+.portal-form .check-row {display:flex;align-items:flex-start;gap:.7rem;font-size:.9rem;font-weight:400}
+.check-row a,.tiny-note a,.secure-note a,.legal-shell a {color:var(--accent2);text-decoration:underline}
+.environment-note,.rv-qa-notice,.checkout-config-error {margin:.8rem 0;padding:.6rem 1rem;border-left:2px solid var(--accent);background:var(--bg2);color:var(--soft);font-size:.89rem}
+.form-error {color:var(--danger)}
+.form-error:empty {display:none}
+dialog {max-width:min(92vw,700px);max-height:85svh;background:var(--panel);color:var(--text);border:1px solid var(--glass-border);border-radius:14px;padding:clamp(1rem,3vw,2.3rem)}
+dialog::backdrop {background:#04101ad4}
+dialog[open] {animation:enter .2s ease-out}
+.native-progress,progress {accent-color:var(--accent);max-width:100%}
+.status-label {font-size:.85rem;color:var(--accent2)}
+@media(max-width:600px){
+  .container {width:calc(100% - 32px)}
+  .course-header-inner,.workspace-header-inner,.admin-header-inner {gap:.55rem}
+  .course-header-actions .button,.admin-header-actions .button {min-height:44px;padding:.55rem .7rem}
+  .student-name {overflow-wrap:anywhere}
+}
+

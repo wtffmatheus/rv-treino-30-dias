@@ -1,16 +1,33 @@
-.admin-login-body { background: var(--bg); }
-.admin-login-body .auth-layout--admin { min-height: 100svh; }
-.admin-brand-panel { background: var(--panel); border-right: 1px solid #ffffff14; }
-.admin-brand-panel h1 { max-width: 10ch; font-size: clamp(2.8rem, 5vw, 5.4rem); line-height: 1.03; letter-spacing: -.055em; }
-.admin-brand-panel h1 em { color: var(--accent2); }
-.admin-brand-panel p { max-width: 34rem; }
-.admin-login-body .auth-form-panel { background: var(--bg); }
-.admin-login-body .auth-card { max-width: 28rem; }
-.admin-login-body .portal-form input { background: var(--panel); border-color: #6f94a0; }
-.admin-login-body .portal-form input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.admin-login-body .button--primary { color: var(--bg2); background: var(--accent); }
-.admin-login-body .auth-card .tiny-note { margin-top: 1.5rem; }
-.admin-login-body .text-link { display: inline-block; margin-top: 1rem; }
+body.admin-login-body { background: #040f14; }
+body.admin-login-body .auth-layout--admin { min-height: 100svh; }
+body.admin-login-body .auth-layout { width: 100%; max-width: none; margin: 0; min-height: 100svh; grid-template-columns: minmax(0,1fr) minmax(400px,.56fr); gap: 0; align-items: stretch; padding: 0; }
+body.admin-login-body .auth-brand-panel {
+  display: flex; flex-direction: column; justify-content: space-between; min-height: 0; gap: 0;
+  padding: clamp(32px, 5vw, 68px); border-right: 1px solid var(--line2);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(39,198,189,.08), transparent 32%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 29px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 29px),
+    linear-gradient(165deg, #071a21, #020a0d);
+}
+.admin-console-index { margin: auto 0; }
+.admin-console-index-label { margin: 0 0 16px; color: var(--muted); font-size: .78rem; letter-spacing: .02em; line-height: 1.6; max-width: 38ch; }
+.admin-console-index ol { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line2); }
+.admin-console-index li { display: flex; align-items: center; gap: 16px; padding: 13px 2px; border-bottom: 1px solid var(--line2); color: var(--soft); font-size: .88rem; font-weight: 650; }
+.admin-console-index li span { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--accent); font-size: .76rem; width: 20px; flex: none; }
+body.admin-login-body .auth-form-panel { min-width: 0; display: grid; place-items: center; padding: clamp(28px, 5vw, 68px); border-left: 0; background: var(--bg2); }
+body.admin-login-body .auth-card { width: 100%; max-width: 25rem; padding: 0; }
+.admin-auth-badge { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 20px; border: 1px solid var(--accentLine); border-radius: 11px; background: var(--accentSoft); color: var(--accent); }
+body.admin-login-body .portal-form input { background: var(--panel); border-color: #6f94a0; }
+body.admin-login-body .portal-form input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+body.admin-login-body .button--primary { color: var(--bg2); background: var(--accent); }
+body.admin-login-body .auth-card .tiny-note { margin-top: 1.5rem; }
+body.admin-login-body .text-link { display: inline-block; margin-top: 1rem; }
+@media (max-width: 860px) {
+  body.admin-login-body .auth-layout { grid-template-columns: 1fr; }
+  body.admin-login-body .auth-brand-panel { border-right: 0; border-bottom: 1px solid var(--line2); padding: 26px 22px; }
+  .admin-console-index { display: none; }
+}
 [data-delivery-panel] { margin-top: 1.5rem; }
 [data-delivery-panel] > p, [data-delivery-panel] > form, [data-delivery-panel] > div[data-delivery-result] { margin: 1.25rem; }
 [data-delivery-result] dl { display: grid; grid-template-columns: minmax(9rem, 1fr) minmax(0, 3fr); gap: .65rem 1.25rem; }
@@ -18,7 +35,6 @@
 [data-delivery-result] dd { margin: 0; overflow-wrap: anywhere; }
 [data-delivery-result] li { margin-top: .5rem; }
 @media (max-width: 700px) {
-  .admin-brand-panel h1 { max-width: 16ch; font-size: 2.5rem; }
   [data-delivery-result] dl { grid-template-columns: minmax(0, 1fr); gap: .25rem; }
   [data-delivery-result] dd { margin-bottom: .75rem; }
 }

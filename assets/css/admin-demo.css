@@ -1,0 +1,19 @@
+.admin-main {padding-block:1rem 4rem}
+.admin-hero,.admin-panel-head,.admin-hero-actions,.admin-metrics,.admin-filters,.admin-lower-grid {display:flex;gap:1rem;flex-wrap:wrap}
+.admin-hero,.admin-panel-head {align-items:center;justify-content:space-between}
+.admin-hero {padding:2rem 0;border-bottom:1px solid var(--line2)}
+.admin-metrics {margin:1.5rem 0}
+.admin-metrics article,.admin-panel {padding:clamp(1rem,2vw,2rem);background:var(--panel);border:1px solid var(--line2);border-radius:12px;min-width:0}
+.admin-metrics article {flex:1 1 150px}
+.admin-metrics article>* {display:block}.admin-metrics strong{font:800 2.3rem var(--font-display);color:var(--accent)}
+.admin-metrics span,.admin-panel p {color:var(--muted)}
+.admin-panel {margin-block:1rem}
+.admin-filters {margin:1rem 0}.admin-filters label {flex:1 1 145px}
+.admin-table-wrap {position:relative;width:100%;overflow:auto}
+.admin-table {width:100%;border-collapse:collapse}
+.admin-table td,.admin-table th {padding:.8rem;text-align:left;border-bottom:1px solid var(--line2)}
+.admin-lower-grid>* {flex:1 1 280px}
+.admin-detail,.admin-dialog {min-width:0}.admin-detail form,.admin-dialog form{display:grid;gap:.8rem}
+.admin-dialog::backdrop {background:#071621df}
+.admin-drawer:not([hidden]) {max-width:100%}
+

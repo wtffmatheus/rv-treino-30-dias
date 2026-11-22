@@ -1,0 +1,12 @@
+.legal-page {width:min(92%,1100px);margin:clamp(2rem,6vw,6rem) auto;display:grid;grid-template-columns:minmax(170px,.36fr) 1fr;gap:8%}
+.legal-index {display:grid;align-self:start;gap:.25rem;border-left:2px solid var(--accent);padding-left:1rem}
+.legal-index a {display:flex;align-items:center;min-height:42px;color:var(--muted)}
+.legal-shell {max-width:72ch}.legal-shell h2 {font-size:1.5rem;margin:2rem 0 .6rem}.legal-shell p {margin:1rem 0;color:var(--soft)}
+.legal-notice {border-left:2px solid var(--accent);padding:.8rem 1rem;background:var(--panel)}
+.error-page,.success-page,.confirmation-page {min-height:95svh;display:grid;place-items:center;padding:1.25rem;background:radial-gradient(ellipse at 20% 20%,var(--panel2),var(--bg) 62%)}
+.error-card,.success-card,.confirmation-card {width:min(100%,650px);border-top:2px solid var(--accent);padding:clamp(1.4rem,4vw,3.7rem);background:var(--panel);border-radius:0 0 14px 14px}
+.error-card>strong {display:block;font:italic clamp(4rem,12vw,9rem) Georgia,serif;color:var(--accent2)}
+.error-card img {height:auto;width:64px}
+.error-card p,.success-card p,.confirmation-card p {margin:1rem 0}
+@media(max-width:680px){.legal-page {grid-template-columns:1fr;gap:2rem}.legal-index {order:1}}
+

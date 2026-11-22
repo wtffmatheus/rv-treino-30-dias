@@ -1,0 +1,49 @@
+.auth-layout { min-height:100svh; position:relative; isolation:isolate; display:flex; flex-direction:column; background:radial-gradient(ellipse at 67% 38%,#386681,var(--bg) 75%) }
+.login-scene { position:absolute; inset:0; z-index:-1; overflow:hidden }
+.login-scene::before { content:""; position:absolute; inset:0 0 0 auto; width:min(82%,120svh); background:url('/assets/brand/rv-rosangela-direcao.webp') 50% 12% / cover no-repeat; filter:saturate(.48); mask-image:linear-gradient(90deg,transparent,#000 28%,#000 82%,transparent); opacity:.86 }
+.login-scene::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,#071621 0%,#071621bb 14%,transparent 54%,#0716216b),linear-gradient(90deg,#071621d9,transparent 72%) }
+.login-header,.login-stage,.login-footer { width:min(86%,1320px); margin-inline:auto }
+.login-header,.login-footer { display:flex; align-items:center; gap:1.5rem }
+.login-header { padding:1.6rem 0; justify-content:space-between; border-bottom:1px solid #d8efff48 }
+.login-stage { flex:1; display:grid; grid-template-columns:minmax(0,430px) 1fr; gap:8%; align-items:center; padding:clamp(2rem,6vh,5rem) 0 }
+.auth-card { border-radius:20px; padding:clamp(1.35rem,3vw,2.7rem) }
+.auth-card h1 {font-size:clamp(2.25rem,3.3vw,3.3rem)}
+.auth-card h1 em {white-space:nowrap}
+.portal-lead,.tiny-note,.portal-form p {color:var(--soft); font-size:.92rem}
+.portal-lead {margin:.85rem 0 1.55rem}
+.portal-form {display:grid; gap:1rem}
+.portal-form label { display:grid; gap:.4rem; font-size:.9rem; font-weight:650 }
+.portal-form input {width:100%; height:48px; padding:.7rem .9rem; font-size:1rem; color:var(--text); background:#081723d9; border:1px solid #7894a9; border-radius:6px}
+.portal-form input:focus {border-color:var(--accent)}
+.portal-form input::placeholder {color:var(--muted)}
+.portal-form button {justify-content:center}
+.portal-form [role=status]:empty,.form-error:empty {display:none}
+.portal-form .form-error {color:var(--danger); border-left:2px solid currentColor; padding-left:.7rem}
+[data-account-actions] {margin-top:1.1rem}
+.auth-card details {border-bottom:1px solid var(--line2)}
+.auth-card summary {font-size:.9rem}
+.auth-card details .portal-form {padding:.5rem 0 1.25rem}
+.tiny-note {margin-top:1.25rem}
+.tiny-note a {color:var(--accent2);text-decoration:underline;text-underline-offset:3px}
+.login-caption {align-self:end; justify-self:end; margin-bottom:1rem; text-shadow:0 2px 16px #071621}
+.login-caption h2 {font-size:clamp(3.2rem,6vw,6rem)}
+.login-caption>p:last-child {margin-top:1rem}
+.login-footer {border-top:1px solid var(--line2);padding:1rem 0;color:var(--soft);font-size:.82rem}
+.login-footer span {margin-right:auto}
+.login-footer a {display:inline-flex;align-items:center;min-height:44px}
+@media (prefers-reduced-motion:no-preference) {
+  .auth-card {animation:enter .48s ease-out both}
+  .login-caption {animation:enter .48s .09s ease-out both}
+}
+@media(max-width:800px) {
+  .login-header,.login-stage,.login-footer {width:calc(100% - 36px)}
+  .login-stage {grid-template-columns:minmax(0,430px);justify-content:center;align-content:center;gap:1.25rem;padding:1.3rem 0}
+  .login-header {padding:.55rem 0}
+  .login-scene::before {inset:-12px 0 auto auto;width:clamp(240px,76%,510px);aspect-ratio:4/5;background-position:center;mask-image:linear-gradient(90deg,transparent,#000 32%),linear-gradient(to bottom,#000 40%,transparent);mask-composite:intersect}
+  .login-caption {display:none}
+  .login-footer {padding:.3rem 0}
+}
+
+
+.staff-access {background:radial-gradient(ellipse at 74% 34%,#294e69,transparent 54%),repeating-linear-gradient(120deg,transparent 0 74px,#93cfea13 75px 76px,transparent 77px 150px),var(--bg)}
+.staff-access .login-caption {align-self:center}
