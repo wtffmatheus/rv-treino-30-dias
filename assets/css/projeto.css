@@ -111,6 +111,7 @@ h1,h2,h3,p{margin-top:0}h1,h2,h3{color:var(--text);margin-bottom:var(--space-4);
 .professional-photo{margin:0;overflow:hidden;border:1px solid var(--line2);border-radius:28px;background:var(--panel);box-shadow:var(--shadow)}
 .professional-photo img{width:100%;aspect-ratio:4/5;object-fit:cover}
 .professional-role{color:var(--accent);font-size:.75rem;font-weight:800;letter-spacing:.03em}
+.professional-section{padding-bottom:clamp(48px,5vw,72px)}
 
 .production-payment-box,.test-payment-box{margin-top:18px;padding:18px;border:1px solid var(--accentLine);border-radius:var(--radius-panel);background:var(--accentSoft)}
 .production-payment-box strong,.test-payment-box strong{display:block;margin-bottom:var(--space-1);color:var(--accent)}
