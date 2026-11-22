@@ -95,3 +95,5 @@
 .admin-view[data-view=orders]>.platform-card :is(h2,p){margin:0}
 .admin-view[data-view=audit] .platform-table td:first-child {font-variant-numeric:tabular-nums;color:var(--accent2)}
 @media(max-width:660px){.media-entry {grid-template-columns:48px minmax(0,1fr);gap:.6rem}.media-entry .status-pill {justify-self:start}.admin-view[data-view=orders]>.platform-card {grid-template-columns:1fr}}
+/* Menu móvel: o "+" do summary fica à direita, separado do rótulo. */
+@media (max-width:800px){.platform-navigation summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none}.platform-navigation summary::-webkit-details-marker{display:none}}

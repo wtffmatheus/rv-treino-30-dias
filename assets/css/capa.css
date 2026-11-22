@@ -133,7 +133,8 @@ footer {background:#091a27}
   .hero-v2 {min-height:clamp(495px,77svh,680px)}
   .poster-label {margin-top:83px;align-items:start}
   .poster-label .kicker,.signature {font-size:.63rem;letter-spacing:.08em}
-  .signature {max-width:11ch;text-align:right}
+  .poster-label {flex-direction:column;align-items:flex-start;gap:.3rem}
+  .signature {max-width:none;text-align:left;color:var(--soft)}
   .hero-v2-photo {width:100%;object-position:50% 27%;mask-image:linear-gradient(90deg,#0006,#000 23%,#000 78%,#0006)}
   .hero-v2-title {width:94%;font-size:clamp(5rem,23vw,11.5rem);margin-top:1.5rem;text-shadow:0 2px 24px #07162155}
   .hero-v2-media::after {background:linear-gradient(0deg,var(--bg) 2%,#071621cf 27%,transparent 63%,#071621a6)}

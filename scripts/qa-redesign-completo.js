@@ -4,9 +4,10 @@ const assert = require('node:assert/strict')
 const path = require('node:path')
 const fs = require('node:fs')
 const {PASSWORD} = require('./qa-platform-repro-server')
-const root = path.resolve(__dirname,'../output/codex-redesign-completo')
-const platform='http://127.0.0.1:18421', demo='http://127.0.0.1:18420'
-const sizes=[[1440,900],[390,844],[320,700],[375,812],[430,932],[768,1024],[1024,768],[1366,768],[1920,1080]]
+// Defaults keep the original run; QA_OUT_DIR/QA_PLATFORM_URL/QA_DEMO_URL isolate a new run without overwriting it.
+const root = process.env.QA_OUT_DIR ? path.resolve(process.env.QA_OUT_DIR) : path.resolve(__dirname,'../output/codex-redesign-completo')
+const platform=process.env.QA_PLATFORM_URL||'http://127.0.0.1:18421', demo=process.env.QA_DEMO_URL||'http://127.0.0.1:18420'
+const sizes=[[1440,900],[390,844],[320,700],[375,812],[430,932],[768,1024],[1024,768],[1280,800],[1366,768],[1536,864],[1920,1080]]
 const checks=[], issues=[], shots=[], motions=[], preferences=[], playback=[]
 const mediaSessions=new WeakMap()
 const expectedHttp=new Set(['/api/account','/api/admin/metrics'])
@@ -122,7 +123,7 @@ async function emailForms(b){
   // Alternate configuration of the same login. Only read-only configuration is replaced.
   await p.route(platform+'/api/config',r=>r.fulfill({json:{ok:true,configured:true,salesEnabled:false}}))
   await p.goto(platform+'/entrar')
-  for(const [id,form] of [['cadastro-publico','signup'],['recuperacao-email','recover']]){
+  for(const [id,form] of [['cadastro-publico','signup']]){
     const details=p.locator('details').filter({has:p.locator('[data-'+form+'-form]')})
     await details.locator('summary').click()
     await screen(p,id,null,'[data-'+form+'-form]','[data-'+form+'-form]')
@@ -159,6 +160,8 @@ async function studentPages(b){
   await screen(p,'dashboard-aluno',platform+'/meus-cursos','.student-program')
   await screen(p,'jornada',null,'.student-plan','.student-plan')
   await screen(p,'historico',null,'.student-history','.student-history')
+  await screen(p,'meus-cursos',platform+'/meus-cursos','[data-my-courses] article','[data-my-courses]')
+  await screen(p,'curso-adicional',platform+'/curso/mobilidade-essencial','.course-lessons li')
   await screen(p,'player',platform+'/curso/rv30?day=15','video')
   await p.setViewportSize({width:1440,height:900})
   await p.locator('[data-tab-trigger=materiais]').click()
@@ -192,7 +195,7 @@ async function studentPages(b){
 }
 async function adminPages(b){
   const {c,p}=await context(b,'admin',true)
-  const views={dashboard:'admin-visao-geral',students:'admin-alunos',content:'admin-curso',media:'admin-biblioteca',support:'admin-atendimento',orders:'admin-pedidos',audit:'admin-auditoria'}
+  const views={dashboard:'admin-visao-geral',students:'admin-alunos',courses:'admin-cursos',content:'admin-curso',media:'admin-biblioteca',support:'admin-atendimento',orders:'admin-pedidos',audit:'admin-auditoria'}
   for(const [view,id] of Object.entries(views)){
     await screen(p,id,platform+'/admin?view='+view,'.admin-view[data-view='+view+']')
     await p.setViewportSize({width:1440,height:900})
