@@ -132,6 +132,9 @@
 .rv30-landing #catalogo .section-heading>p{color:#c7dfe7}
 .rv30-landing .catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-6)}
 .rv30-landing .catalog-card{padding:29px;border:1px solid #3f6d7c;background:var(--panel);border-radius:6px;box-shadow:none;min-height:0}
+.rv30-landing .catalog-card--active{border:2px solid var(--accent);background:linear-gradient(145deg,rgba(18,70,82,.5),var(--panel));box-shadow:0 20px 50px rgba(39,198,189,.1)}
+.rv30-landing .catalog-card:not(.catalog-card--active){border-style:dashed;opacity:.72}
+.rv30-landing .catalog-card:not(.catalog-card--active) h3{color:var(--muted)}
 .rv30-landing .catalog-card-top{gap:var(--space-2);flex-wrap:wrap}
 .rv30-landing .catalog-card-top small{font-size:.75rem;letter-spacing:.08em;color:#c7dfe7}
 .rv30-landing .catalog-card-top>span{font-size:.75rem;letter-spacing:.05em;border-color:#6f94a0;color:#c7dfe7}
@@ -212,7 +215,8 @@ body.portal-body.rv-checkout{background:var(--bg);color:var(--text)}
 .rv-checkout .button--primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
 .rv-checkout :is(.rv30-access-term,.order-lines,.order-total,.order-product){border-color:var(--line2)}
 .rv-checkout :is(.eyebrow,.text-link){color:var(--accent)}
-.rv30-landing :is(.price-card,.catalog-card,.student-preview),.portal-body :is(.my-course-card,.course-panel,.daily-info article),.admin-body :is(.admin-panel,.qa-student-card){background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-panel);box-shadow:0 14px 32px rgba(0,6,18,.15),inset 0 1px rgba(232,242,255,.04)}
+.rv30-landing :is(.price-card,.student-preview),.portal-body :is(.my-course-card,.course-panel,.daily-info article),.admin-body :is(.admin-panel,.qa-student-card){background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-panel);box-shadow:0 14px 32px rgba(0,6,18,.15),inset 0 1px rgba(232,242,255,.04)}
+.rv30-landing .catalog-card{border-radius:var(--radius-panel)}
 .rv30-landing #catalogo{background:var(--rv30-ink)}
 .rv30-landing .section{border-top:1px solid var(--line)}
 .rv30-landing .hero{border-top:0}
