@@ -18,7 +18,7 @@ const server = http.createServer(async (req, res) => {
   if (await handleApi(req, res)) return
   if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return }
   const url = new URL(req.url, 'http://localhost')
-  let route = aliases[url.pathname] || (/^\/curso\/rv30\/dia\/\d+$/.test(url.pathname) ? '/area.html' : url.pathname)
+  let route = aliases[url.pathname] || (/^\/curso\/rv30\/dia\/\d+$/.test(url.pathname) ? '/area.html' : /^\/curso\/[a-z0-9-]{2,40}$/.test(url.pathname) ? '/curso.html' : url.pathname)
   const name = route.slice(1)
   const allowed = files.includes(name) && !name.startsWith('_')
   const file = path.join(root, allowed ? name : '404.html')

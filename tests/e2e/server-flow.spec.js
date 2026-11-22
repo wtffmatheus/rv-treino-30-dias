@@ -197,14 +197,21 @@ test('API simulada: senha válida de aluno não concede autorização administra
 
 test('API simulada: recuperação informa o envio sem expor a existência da conta', async ({ page }) => {
   const { calls } = await mockApi(page)
+  // Plataforma com recuperação por código: a resposta é a mesma para qualquer e-mail.
+  await page.route('**/api/config', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, configured: true, qaOnly: true, platformMode: true, platformIdentity: true, recoveryMode: 'email_code', salesEnabled: false }) }))
+  await page.route('**/api/auth/recovery/request', route => { calls.push({ path: '/api/auth/recovery/request', method: 'POST', body: route.request().postDataJSON() }); return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, message: 'Se este e-mail estiver cadastrado, enviaremos um código de 6 dígitos em instantes.', expiresInSeconds: 600, resendAfterSeconds: 60 }) }) })
   await page.goto('/entrar#recuperar')
-  const form = page.locator('[data-recover-form]')
+  const form = page.locator('[data-recovery-step=email]')
   await expect(form).toBeVisible()
-  await form.getByLabel('E-mail de recuperação').fill('desconhecido@example.test')
-  await form.getByRole('button', { name: 'Enviar instruções' }).click()
-  await expect(form.getByRole('status')).toHaveText('Se houver uma conta com esse e-mail, você receberá as instruções de recuperação.')
-  expect(calls.filter((call) => call.path === '/api/auth/recover')).toEqual([expect.objectContaining({ method: 'POST', body: { email: 'desconhecido@example.test' } })])
-  expect(calls.some((call) => call.path === '/api/auth/verify')).toBe(false)
+  await form.getByLabel('E-mail cadastrado').fill('desconhecido@example.test')
+  await form.getByRole('button', { name: 'Enviar código' }).click()
+  const code = page.locator('[data-recovery-step=code]')
+  await expect(code).toBeVisible()
+  await expect(code.locator('[data-code-lead]')).toHaveText('Se houver uma conta para desconhecido@example.test, o código chegará em instantes. Confira também a caixa de spam.')
+  await expect(code.locator('[data-code-timer]')).toContainText('O código expira em')
+  await expect(page.getByRole('button', { name: /Reenviar em \d+ s/ })).toBeDisabled()
+  expect(calls.filter((call) => call.path === '/api/auth/recovery/request')).toEqual([expect.objectContaining({ method: 'POST', body: { email: 'desconhecido@example.test' } })])
+  expect(calls.some((call) => call.path === '/api/auth/recovery/verify' || call.path === '/api/auth/accept')).toBe(false)
 })
 
 test('API simulada: checkout exige conta autenticada antes de criar o pedido', async ({ page }) => {

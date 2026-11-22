@@ -8,10 +8,13 @@ import {publishedContent} from './content.mjs'
 import {privateImage} from './media.mjs'
 import {supportList,supportRead,supportCreate,supportReply} from './support.mjs'
 import {readPlatformBody} from './admin-common.mjs'
+import {requestRecovery,verifyRecovery} from './recovery.mjs'
+import {emailProvider} from './email.mjs'
+import {studentCourses,studentCourse,lessonMedia,lessonCover,courseCover,lessonProgress} from './courses.mjs'
 const response=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','X-Robots-Tag':'noindex, nofollow',...headers}})
 // Resolve the clock per request; tests may inject an explicit clock.
 export function createPlatformHandler({now=()=>Date.now()}={}){
- return{async fetch(request,env){
+ return{async fetch(request,env,ctx){
   try{
    requireSetup(env)
    const url=new URL(request.url),path=url.pathname,time=now(),db=env.QA_DB,administration=env.PLATFORM_ADMIN_ENABLED==='true'
@@ -19,7 +22,7 @@ export function createPlatformHandler({now=()=>Date.now()}={}){
    if(path==='/api/config'&&request.method==='GET'){
     await db.prepare('select count(*) as n from identity_metadata').first()
     const product=administration?(await publishedContent(env)).course:{title:'RV 30',priceCents:49900,currency:'BRL',accessDurationDays:365}
-    return response({ok:true,configured:true,qaOnly:env.PLATFORM_ENV!=='production',platformMode:true,platformIdentity:true,platformAdmin:administration,salesEnabled:false,registrationEnabled:false,recoveryMode:'administrative_invite',environment:env.PLATFORM_ENV,activityRetentionDays:90,product:{...product,id:'rv30',totalDays:30}})
+    return response({ok:true,configured:true,qaOnly:env.PLATFORM_ENV!=='production',platformMode:true,platformIdentity:true,platformAdmin:administration,salesEnabled:false,registrationEnabled:false,recoveryMode:emailProvider(env)?'email_code':'administrative_invite',environment:env.PLATFORM_ENV,activityRetentionDays:90,product:{...product,id:'rv30',totalDays:30}})
    }
    if(path==='/api/auth/login'&&request.method==='POST'){
     const result=await login(request,env,await readQaBody(request),time)
@@ -29,11 +32,13 @@ export function createPlatformHandler({now=()=>Date.now()}={}){
     await rateLimit(env,'accept-ip:'+String(request.headers.get('CF-Connecting-IP')||'shared'),60,time)
     return response(await acceptIdentityToken(env,await readQaBody(request),time),200,{'Set-Cookie':sessionCookie('',0)})
    }
+   if(path==='/api/auth/recovery/request'&&request.method==='POST')return response(await requestRecovery(request,env,await readQaBody(request),time,ctx))
+   if(path==='/api/auth/recovery/verify'&&request.method==='POST')return response(await verifyRecovery(request,env,await readQaBody(request),time))
    if(path==='/api/auth/logout'&&request.method==='POST'){
     try{const session=await authenticate(request,env,time);await db.batch([db.prepare('delete from auth_sessions where token_hash=?').bind(session.tokenHash),identityEvent(db,session.user.id,session.user.id,'logout',time)])}catch(error){if(error.status!==401)throw error}
     return response({ok:true},200,{'Set-Cookie':sessionCookie('',0)})
    }
-   if(path.startsWith('/api/auth/'))fail(503,'PUBLIC_AUTH_PENDING','Cadastros públicos e envio automático de recuperação ainda não estão habilitados. Solicite um convite privado à equipe.')
+   if(path.startsWith('/api/auth/'))fail(503,'PUBLIC_AUTH_PENDING','O cadastro público continua fechado. Use o convite enviado pela equipe ou a recuperação por código.')
    if(path.startsWith('/api/orders')||path.startsWith('/api/webhooks'))fail(503,'SALES_DISABLED','Vendas reais continuam desativadas. Nenhum pagamento é registrado neste ambiente.')
    const session=await authenticate(request,env,time),user=session.user
    if(path==='/api/account'&&request.method==='GET')return response({ok:true,isAdmin:session.isAdmin,roles:session.roles,account:{id:user.id,email:user.email,name:user.name,status:user.status,roles:session.roles,testAccount:user.kind==='validation',identityVerification:user.verification_method,entitlements:session.hasAccess?['rv30']:[],access:session.enrollment?[{courseId:'rv30',status:session.enrollment.revoked?'revoked':session.hasAccess?'active':session.enrollment.expires_at<=time?'expired':'restricted',startsAt:new Date(session.enrollment.starts_at).toISOString(),expiresAt:new Date(session.enrollment.expires_at).toISOString(),source:session.enrollment.source}]:[]}})
@@ -58,6 +63,17 @@ export function createPlatformHandler({now=()=>Date.now()}={}){
    if(administration&&support){
     if(request.method==='GET')return response(await supportRead(env,session,support[1],false,time))
     if(request.method==='POST')return response(await supportReply(env,session,support[1],await readPlatformBody(request),false,time))
+   }
+   // Multi-course routes (rv30 keeps its dedicated routes below).
+   if(administration&&path==='/api/student/courses'&&request.method==='GET')return response(await studentCourses(env,session,time))
+   const courseRoute=administration&&path.match(/^\/api\/courses\/([a-z0-9-]{2,40})(?:\/(cover)|\/lessons\/([\w-]{1,100})\/(media|cover|progress))?$/)
+   if(courseRoute&&(courseRoute[1]!=='rv30'||courseRoute[2])){
+    const [,id,cover,lesson,kind]=courseRoute
+    if(cover&&['GET','HEAD'].includes(request.method))return await courseCover(request,env,session,id)
+    if(!lesson&&!cover&&request.method==='GET')return response(await studentCourse(env,session,id,time))
+    if(kind==='media'&&['GET','HEAD'].includes(request.method))return await lessonMedia(request,env,session,id,lesson,time)
+    if(kind==='cover'&&['GET','HEAD'].includes(request.method))return await lessonCover(request,env,session,id,lesson,time)
+    if(kind==='progress'&&request.method==='PUT')return response(await lessonProgress(env,session,id,lesson,await readQaBody(request),time))
    }
    const content=administration?await publishedContent(env):null,items=content?content.items:catalog({REVIEW_MEDIA_MANIFEST:env.QA_MEDIA_MANIFEST})
    if(!items||!env.VIDEOS)fail(503,'MEDIA_NOT_CONFIGURED','O catálogo de vídeos está em configuração.')
@@ -98,7 +114,7 @@ export function createPlatformHandler({now=()=>Date.now()}={}){
     return response({ok:true,day,complete:input.complete})
    }
    fail(404,'API_NOT_FOUND','Este recurso está em preparação.')
-  }catch(error){return response({ok:false,code:error.code||'SERVICE_UNAVAILABLE',message:error.code?error.message:'Não foi possível concluir a operação. Tente novamente.'},error.status||503)}
+  }catch(error){return response({ok:false,code:error.code||'SERVICE_UNAVAILABLE',message:error.code?error.message:'Não foi possível concluir a operação. Tente novamente.',...(error.existingId?{existingId:error.existingId}:{})},error.status||503)}
  }}
 }
 export default createPlatformHandler()

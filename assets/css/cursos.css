@@ -1,0 +1,109 @@
+/* Catálogo multi-curso: "Meus cursos", página de curso adicional e
+   componentes de matrícula reutilizados no painel administrativo. */
+.course-catalog {display:grid;gap:var(--space-5);margin-bottom:var(--space-10)}
+.course-catalog-head {display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:var(--space-3)}
+.course-catalog-head h2 {font-size:clamp(1.35rem,2.2vw,1.75rem)}
+.course-catalog-head p {color:var(--muted);font-size:.92rem}
+.course-cards {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:var(--space-5)}
+.course-card {position:relative;display:grid;grid-template-rows:auto 1fr;overflow:hidden;border:1px solid var(--glass-border);border-radius:16px;background:linear-gradient(180deg,rgba(21,43,61,.92),rgba(12,30,44,.96));box-shadow:var(--shadow);transition:border-color .2s,transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.course-card:hover {border-color:var(--accentLine);box-shadow:var(--shadow-raised)}
+.course-card-media {position:relative;aspect-ratio:16/8;background:radial-gradient(ellipse at 70% 30%,#2b5a70,#0c2231 70%);overflow:hidden}
+.course-card-media img {width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.course-card-media::after {content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(9,24,35,.95),transparent 62%)}
+.course-card-initial {position:absolute;inset:0;display:grid;place-items:center;font:800 clamp(2.4rem,6vw,3.4rem)/1 var(--font-display);color:rgba(159,230,250,.5);letter-spacing:-.02em}
+.course-card-badge {position:absolute;z-index:1;top:var(--space-3);left:var(--space-3);background:rgba(5,18,27,.82)!important;border:1px solid var(--line2)}
+.course-card-body {display:grid;align-content:start;gap:var(--space-3);padding:var(--space-5) var(--space-6) var(--space-6)}
+.course-card-body h3 {font-size:1.2rem;line-height:1.25}
+.course-card-desc {color:var(--soft);font-size:.92rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.course-meter {display:grid;gap:6px}
+.course-meter-row {display:flex;justify-content:space-between;gap:var(--space-3);font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.course-meter-row strong {color:var(--text)}
+.course-meter-bar {height:8px;border-radius:999px;background:rgba(169,187,206,.16);overflow:hidden}
+.course-meter-bar span {display:block;height:100%;width:calc(var(--pct,0) * 1%);border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.course-card-facts {display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.84rem;color:var(--muted)}
+.course-card-facts strong {color:var(--soft);font-weight:650}
+.course-card .button {justify-content:center;margin-top:var(--space-2)}
+.course-card-note {padding:10px 12px;border-radius:10px;background:rgba(243,206,121,.09);color:var(--warning);font-size:.86rem}
+.course-card.is-locked .course-card-media img {filter:grayscale(.8) brightness(.7)}
+.course-pill {display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;backdrop-filter:blur(8px)}
+.course-pill::before {content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.course-pill--active {background:rgba(103,215,246,.16);color:var(--accent2)}
+.course-pill--expired,.course-pill--scheduled {background:rgba(243,206,121,.16);color:var(--warning)}
+.course-pill--revoked,.course-pill--blocked {background:rgba(255,155,155,.16);color:var(--danger)}
+.course-empty {padding:var(--space-8);border:1px dashed var(--line2);border-radius:16px;color:var(--soft);text-align:center}
+.skeleton {border-radius:16px;min-height:300px;background:linear-gradient(100deg,rgba(21,43,61,.7) 40%,rgba(40,68,89,.7) 50%,rgba(21,43,61,.7) 60%) 0 0/200% 100%}
+
+/* Página de um curso adicional */
+.course-page {display:grid;gap:var(--space-6);padding-block:var(--space-8) var(--space-12)}
+.course-page-hero {display:grid;gap:var(--space-3)}
+.course-page-hero h1 {font-size:clamp(1.9rem,3.4vw,2.8rem);line-height:1.1}
+.course-page-hero p {color:var(--soft);max-width:68ch}
+.course-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:var(--space-6);align-items:start}
+.course-stage {display:grid;gap:var(--space-4);min-width:0}
+.course-player {position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#02090e;border:1px solid var(--glass-border)}
+.course-player video {width:100%;height:100%;background:#02090e}
+.course-player-empty {position:absolute;inset:0;display:grid;place-items:center;padding:var(--space-6);color:var(--muted);text-align:center}
+.course-lesson-head {display:flex;flex-wrap:wrap;align-items:start;justify-content:space-between;gap:var(--space-3)}
+.course-lesson-head h2 {font-size:clamp(1.25rem,2vw,1.6rem)}
+.course-lesson-head p {color:var(--soft)}
+.course-lesson-actions {display:flex;flex-wrap:wrap;gap:var(--space-3)}
+.course-lessons {display:grid;gap:6px;margin:0;padding:var(--space-3);list-style:none;border:1px solid var(--glass-border);border-radius:16px;background:rgba(15,36,53,.8);max-height:min(70svh,640px);overflow:auto}
+.course-lessons ol {display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.course-lessons h2 {padding:var(--space-2) var(--space-3) var(--space-3);font-size:1rem}
+.course-lessons button {display:grid;grid-template-columns:32px 1fr;align-items:center;gap:var(--space-3);width:100%;min-height:52px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:none;color:var(--soft);font:inherit;text-align:left;cursor:pointer;transition:background .18s,border-color .18s}
+.course-lessons button:hover {background:rgba(103,215,246,.07)}
+.course-lessons button[aria-current=true] {background:var(--accentSoft);border-color:var(--accentLine);color:var(--text)}
+.course-lessons .lesson-index {display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums}
+.course-lessons .is-done .lesson-index {background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.course-lessons small {display:block;color:var(--muted);font-size:.78rem}
+@media (max-width:900px) {
+  .course-layout {grid-template-columns:1fr}
+  .course-lessons {max-height:none}
+}
+@media (prefers-reduced-motion:no-preference) {
+  .course-card {animation:course-rise .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+  .course-card:hover {transform:translateY(-3px)}
+  .skeleton {animation:course-shimmer 1.4s linear infinite}
+}
+@keyframes course-rise {from {opacity:0;transform:translateY(10px)}}
+@keyframes course-shimmer {to {background-position:-200% 0}}
+
+/* Painel administrativo: seleção de cursos, matrículas e catálogo */
+.platform-hint {color:var(--muted);font-size:.86rem}
+.student-create {display:grid;gap:var(--space-4);min-width:min(560px,80vw)}
+.course-picker {display:grid;gap:var(--space-2);margin:0;padding:var(--space-4);border:1px solid var(--glass-border);border-radius:14px;background:rgba(7,22,33,.45)}
+.course-picker legend {padding:0 6px;font-weight:700}
+.course-option {display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;align-items:center;gap:var(--space-3);min-height:56px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .18s,background .18s}
+.course-option:hover {border-color:var(--line2)}
+.course-option.is-selected {border-color:var(--accentLine);background:var(--accentSoft)}
+.course-option input[type=checkbox] {width:20px;height:20px;accent-color:var(--accent)}
+.course-option-copy {display:grid;min-width:0}
+.course-option-copy small {color:var(--muted);font-size:.8rem}
+.course-option select,.enrollment-actions select,.enrollment-add select {min-height:40px;padding:0 10px;border:1px solid var(--border-control);border-radius:8px;background:#081723;color:var(--text);font:inherit;font-size:.86rem}
+.course-option select:disabled {opacity:.45}
+.enrollment-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.enrollment-actions .button {min-height:40px;padding:.45rem .9rem}
+.enrollment-add {display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--line)}
+.enrollment-add-label {font-weight:700;margin-right:auto}
+.admin-course-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:var(--space-4);margin-bottom:var(--space-6)}
+.admin-course-card {display:grid;align-content:start;gap:var(--space-2);padding:var(--space-5);border:1px solid var(--glass-border);border-radius:14px;background:linear-gradient(180deg,rgba(21,43,61,.85),rgba(12,30,44,.9))}
+.admin-course-card.is-selected {border-color:var(--accentLine);box-shadow:0 0 0 3px var(--accentSoft)}
+.admin-course-card h2 {font-size:1.15rem}
+.admin-course-card>p {color:var(--soft);font-size:.9rem}
+.admin-course-card .status-pill {justify-self:start}
+.admin-course-card .button {justify-self:start;margin-top:var(--space-2)}
+@media (max-width:640px) {
+  .student-create {min-width:0}
+  .course-option {grid-template-columns:22px minmax(0,1fr);row-gap:6px}
+  .course-option .status-pill {grid-column:2;justify-self:start}
+  .course-option select {grid-column:2}
+}
+/* O formulário padrão usa duas colunas; aqui a seleção de cursos ocupa a largura toda. */
+.platform-form.student-create>.course-picker,.platform-form.student-create>p,.platform-form.student-create>.platform-status {grid-column:1/-1}
+.platform-form.student-create label.course-option {grid-template-columns:22px minmax(0,1fr) auto minmax(120px,auto);align-items:center}
+.platform-form.student-create label.course-option input[type=checkbox] {width:20px;min-height:20px}
+@media (max-width:640px) {
+  .platform-form.student-create {grid-template-columns:1fr}
+  .platform-form.student-create label.course-option {grid-template-columns:22px minmax(0,1fr)}
+}
+.course-option .status-pill {justify-self:start}

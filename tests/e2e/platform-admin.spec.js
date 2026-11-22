@@ -13,6 +13,7 @@ async function setup(page,{support=false}={}){
   if(path==='/api/admin/orders')return json({ok:true,orders:[],message:'Gateway não homologado.'})
   if(path==='/api/admin/content')return json({ok:true,course:{revision:1,draft:{title:'RV 30',description:'',priceCents:49900,accessDurationDays:365}},lessons:[{day:1,revision:1,draft:document,published:null}]})
   if(path==='/api/admin/media')return json({ok:true,media:[]})
+  if(path==='/api/admin/courses')return json({ok:true,courses:[{id:'rv30',title:'RV Treino 30 Dias',state:'published',published_lessons:29,lessons:30,enrollments:1,revision:1},{id:'mobilidade',title:'Mobilidade',state:'published',published_lessons:3,lessons:3,enrollments:0,revision:1}]})
   if(path.endsWith('/versions'))return json({ok:true,versions:[]})
   if(path==='/api/admin/content/lesson/1'&&method==='PUT')return json({ok:false,message:'Outra alteração foi salva. Recarregue antes de editar novamente.'},409)
   if(path==='/api/support')return json({ok:true,threads:[{id:'thread',subject:'Dúvida segura',status:'answered',updated_at:1,unread:1}]})
@@ -30,8 +31,9 @@ test('Administração: indicadores do contrato, período e navegação mobile po
  await page.setViewportSize({width:390,height:844});await expect(page.locator('.platform-navigation')).toHaveJSProperty('open',false);await page.locator('.platform-navigation summary').focus();await page.keyboard.press('Enter');await expect(page.locator('.platform-navigation')).toHaveJSProperty('open',true);await page.getByRole('link',{name:'Alunos',exact:true}).click();await expect(page.getByRole('heading',{name:'Alunos',exact:true})).toBeVisible()
 })
 test('Administração: criação usa o servidor e apresenta conflito sem anunciar sucesso',async({page})=>{
- const calls=await setup(page);await page.goto('/admin?view=students');await page.getByLabel('Nome',{exact:true}).fill('Conta de fixture');await page.getByLabel('E-mail',{exact:true}).fill('fixture@example.test');await page.getByRole('button',{name:'Criar perfil',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Já existe uma conta'})).toBeVisible()
- expect(calls.filter(x=>x.path==='/api/admin/students'&&x.method==='POST')).toHaveLength(1)
+ const calls=await setup(page);await page.goto('/admin?view=students');await page.getByRole('button',{name:'Cadastrar novo aluno',exact:true}).click()
+ const dialog=page.locator('[data-student-create]');await dialog.getByLabel('Nome completo',{exact:true}).fill('Conta de fixture');await dialog.getByLabel('E-mail',{exact:true}).fill('fixture@example.test');await dialog.locator('[data-course-option=mobilidade] input[type=checkbox]').check();await dialog.getByLabel('Validade da matrícula em Mobilidade').selectOption('90');await dialog.getByRole('button',{name:'Cadastrar aluno',exact:true}).click();await expect(dialog.getByRole('status').filter({hasText:'Já existe uma conta'})).toBeVisible()
+ const posts=calls.filter(x=>x.path==='/api/admin/students'&&x.method==='POST');expect(posts).toHaveLength(1);expect(posts[0].body.courses).toEqual([{id:'mobilidade',days:90}]);expect(JSON.stringify(posts[0].body)).not.toMatch(/password/i)
 })
 test('Administração: página curta mantém o conteúdo junto ao menu no mobile',async({page})=>{
  await setup(page);await page.setViewportSize({width:390,height:844});await page.goto('/admin?view=orders');await expect(page.getByRole('heading',{name:'Pedidos e pagamentos',exact:true})).toBeVisible()

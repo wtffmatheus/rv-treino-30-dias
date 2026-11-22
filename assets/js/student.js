@@ -38,6 +38,14 @@
   const items = Array.isArray(account.entitlements) ? account.entitlements : []
 
   if (window.RVApi?.platformMode && window.RVStudentDashboard) {
+    const catalog = document.querySelector('[data-my-courses]')
+    if (window.RVApi.platformAdmin && catalog && window.RVStudentCourses) {
+      catalog.hidden = false
+      document.querySelector('[data-rv30-heading]').textContent = 'RV Treino 30 Dias em detalhe'
+      await window.RVStudentCourses.mount(catalog)
+      // Contas sem matrícula no RV 30 não veem o painel detalhado do programa.
+      if (!catalog.querySelector('[data-course-id="rv30"]') && catalog.querySelector('[data-course-id]')) { document.querySelector('[data-rv30-detail]').hidden = true; return }
+    }
     await window.RVStudentDashboard.mount(grid)
   } else if (!items.length) {
     grid.innerHTML = '<div class="course-empty">Nenhum programa está com acesso ativo nesta conta. Se você acabou de comprar, aguarde a confirmação do pagamento. O fim do prazo de acesso não exclui sua conta ou histórico. Em caso de dúvida, fale com a RV Fisiologia.</div>'

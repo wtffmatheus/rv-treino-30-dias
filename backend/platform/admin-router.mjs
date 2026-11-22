@@ -6,6 +6,7 @@ import {changeAccess} from './admin-access.mjs'
 import {supportList,supportRead,supportReply} from './support.mjs'
 import {metrics,auditLog,studentReport} from './metrics.mjs'
 import {contentRead,changeContent,versions} from './content.mjs'
+import {adminCourses,createCourse,editCourse,adminLessons,saveLesson,changeEnrollment} from './courses.mjs'
 import {mediaList,uploadBegin,uploadPart,uploadFinish,uploadCancel,uploadList,mediaReview,privateImage} from './media.mjs'
 export async function adminRoute(request,env,session,now,response){
  requireAdmin(session,now);const url=new URL(request.url),path=url.pathname,method=request.method,read=()=>readPlatformBody(request)
@@ -16,10 +17,24 @@ export async function adminRoute(request,env,session,now,response){
  }
  let match=path.match(/^\/api\/admin\/students\/([\w-]+)$/)
  if(match){
-  if(method==='GET')return response(await studentDetail(env,match[1]))
+  if(method==='GET')return response(await studentDetail(env,match[1],now))
   if(method==='PATCH'){
    const input=await read();return response(input.action?await editStudent(env,session,match[1],input,now):await changeAccess(env,session,match[1],input,now))
   }
+ }
+ match=path.match(/^\/api\/admin\/students\/([\w-]+)\/enrollments\/([a-z0-9-]{2,40})$/)
+ if(match&&method==='PUT')return response(await changeEnrollment(env,session,match[1],match[2],await read(),now))
+ if(path==='/api/admin/courses'){
+  if(method==='GET')return response(await adminCourses(env))
+  if(method==='POST')return response(await createCourse(env,session,await read(),now),201)
+ }
+ match=path.match(/^\/api\/admin\/courses\/([a-z0-9-]{2,40})(?:\/lessons(?:\/([\w-]{1,100}))?)?$/)
+ if(match){
+  const lessons=path.includes('/lessons')
+  if(!lessons&&method==='PATCH')return response(await editCourse(env,session,match[1],await read(),now))
+  if(lessons&&!match[2]&&method==='GET')return response(await adminLessons(env,match[1]))
+  if(lessons&&!match[2]&&method==='POST')return response(await saveLesson(env,session,match[1],null,await read(),now),201)
+  if(lessons&&match[2]&&method==='PATCH')return response(await saveLesson(env,session,match[1],match[2],await read(),now))
  }
  if(path==='/api/admin/identity-tokens'&&method==='POST'){const input=await read();return response(await studentInvite(env,session,input.userId,input,now))}
  if(path==='/api/admin/report'&&method==='GET'){

@@ -28,6 +28,10 @@
       "destination": "/area?day=:day"
     },
     {
+      "source": "/curso/:id",
+      "destination": "/curso?id=:id"
+    },
+    {
       "source": "/pagamento/sucesso",
       "destination": "/pagamento-confirmado"
     },

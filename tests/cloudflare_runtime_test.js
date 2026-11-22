@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const base = 'http://127.0.0.1:8787'
+const base = process.env.CF_BASE_URL || 'http://127.0.0.1:8787'
 const root = path.resolve(__dirname, '..')
 const routes = [
   ['/', 'index.html'], ['/entrar', 'login.html'], ['/meus-cursos', 'aluno.html'],

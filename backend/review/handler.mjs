@@ -40,6 +40,9 @@ export function createReviewHandler({html,css,js,logo,qaHtml,qaJs,platformHtml,p
       }
       if(pathname==='/api/qa/set-password'&&request.method==='POST'){
         if(request.headers.get('origin')!==new URL(request.url).origin)return reply('Origem não autorizada.',403)
+        // Retired: rv30-qa-access (aluno@rv.com.br) is not the identity source of treino.rvfisiologista.com.br.
+        // Setting it there made owners believe a password was set while the official login kept rejecting it.
+        if(!env.QA_LEGACY_PASSWORD_ENABLED)return reply(JSON.stringify({ok:false,code:'LEGACY_QA_RETIRED',message:'Conta de teste antiga desativada. O site oficial usa as contas da plataforma: defina a senha em /plataforma.'}),410,'application/json; charset=utf-8')
         if(!request.headers.get('content-type')?.startsWith('application/json'))return reply('Formulário inválido.',415)
         const reader=request.body?.getReader();let size=0,text=''
         const decoder=new TextDecoder()

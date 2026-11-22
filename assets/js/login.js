@@ -133,6 +133,7 @@
 
   const next = safeNext(params.get('next'))
   if(params.get('senha')==='definida'&&message)message.textContent='Senha definida. Entre com seu e-mail e a nova senha.'
+  if(params.get('senha')==='redefinida'&&message)message.textContent='Senha redefinida com sucesso. Entre com seu e-mail e a nova senha; as sessões anteriores foram encerradas.'
 
   if (params.get('novo') === '1' && message) {
     message.textContent = 'Acesso criado. Entre agora com o e-mail da compra e a senha que você acabou de definir.'

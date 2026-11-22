@@ -33,6 +33,13 @@ const SCENARIOS = [
   { id: 'expired', email: 'expired@example.test', role: 'student', enrollment: 'expired', label: 'matrícula expirada' }
 ]
 
+// Local-only capturing outbox (loopback fixture). It is NOT a delivery provider.
+function localOutbox() {
+  const dir = path.join(__dirname, '..', 'output', 'local-outbox')
+  fs.mkdirSync(dir, { recursive: true })
+  return { send: async (message) => { const id = Date.now() + '-' + Math.random().toString(16).slice(2); fs.writeFileSync(path.join(dir, id + '.json'), JSON.stringify(message, null, 1)); fs.writeFileSync(path.join(dir, id + '.html'), message.html); return { messageId: id } } }
+}
+
 async function setup() {
   const mf = new Miniflare(convertV4MiniflareOptions({
     name: 'platform-repro-fixture', modules: true,
@@ -66,11 +73,13 @@ async function setup() {
     await db.prepare('insert into enrollments(user_id,course_id,source,starts_at,expires_at,updated_at,revoked) values(?,?,?,?,?,?,?)')
       .bind(s.id, 'rv30', 'owner_validation', starts, expires, now, s.enrollment === 'revoked' ? 1 : 0).run()
   }
+  if (process.env.RV_STUDIO_QA === '1') await require('./qa-studio-seed').seedStudioEnrollments(db)
   const item = { day: 1, key: 'rv30/dia-01/' + 'a'.repeat(64) + '.mp4', bytes: 10, duration: 60 }
   await bucket.put(item.key, '0123456789')
   const env = {
     QA_DB: db, VIDEOS: bucket, AUTH_PASSWORD_PEPPER: PEPPER, PLATFORM_ENV: 'staging',
-    PUBLIC_SITE_URL: ORIGIN, PREVIEW_ORIGINS: ORIGIN, QA_MEDIA_MANIFEST: JSON.stringify([item]), PLATFORM_ADMIN_ENABLED: process.env.RV_STUDIO_QA === '1' ? 'true' : 'false'
+    PUBLIC_SITE_URL: ORIGIN, PREVIEW_ORIGINS: ORIGIN, QA_MEDIA_MANIFEST: JSON.stringify([item]), PLATFORM_ADMIN_ENABLED: process.env.RV_STUDIO_QA === '1' ? 'true' : 'false',
+    ...(process.env.RV_LOCAL_OUTBOX === '1' ? { EMAIL: localOutbox(), EMAIL_FROM: 'RV Treino 30 Dias <nao-responda@avisos.example.test>', EMAIL_ASSET_ORIGIN: ORIGIN } : {})
   }
   const app = createPlatformHandler()
   return { app, env }
@@ -93,7 +102,7 @@ async function main() {
     }
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return }
     const url = new URL(req.url, ORIGIN)
-    const route = aliases[url.pathname] || (/^\/curso\/rv30\/dia\/\d+$/.test(url.pathname) ? '/area.html' : url.pathname)
+    const route = aliases[url.pathname] || (/^\/curso\/rv30\/dia\/\d+$/.test(url.pathname) ? '/area.html' : /^\/curso\/[a-z0-9-]{2,40}$/.test(url.pathname) ? '/curso.html' : url.pathname)
     const name = route.slice(1)
     const allowed = files.includes(name) && !name.startsWith('_')
     const file = path.join(root, allowed ? name : '404.html')

@@ -47,3 +47,50 @@
 
 .staff-access {background:radial-gradient(ellipse at 74% 34%,#294e69,transparent 54%),repeating-linear-gradient(120deg,transparent 0 74px,#93cfea13 75px 76px,transparent 77px 150px),var(--bg)}
 .staff-access .login-caption {align-self:center}
+
+/* Recuperação de senha por código (3 etapas dentro do cartão de acesso) */
+.sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.recovery-link {justify-self:start;min-height:44px;padding:0;border:0;background:none;color:var(--accent2);font:600 .92rem var(--font);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent2) 45%,transparent);text-underline-offset:4px;cursor:pointer}
+.recovery-link:hover:not(:disabled) {text-decoration-color:currentColor}
+.recovery-link:disabled {color:var(--muted);text-decoration:none;cursor:default}
+.recovery {display:grid;gap:1.1rem;outline:none}
+.recovery-steps {display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin:0;padding:0;list-style:none;counter-reset:step}
+.recovery-steps li {display:flex;align-items:center;gap:.45rem;padding-top:.6rem;border-top:2px solid var(--line2);color:var(--muted);font-size:.78rem;font-weight:650;letter-spacing:.02em;transition:border-color .3s,color .3s}
+.recovery-steps span {display:grid;place-items:center;width:1.45rem;height:1.45rem;border-radius:50%;border:1px solid var(--line2);font-size:.72rem}
+.recovery-steps li[aria-current=step],.recovery-steps li.is-done {color:var(--text);border-top-color:var(--accent)}
+.recovery-steps li[aria-current=step] span {background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.recovery-steps li.is-done span {border-color:var(--accent);color:var(--accent2)}
+.recovery-title {font-size:clamp(1.55rem,2.4vw,2rem);line-height:1.15}
+.recovery-panel[hidden] {display:none}
+.code-inputs {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(.35rem,1.4vw,.6rem);margin:0;padding:0;border:0}
+.code-inputs input {height:clamp(52px,7vw,60px);padding:0;text-align:center;font:700 clamp(1.35rem,3.4vw,1.7rem)/1 var(--font-display);letter-spacing:0;caret-color:var(--accent);background:#06141ee6;border:1px solid var(--border-control);border-radius:12px;transition:border-color .18s,box-shadow .18s,transform .18s}
+.code-inputs input:focus {border-color:var(--accent);box-shadow:0 0 0 3px var(--accentSoft);outline:none}
+.code-inputs input.is-filled {border-color:var(--accentLine)}
+.code-inputs[aria-invalid=true] input {border-color:var(--danger)}
+.recovery-timer {display:flex;align-items:center;gap:.5rem;font-variant-numeric:tabular-nums}
+.recovery-timer::before {content:"";width:.55rem;height:.55rem;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accentSoft)}
+.recovery-timer.is-expired {color:var(--warning)}
+.recovery-timer.is-expired::before {background:var(--warning);box-shadow:none}
+.recovery-actions {display:flex;flex-wrap:wrap;justify-content:space-between;gap:.25rem 1rem}
+.password-field {position:relative;display:block}
+.password-field input {padding-right:5.4rem}
+.password-toggle {position:absolute;top:50%;right:.35rem;translate:0 -50%;min-height:38px;padding:0 .75rem;border:1px solid var(--line2);border-radius:6px;background:var(--panel);color:var(--soft);font:600 .8rem var(--font);cursor:pointer}
+.password-toggle:hover {color:var(--text);border-color:var(--accentLine)}
+.password-rule {display:flex;align-items:center;gap:.45rem;margin-top:-.35rem}
+.password-rule.is-ok {color:var(--accent2)}
+.password-rule.is-ok::before {content:"✓";font-weight:800}
+.recovery-status:empty {display:none}
+.recovery-status {padding:.75rem .9rem;border:1px solid var(--accentLine);border-radius:10px;background:var(--accentSoft);color:var(--soft);font-size:.9rem}
+.recovery-back {margin-top:-.25rem}
+.login-notice {padding:.75rem .9rem;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--accentSoft);color:var(--text)}
+button[aria-busy=true] {position:relative;color:transparent!important}
+button[aria-busy=true]::after {content:"";position:absolute;inset:0;margin:auto;width:1.15rem;height:1.15rem;border-radius:50%;border:2px solid var(--bg);border-right-color:transparent}
+@media (prefers-reduced-motion:no-preference) {
+  .recovery-panel:not([hidden]) {animation:recovery-in .32s cubic-bezier(.2,.7,.2,1) both}
+  button[aria-busy=true]::after {animation:recovery-spin .7s linear infinite}
+  .code-inputs.is-shaking {animation:recovery-shake .36s ease-in-out}
+}
+@keyframes recovery-in {from {opacity:0;transform:translateY(6px)}}
+@keyframes recovery-spin {to {rotate:360deg}}
+@keyframes recovery-shake {25% {transform:translateX(-5px)} 75% {transform:translateX(5px)}}
+.auth-card.is-recovering .tiny-note {display:none}

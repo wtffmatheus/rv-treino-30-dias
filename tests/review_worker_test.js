@@ -34,9 +34,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const setPassword=(context=ctx,origin='https://review.example.test',password='fixture-password-123')=>qa.fetch(new Request('https://review.example.test/api/qa/set-password',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify({password})}),qaEnv,context)
  assert.equal((await setPassword({})).status,403)
  assert.equal((await setPassword(ctx,'https://evil.example.test')).status,403)
- assert.equal((await setPassword(ctx,undefined,'short')).status,400)
+ assert.equal((await setPassword(ctx,undefined,'short')).status,410)
  assert.equal(passwordCalls,0)
- assert.equal((await setPassword()).status,200);assert.equal(passwordCalls,1)
+ assert.equal((await setPassword()).status,410,'a conta antiga não pode receber senha fora da fonte de identidade oficial');assert.equal(passwordCalls,0)
+ assert.equal((await qa.fetch(new Request('https://review.example.test/api/qa/set-password',{method:'POST',headers:{origin:'https://review.example.test','Content-Type':'application/json'},body:JSON.stringify({password:'fixture-password-123'})}),{...qaEnv,QA_LEGACY_PASSWORD_ENABLED:'true'},ctx)).status,200);assert.equal(passwordCalls,1)
  assert.equal((await qa.fetch(new Request('https://review.example.test/conta-teste'),qaEnv,ctx)).status,200)
  const owner=createReviewHandler({platformHtml:'<h1>Homologação</h1>',platformJs:'void 0'}),ownerCalls=[]
  const ownerEnv={...env,PLATFORM_CONTROL:{setValidationPassword:async(email,role,password)=>{ownerCalls.push({email,role,strong:password.length>=12});return{ok:true,message:'Senha de homologação definida.'}}}}

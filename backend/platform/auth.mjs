@@ -48,7 +48,7 @@ export async function login(request,env,input,now=Date.now()){
  const roles=await db.prepare('select role from user_roles where user_id=?').bind(row.id).all()
  return{token,user:{id:row.id,email:row.email},roles:roles.results.map(x=>x.role),testAccount:row.kind==='validation'}
 }
-export async function issueIdentityToken(env,session,userId,purpose,now=Date.now()){
+export async function issueIdentityToken(env,session,userId,purpose,now=Date.now(),ttl=1800000){
  requireAdmin(session,now,true)
  if(!['invitation','recovery'].includes(purpose))fail(400,'TOKEN_PURPOSE','Escolha um tipo de convite válido.')
  await rateLimit(env,'invite:'+session.user.id,20,now,60000)
@@ -57,10 +57,10 @@ export async function issueIdentityToken(env,session,userId,purpose,now=Date.now
  const token=random(),tokenHash=await sha(token)
  await db.batch([
   db.prepare('delete from identity_tokens where user_id=? or expires_at<=?').bind(userId,now),
-  db.prepare('insert into identity_tokens(token_hash,user_id,purpose,credential_version,created_at,expires_at,created_by) values(?,?,?,?,?,?,?)').bind(tokenHash,userId,purpose,row.credential_version,now,now+1800000,session.user.id),
+  db.prepare('insert into identity_tokens(token_hash,user_id,purpose,credential_version,created_at,expires_at,created_by) values(?,?,?,?,?,?,?)').bind(tokenHash,userId,purpose,row.credential_version,now,now+ttl,session.user.id),
   identityEvent(db,userId,session.user.id,purpose+'_issued',now)
  ])
- return{ok:true,token,purpose,expiresAt:new Date(now+1800000).toISOString(),delivery:'manual_private',message:'Link de uso único. Entregue por um canal privado ao destinatário após conferir sua identidade. Nenhum e-mail foi enviado.'}
+ return{ok:true,token,purpose,expiresAt:new Date(now+ttl).toISOString(),delivery:'manual_private',message:'Link de uso único. Entregue por um canal privado ao destinatário após conferir sua identidade. Nenhum e-mail foi enviado.'}
 }
 export async function acceptIdentityToken(env,input,now=Date.now()){
  requireSetup(env)

@@ -8,12 +8,12 @@
   <meta name="theme-color" content="#071621"><title>Entrar no RV 30 · RV Fisiologia</title>
   <script src="assets/js/config.js?v=20261108-review" defer></script>
   <script src="assets/js/runtime.js?v=20261025" defer></script>
-  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261108-admin" defer></script>
-  <script src="assets/js/login.js?v=piloto1" defer></script><script src="/assets/js/auth-forms.js?v=20261108-admin" defer></script>
+  <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261122-recovery" defer></script>
+  <script src="assets/js/login.js?v=20261122-recovery" defer></script><script src="/assets/js/auth-forms.js?v=20261122-recovery" defer></script>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="/assets/css/tokens.css?v=piloto1">
   <link rel="stylesheet" href="/assets/css/publico.css">
-  <link rel="stylesheet" href="/assets/css/entrada.css">
+  <link rel="stylesheet" href="/assets/css/entrada.css?v=20261122-recovery">
 </head>
 <body class="portal-body">
   <a class="skip-link" href="#acesso">Pular para o acesso</a>
@@ -29,7 +29,40 @@
           <label>Senha<input name="password" type="password" autocomplete="current-password" required placeholder="Sua senha"></label>
           <p class="form-error" role="alert" aria-live="polite" data-form-error></p>
           <button class="button button--primary button--wide" type="submit" disabled>Entrar</button>
+          <button class="recovery-link" type="button" data-recovery-open hidden>Esqueceu sua senha?</button>
         </form>
+        <section class="recovery" id="recuperar" data-recovery hidden aria-labelledby="recovery-title" tabindex="-1">
+          <ol class="recovery-steps" aria-label="Etapas da recuperação">
+            <li data-step-marker="email" aria-current="step"><span>1</span>E-mail</li>
+            <li data-step-marker="code"><span>2</span>Código</li>
+            <li data-step-marker="password"><span>3</span>Senha</li>
+          </ol>
+          <h2 class="recovery-title" id="recovery-title" data-recovery-title>Recuperar acesso</h2>
+          <form class="portal-form recovery-panel" method="post" data-recovery-step="email" novalidate>
+            <p>Informe o e-mail da sua conta. Enviaremos um código de 6 dígitos válido por 10 minutos.</p>
+            <label>E-mail cadastrado<input name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" placeholder="voce@email.com"></label>
+            <p class="form-error" role="alert" data-recovery-error></p>
+            <button class="button button--primary button--wide" type="submit">Enviar código</button>
+          </form>
+          <form class="portal-form recovery-panel" method="post" data-recovery-step="code" hidden novalidate>
+            <p data-code-lead>Digite o código enviado para o seu e-mail.</p>
+            <fieldset class="code-inputs" data-code-inputs><legend class="sr-only">Código de 6 dígitos</legend></fieldset>
+            <p class="recovery-timer" data-code-timer></p>
+            <p class="form-error" role="alert" data-recovery-error></p>
+            <button class="button button--primary button--wide" type="submit">Confirmar código</button>
+            <div class="recovery-actions"><button class="recovery-link" type="button" data-code-resend disabled>Reenviar código</button><button class="recovery-link" type="button" data-code-change>Usar outro e-mail</button></div>
+          </form>
+          <form class="portal-form recovery-panel" method="post" data-recovery-step="password" hidden novalidate>
+            <p>Escolha uma senha nova de 12 a 128 caracteres. As sessões abertas serão encerradas.</p>
+            <label>Nova senha<span class="password-field"><input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required aria-describedby="password-rule"><button class="password-toggle" type="button" data-password-toggle aria-pressed="false">Mostrar</button></span></label>
+            <p class="password-rule" id="password-rule" data-password-rule>Mínimo de 12 caracteres.</p>
+            <label>Confirme a nova senha<input name="confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+            <p class="form-error" role="alert" data-recovery-error></p>
+            <button class="button button--primary button--wide" type="submit">Salvar nova senha</button>
+          </form>
+          <p role="status" aria-live="polite" class="recovery-status" data-recovery-status></p>
+          <button class="recovery-link recovery-back" type="button" data-recovery-close>← Voltar ao login</button>
+        </section>
         <div data-account-actions hidden>
           <form class="portal-form" method="post" data-verify-form hidden>
             <h3 data-verify-title>Confirmar meu e-mail</h3>
@@ -38,13 +71,6 @@
             <p role="status" aria-live="polite"></p>
             <button class="button button--primary" type="submit" disabled>Confirmar e continuar</button>
           </form>
-          <details id="recuperar"><summary>Esqueci minha senha</summary>
-            <form class="portal-form" method="post" data-recover-form>
-              <label>E-mail de recuperação<input name="email" type="email" autocomplete="email" required></label>
-              <p role="status" aria-live="polite"></p>
-              <button class="button button--secondary" type="submit" disabled>Enviar instruções</button>
-            </form>
-          </details>
           <details><summary>Criar minha conta</summary>
             <form class="portal-form" method="post" data-signup-form>
               <label>Nome completo<input name="name" autocomplete="name" minlength="3" maxlength="100" required></label>

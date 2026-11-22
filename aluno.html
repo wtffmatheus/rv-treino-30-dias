@@ -10,13 +10,15 @@
   <script src="assets/js/runtime.js?v=20261025" defer></script>
   <script src="assets/js/auth-demo.js?v=20261025" defer></script><script src="/assets/js/api-client.js?v=20261108-admin" defer></script>
   <script src="/assets/js/student-dashboard.js?v=20261107-identity" defer></script>
-  <script src="assets/js/student.js?v=20261107-identity" defer></script>
+  <script src="/assets/js/student-courses.js?v=20261122-cursos" defer></script>
+  <script src="assets/js/student.js?v=20261122-cursos" defer></script>
   <link rel="icon" href="/public/icons/favicon-64.png" type="image/png">
 
   <link rel="stylesheet" href="/assets/css/tokens.css?v=navy1">
   <link rel="stylesheet" href="/assets/css/publico.css?v=navy1">
   <link rel="stylesheet" href="/assets/css/aplicativo.css?v=navy1">
   <link rel="stylesheet" href="/assets/css/student-platform.css?v=navy1">
+  <link rel="stylesheet" href="/assets/css/cursos.css?v=20261122-cursos">
 </head>
 <body class="portal-body">
   <header class="course-header"><div class="container course-header-inner"><a class="course-brand" href="index.html"><img src="/public/logo-rv.png" alt="RV Fisiologia" width="56" height="56"><span><strong>Área do Aluno</strong><small>Meus cursos</small></span></a><div class="course-header-actions"><span class="student-name" data-student-name></span><button class="button button--ghost" type="button" data-logout disabled>Sair</button></div></div></header>
@@ -26,7 +28,8 @@
       <div><p class="eyebrow">Área do aluno</p><h1>Olá, <em data-first-name>aluno</em>.</h1></div>
       <p class="student-hero-lead">Acompanhe seus cursos e retome o treino.</p>
     </header>
-    <section class="my-courses" aria-labelledby="my-courses-title"><div class="section-mini-head"><div><h2 id="my-courses-title">Meus cursos</h2></div></div><div class="my-course-grid" data-course-list></div></section>
+    <section class="course-catalog" aria-labelledby="catalog-title" data-my-courses hidden><div class="course-catalog-head"><h2 id="catalog-title">Meus cursos</h2><p data-my-courses-summary></p></div><div class="course-cards" data-my-courses-list></div></section>
+    <section class="my-courses" aria-labelledby="my-courses-title" data-rv30-detail><div class="section-mini-head"><div><h2 id="my-courses-title" data-rv30-heading>Meus cursos</h2></div></div><div class="my-course-grid" data-course-list></div></section>
   </main>
 </body>
 </html>
