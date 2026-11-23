@@ -44,3 +44,6 @@ __pycache__/
 
 .vercel
 .env*
+
+# Backups e exportações privadas (SQL, CSV, JSON com dados reais) nunca entram no Git.
+*.private.*

@@ -14,3 +14,10 @@ skills/
 *.7z
 *.psd
 *.log
+.wrangler/
+.claude/
+.claude-flow/
+CLAUDE.md
+skills-lock.json
+*.private.*
+scripts/organize-docs.js
