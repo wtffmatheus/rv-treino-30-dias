@@ -17,6 +17,7 @@ on:
       - rv30-premium-preview-20261107
       - rv30-plataforma-integral-20261107
       - qa/rv30-playwright-e2e-20261121
+      - feat/rv30-auth-cursos-20261122
   pull_request:
     branches: [main]
 jobs:
