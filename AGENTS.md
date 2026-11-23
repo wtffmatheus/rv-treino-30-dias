@@ -48,7 +48,7 @@ registrar evidências → próxima etapa. Build aprovado sozinho não aprova uma
 - Não publicar diretamente a partir de push em `main`. Usar previews e conferir
   SHA exato, Actions, READY, logs, recursos e comportamento no navegador.
 - A versão integral só pode alcançar `treino.rvfisiologista.com.br` após todos
-  os gates críticos do plano em `docs/PLATAFORMA_INTEGRAL_RV30.md` aprovados.
+  os gates críticos do plano em `docs/architecture/PLATAFORMA_INTEGRAL_RV30.md` aprovados.
 - Preparar deployment de produção sem associá-lo ao domínio; testar esse
   deployment antes da promoção. Confirmar backup, migrações aditivas e rollback.
   Repetir testes críticos no domínio depois de promover.

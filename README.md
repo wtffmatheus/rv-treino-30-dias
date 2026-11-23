@@ -1,219 +1,29 @@
-# RV 30 — revisão de 07/11/2026
+# RV Treino 30 Dias (RV30)
 
-Identidade RV 30, fotos fornecidas, catálogo por dia, API segura preparatória e verificação administrativa de entrega. **Vendas reais permanecem bloqueadas.**
+Plataforma do programa de treinos RV 30, da RV Fisiologia. Site estático na Vercel (`treino.rvfisiologista.com.br`) com API em Cloudflare Workers, identidade e progresso em D1 e vídeos privados em R2. Vendas permanecem desativadas.
 
-- [Situação atual, testes e pendências de integração](docs/RETOMADA_RV30_20261107.md)
-- [Asaas, pagamento único e acesso de 365 dias](backend/ASAAS_ACCESS365.md)
-- [Arquivos reais encontrados e preparação de envio privado](docs/UPLOAD_VIDEOS_RV30_20261107.md)
-- [Assistir aos vídeos na área privada de revisão](docs/REPRODUCAO_PRIVADA_RV30_20261107.md)
-- [Liberação aos compradores nas próximas compras](docs/COMPRAS_FUTURAS_RV30_20261107.md)
-- [Entrega, configuração e recuperação — histórico](docs/ENTREGA_RV30_20261025.md)
-- [Revisão completa dos requisitos e situação do domínio em 27/10](docs/REVISAO_REQUISITOS_RV30_20261027.md)
-- [Validação e limitações](docs/VALIDACAO_RV30.md)
-- [Correção da paleta azul e publicação do domínio](docs/REVISAO_AZUL_PUBLICACAO_20261026.md)
-- [Backend e migração proposta](backend/SECURE_BACKEND_RV30.md)
-- [Vídeos e dias pendentes](docs/VIDEOS_RV30.md)
+**Estado atual, causa da falha de senhas, pendências e comandos: [docs/ESTADO_ATUAL.md](docs/ESTADO_ATUAL.md).**
 
-Use Node 22+ e `npm ci`, `npm run dev`; prévia em http://127.0.0.1:8081. Sem backend configurado, a demonstração funciona apenas em loopback. Segredos ficam exclusivamente no servidor, conforme `.env.example`. `dist/` contém somente os arquivos estáticos.
+## Desenvolvimento
 
-Verificações: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:e2e`. A auditoria `npm run audit:launch` mantém **NO_GO** até comprovar a integração em homologação.
+Node 22+:
 
-## Histórico anterior da V6
-
-Versão de teste/staging do portal comercial do **RV 30**, com a jornada de venda, área do aluno e painel administrativo específico do curso.
-
-## Atualização 15/10/2026 — faixa cardíaca no primeiro acesso
-
-Incluído no ramo de revisão: calculadora de frequência cardíaca de reserva pela fórmula de Karvonen, com faixas para sedentário (50%–70%), treinado (60%–80%) e atleta (65%–85%). O aluno informa idade, FC de repouso e FC máxima medida (se souber); caso contrário, o sistema usa 220 − idade e avisa que é estimativa sujeita a erro. Também é possível comparar um valor de FC medido durante o exercício — o site não mede FC por câmera ou foto. A faixa não garante emagrecimento.
-
-Este recurso só grava dados com consentimento expresso em navegador local de teste. Para clientes reais, ainda serão necessários backend, controles de acesso, privacidade/LGPD, revisão profissional e integração segura com vídeos privados. **Nunca considerar a versão local como produção pronta.**
-
-## Atualizacao de 10/09/2026
-
-Suporte aluno/admin e revisao de videos adicionados. Esta entrega continua sendo
-uma **demonstracao local**, nao uma plataforma pronta para vendas reais.
-As secoes V6 abaixo sao historicas; persistencia significa armazenamento no navegador.
-Demo e simulacao agora ficam desativadas fora de localhost/loopback, inclusive em pages.dev.
-
-```powershell
-npm.cmd ci
-npm.cmd run dev
+```
+npm ci
+npm run dev        # http://127.0.0.1:8081
+npm test && npm run lint && npm run typecheck && npm run build
 ```
 
-Abra http://127.0.0.1:8081. Admin: http://127.0.0.1:8081/admin/entrar.
-Credenciais exclusivamente de teste: `admin@rvfisiologia.test` / `rv30admin`.
-Use sempre o mesmo endereco e navegador para compartilhar os dados de demonstracao.
+Regras de trabalho e publicação: [AGENTS.md](AGENTS.md).
 
-- [Relatorio desta etapa](RELATORIO_SUPORTE_VIDEOS.md)
-- [Guia do admin e videos](backend/VIDEOS_DRIVE.md)
-- [Levantamento editorial e Instagram](AUDITORIA_INSTAGRAM.md)
-- [Contrato do suporte para producao](backend/SUPPORT_API.md)
+## Estrutura
 
-Validacao: `npm.cmd test`, `npm.cmd run check`, `npm.cmd run build`.
-E2E: `npx.cmd playwright install chromium` e `npm.cmd run test:e2e`.
-Cloudflare Pages deve receber somente `dist/`, nunca a raiz ou `public/` do RV App.
-
-> O dashboard consolidado dos 3 projetos **não foi implementado nesta versão**, conforme solicitado. A camada de dados foi preparada para múltiplos cursos/projetos sem prender toda a arquitetura a 30 dias.
-
-## O que está pronto na V6
-
-### Comercial
-- Landing responsiva com identidade RV.
-- Seções de qualificação, fases, experiência da plataforma, resultados/casos reais, profissional, preço, catálogo futuro e FAQ.
-- Checkout próprio preparado para provider abstrato (`stone_link` no MVP e automação futura por gateway com API/webhook).
-- Modo de teste claramente identificado.
-- Captura de UTMs.
-- Hooks de `PageView`, `ViewContent`, `InitiateCheckout` e `Purchase`.
-- Privacidade, Termos, 404, sitemap, robots e configuração Vercel.
-
-### Jornada do aluno
-- Compra simulada → confirmação → criação de senha → login → Meus cursos → RV 30.
-- Introdução + Dias 1–30.
-- Progresso persistente.
-- “Continuar de onde parei”.
-- Comentários/dúvidas por conteúdo.
-- Suporte a vídeo YouTube, Vimeo ou arquivo direto.
-- Sessão de teste com expiração.
-- Leitura do aluno respeita status e acesso ao curso.
-
-### Painel administrativo do RV 30
-Acesso de teste:
-
-```text
-admin-login.html
-admin@rvfisiologia.test
-rv30admin
-```
-
-O painel permite:
-- ver todos os alunos;
-- buscar por nome, e-mail ou telefone;
-- filtrar por status, progresso e engajamento;
-- ordenar por último acesso, nome, progresso, dúvidas ou data de cadastro;
-- identificar alunos sem acesso recente;
-- abrir o cadastro completo;
-- editar nome e telefone;
-- bloquear/desbloquear conta;
-- liberar/remover acesso ao RV 30;
-- visualizar e ajustar o progresso dia a dia;
-- reiniciar progresso com dupla confirmação;
-- visualizar dúvidas;
-- responder individualmente;
-- marcar dúvidas como tratadas;
-- registrar observações internas;
-- consultar pedidos do aluno;
-- criar aluno manualmente;
-- visualizar compras aprovadas sem conta;
-- criar/vincular acesso a partir de uma compra aprovada no modo de teste;
-- exportar alunos em CSV;
-- consultar atividade/auditoria recente.
-
-## Segurança corrigida no pente-fino V6
-
-Uma falha importante de protótipo foi identificada na V5: métodos administrativos poderiam ser chamados diretamente pelo console sem uma sessão administrativa válida.
-
-Na V6:
-- leituras administrativas exigem sessão admin;
-- mutações administrativas exigem sessão admin;
-- `db()` completo não fica acessível sem admin;
-- snapshot administrativo remove senhas;
-- perfil entregue ao aluno não carrega notas internas, comentários brutos ou progresso bruto;
-- `userById()` ficou reservado ao admin;
-- revogação/bloqueio impedem leituras de progresso e comentários do aluno;
-- telefone e e-mail recebem validações adicionais;
-- pedido de teste recebe validação de comprador/valor;
-- comentários ocultos deixam de aparecer para o aluno;
-- sessão admin expirada redireciona para novo login.
-
-## Preparação para múltiplos projetos
-
-A V6 introduz `totalDays` por curso na configuração e `total_days` no schema proposto do Supabase.
-
-Isso permite futuramente ter, por exemplo:
-
-```text
-RV 30
-Projeto 2
-Projeto 3
-```
-
-com durações diferentes, sem transformar agora o painel do RV 30 em um dashboard consolidado.
-
-## Backend de produção proposto
-
-A pasta `backend/` contém:
-- `supabase-schema.sql`
-- `API_CONTRACT.md`
-- `PAYMENT_PROVIDERS_PLAN.md`
-- `KIWIFY_WEBHOOK_PLANO.md` (referência legada, não é mais o caminho principal)
-- `PRODUCAO_CHECKLIST.md`
-
-O schema proposto inclui:
-- perfis;
-- cursos;
-- aulas;
-- compras;
-- matrículas;
-- progresso;
-- comentários;
-- observações administrativas;
-- eventos de auditoria;
-- RLS;
-- helpers de autorização;
-- consistência compra → matrícula;
-- vínculo de progresso/comentário com uma aula existente;
-- suporte a duração variável por curso.
-
-## Como testar
-
-Rode um servidor local:
-
-```bash
-python -m http.server 8080
-```
-
-Abra:
-
-```text
-http://localhost:8080/
-```
-
-Para o admin:
-
-```text
-http://localhost:8080/admin-login.html
-```
-
-Para testar diretamente a área do curso sem passar pelo checkout:
-
-```text
-http://localhost:8080/area.html?demo=1
-```
-
-## Testes automatizados
-
-```bash
-python tests/smoke_test.py
-python tests/deep_audit.py
-python tests/css_integrity_audit.py
-node tests/admin_security_test.js
-node tests/data_flow_test.js
-python tests/supabase_schema_audit.py
-python tests/content_audit.py
-python tests/contrast_audit.py
-```
-
-## Bloqueios antes de receber clientes reais
-
-A V6 está adequada para **teste/staging**, não para dados/pagamentos reais.
-
-Ainda precisa:
-1. URL real do Stone Link ou credenciais do gateway escolhido.
-2. Backend/Auth reais.
-3. Webhook validado server-side para automação de pagamento, preferencialmente Mercado Pago se Stone Link não atender.
-4. Migração das funcionalidades hoje demonstradas com `localStorage` para banco.
-5. Conteúdos/vídeos finais revisados pela Rosangela.
-6. Política comercial e textos jurídicos definitivos.
-7. IDs e consentimento para Analytics/Meta, se forem usados.
-8. Teste manual real em Chrome, Safari/iPhone e Android.
-9. Localização das imagens externas no próprio projeto/CDN, se desejado.
+| Caminho | Conteúdo |
+| --- | --- |
+| `*.html`, `assets/`, `public/` | Páginas e recursos publicados (`npm run build` gera `dist/`) |
+| `backend/platform/` | Worker da plataforma (login, recuperação, cursos, administração) e esquemas SQL |
+| `backend/review/`, `backend/qa/` | Revisão privada do responsável e Worker de QA antigo |
+| `scripts/` | Build, servidores locais e roteiros de QA visual |
+| `tests/` | Testes de integração (`*_test.js`) e Playwright (`e2e/`, `e2e-real/`) |
+| `docs/` | Documentação organizada por tema |
+| `wrangler*.jsonc`, `vercel.json`, `playwright*.config.js` | Configuração de infraestrutura e testes (precisam ficar na raiz) |
