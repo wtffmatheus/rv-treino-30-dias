@@ -2,6 +2,17 @@
 
 Atualizado em 22/11/2026 (branch `feat/rv30-auth-cursos-20261122`). Este é o documento de referência do projeto. Relatórios datados ficam em [`archive/`](archive/) e não descrevem o estado atual.
 
+## Publicação de 23/11/2026
+
+| Peça | Versão em produção | Reversão |
+| --- | --- | --- |
+| Vercel (domínio oficial) | `dpl_GXoyHF9bUGtajoyvuptyzCa71maD`, commit `7d3f316` | `dpl_bqTFxd1UbixZkBmJRkRyRPnv47oo` |
+| Worker `rv30-platform-staging` | `d2a8be1b-415b-44ba-80b3-7651a4a59799` | `f0965bc6-2609-4b22-8c57-fb25f230eadc` |
+| Worker `rv30-revisao` | `7dbf7329-adc8-4fc4-bdb7-c0988166c3fe` | `4929a95e-a79d-4fbe-bcb9-963c6bbdfc9c` |
+| D1 | `catalog-schema.sql` aplicado (aditivo) | backup local `output/backups/rv30-platform-staging-20261122-2108.private.sql` (925 linhas, SHA-256 ao lado) |
+
+Verificado em produção: domínio servindo o novo build; 15 verificações sem sessão (autenticação, autorização, vídeos privados, origem, convite inválido, cadastro e vendas fechados, recuperação fechada); páginas públicas e login em 5 larguras sem erro nem overflow. Fluxos com conta administrativa real (criar aluno, cursos, matrículas, reprodução autenticada) foram testados localmente com o mesmo código e ainda precisam ser repetidos no domínio pelo responsável.
+
 ## Infraestrutura em uso
 
 | Peça | O que é | Fonte |
