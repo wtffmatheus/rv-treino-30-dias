@@ -3,6 +3,8 @@
 // simulated delivery: without a provider every caller fails closed.
 const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])
 export function emailProvider(env){
+ // Explicit switch: only turned on after a real delivery was confirmed for the sender domain.
+ if(env.EMAIL_DELIVERY_ENABLED!=='true')return null
  if(typeof env.EMAIL_FROM!=='string'||!/<[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+>$|^[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+$/.test(env.EMAIL_FROM.trim()))return null
  if(env.EMAIL&&typeof env.EMAIL.send==='function')return'cloudflare'
  if(typeof env.RESEND_API_KEY==='string'&&env.RESEND_API_KEY.length>=20)return'resend'

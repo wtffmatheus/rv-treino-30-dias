@@ -79,7 +79,7 @@ async function setup() {
   const env = {
     QA_DB: db, VIDEOS: bucket, AUTH_PASSWORD_PEPPER: PEPPER, PLATFORM_ENV: 'staging',
     PUBLIC_SITE_URL: ORIGIN, PREVIEW_ORIGINS: ORIGIN, QA_MEDIA_MANIFEST: JSON.stringify([item]), PLATFORM_ADMIN_ENABLED: process.env.RV_STUDIO_QA === '1' ? 'true' : 'false',
-    ...(process.env.RV_LOCAL_OUTBOX === '1' ? { EMAIL: localOutbox(), EMAIL_FROM: 'RV Treino 30 Dias <nao-responda@avisos.example.test>', EMAIL_ASSET_ORIGIN: ORIGIN } : {})
+    ...(process.env.RV_LOCAL_OUTBOX === '1' ? { EMAIL: localOutbox(), EMAIL_FROM: 'RV Treino 30 Dias <nao-responda@avisos.example.test>', EMAIL_ASSET_ORIGIN: ORIGIN, EMAIL_DELIVERY_ENABLED: 'true' } : {})
   }
   const app = createPlatformHandler()
   return { app, env }

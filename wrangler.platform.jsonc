@@ -6,6 +6,6 @@
  "d1_databases":[{"binding":"QA_DB","database_name":"rv30-platform-staging","database_id":"83d1c103-36b9-47c7-b5e5-fe9d1b08b2ea"}],
  "r2_buckets":[{"binding":"VIDEOS","bucket_name":"rv30-videos-private"}],
  "send_email":[{"name":"EMAIL"}],
- "vars":{"PLATFORM_ENV":"staging","EMAIL_FROM":"RV Treino 30 Dias <nao-responda@avisos.rvfisiologista.com.br>","EMAIL_ASSET_ORIGIN":"https://treino.rvfisiologista.com.br","PLATFORM_ADMIN_ENABLED":"true","PUBLIC_SITE_URL":"https://rv30-platform-staging.user-matheus169.workers.dev"},
+ "vars":{"PLATFORM_ENV":"staging","EMAIL_FROM":"RV Treino 30 Dias <nao-responda@avisos.rvfisiologista.com.br>","EMAIL_ASSET_ORIGIN":"https://treino.rvfisiologista.com.br","EMAIL_DELIVERY_ENABLED":"false","PLATFORM_ADMIN_ENABLED":"true","PUBLIC_SITE_URL":"https://rv30-platform-staging.user-matheus169.workers.dev"},
  "observability":{"enabled":true,"traces":{"enabled":true}}
 }

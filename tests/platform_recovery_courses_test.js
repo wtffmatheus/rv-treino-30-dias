@@ -30,7 +30,7 @@ const SCHEMAS=['backend/qa/schema.sql','backend/platform/student-schema.sql','ba
   await db.prepare("insert into media_records(id,object_key,kind,label,state,bytes,duration,width,height,format,created_at) values('mob-video',?,'video','Mobilidade 1','ready',?,10,720,1280,'video/mp4',?)").bind(videoKey,video.length,now).run()
   const outbox=[],emailState={fail:false}
   const EMAIL={send:async message=>{if(emailState.fail)throw Object.assign(new Error('provider down'),{code:'E_DELIVERY'});outbox.push(message);return{messageId:'msg-'+outbox.length}}}
-  const env={QA_DB:db,VIDEOS:bucket,AUTH_PASSWORD_PEPPER:pepper,PLATFORM_ENV:'staging',PLATFORM_ADMIN_ENABLED:'true',PREVIEW_ORIGINS:origin,EMAIL,EMAIL_FROM:'RV Treino 30 Dias <nao-responda@avisos.example.test>',EMAIL_ASSET_ORIGIN:'https://treino.example.test'}
+  const env={QA_DB:db,VIDEOS:bucket,AUTH_PASSWORD_PEPPER:pepper,PLATFORM_ENV:'staging',PLATFORM_ADMIN_ENABLED:'true',PREVIEW_ORIGINS:origin,EMAIL,EMAIL_FROM:'RV Treino 30 Dias <nao-responda@avisos.example.test>',EMAIL_ASSET_ORIGIN:'https://treino.example.test',EMAIL_DELIVERY_ENABLED:'true'}
   const app=createPlatformHandler({now:()=>now})
   const call=async(path,{cookie='',method='GET',body,headers={},environment=env,ip='198.51.100.7'}={})=>{
    const response=await app.fetch(new Request(origin+'/api'+path,{method,headers:{Origin:origin,'Content-Type':'application/json','CF-Connecting-IP':ip,...(cookie?{Cookie:cookie}:{}),...headers},...(body===undefined?{}:{body:JSON.stringify(body)})}),environment)
@@ -171,6 +171,7 @@ const SCHEMAS=['backend/qa/schema.sql','backend/platform/student-schema.sql','ba
   const failed=await db.prepare("select consumed_at from recovery_codes where user_id='bruno' order by created_at desc limit 1").first();assert.ok(failed.consumed_at,'código descartado quando o e-mail falha')
   assert.deepEqual(await passwordRow('bruno'),before);emailState.fail=false
   // Sem provedor configurado: falha fechada, sem simulação.
+  assert.equal((await call('/config',{environment:{...env,EMAIL_DELIVERY_ENABLED:'false'}})).body.recoveryMode,'administrative_invite','sem confirmação de entrega, o site não promete e-mail')
   const noEmail={...env,EMAIL:undefined};assert.equal((await call('/auth/recovery/request',{method:'POST',body:{email:'bruno@example.test'},environment:noEmail})).status,503)
   assert.equal((await call('/config',{environment:noEmail})).body.recoveryMode,'administrative_invite');assert.equal((await call('/config')).body.recoveryMode,'email_code')
   // Limite por IP e por conta.

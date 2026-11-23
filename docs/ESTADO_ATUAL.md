@@ -42,9 +42,11 @@ Código de 6 dígitos com `crypto.getRandomValues` e amostragem por rejeição; 
 
 O Worker usa o binding `EMAIL` do Cloudflare Email Service (alternativa: segredo `RESEND_API_KEY`). Remetente configurado: `RV Treino 30 Dias <nao-responda@avisos.rvfisiologista.com.br>`. Para ativar:
 
-1. No painel Cloudflare, ativar **Email Sending** para o subdomínio `avisos.rvfisiologista.com.br` (a API respondeu `Unauthorized [2036]` para o token atual). O painel cria os registros SPF/DKIM do subdomínio; o SPF `-all` do domínio raiz não precisa mudar.
-2. Publicar o Worker com o binding (`send_email` já está em `wrangler.platform.jsonc`).
-3. Confirmar com um envio real para uma caixa própria.
+Teste real em 23/11/2026 00:12 UTC, no domínio oficial: o Worker tentou enviar e o Cloudflare respondeu `E_SENDER_DOMAIN_NOT_CONFIGURED`. O código foi descartado e nenhuma senha mudou. Por isso a variável `EMAIL_DELIVERY_ENABLED` está em `"false"`.
+
+1. No painel Cloudflare (Email → Email Sending), ativar o envio para o subdomínio `avisos.rvfisiologista.com.br`. O painel cria os registros SPF/DKIM desse subdomínio; o SPF `-all` do domínio raiz não muda. O token atual do Wrangler recebe `Unauthorized [2036]` nessa API, então a ativação é feita pelo painel.
+2. Em `wrangler.platform.jsonc`, mudar `EMAIL_DELIVERY_ENABLED` para `"true"` e publicar o Worker (`npx wrangler deploy --config wrangler.platform.jsonc`).
+3. Em `/entrar`, usar “Esqueceu sua senha?” com uma conta própria e confirmar o recebimento. No D1, o evento `recovery_email_sent` comprova a entrega; `recovery_email_failed` indica nova falha (o código de erro aparece em `wrangler tail`).
 
 Sem isso, `/api/config` informa `recoveryMode: administrative_invite` e a tela explica que a recuperação está em ativação. Nada é simulado.
 
